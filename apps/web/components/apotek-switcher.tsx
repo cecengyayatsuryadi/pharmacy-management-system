@@ -1,0 +1,116 @@
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@workspace/ui/components/sidebar"
+import { ChevronsUpDownIcon, PlusIcon, SettingsIcon, StoreIcon } from "lucide-react"
+
+export function ApotekSwitcher({
+  organization,
+}: {
+  organization: {
+    name: string
+    logo: React.ReactNode
+    plan: string
+  }
+}) {
+  const { isMobile } = useSidebar()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg">
+            <div className="flex aspect-square size-8 items-center justify-center">
+              {organization.logo}
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{organization.name}</span>
+              <span className="truncate text-xs">Paket {organization.plan}</span>
+            </div>
+            <ChevronsUpDownIcon className="ml-auto size-4" />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <div className="flex aspect-square size-8 items-center justify-center">
+                {organization.logo}
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">                <span className="truncate font-medium">{organization.name}</span>
+                <span className="truncate text-xs">Paket {organization.plan}</span>
+              </div>
+              <ChevronsUpDownIcon className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            align="start"
+            side={isMobile ? "bottom" : "right"}
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              Apotek
+            </DropdownMenuLabel>
+            <DropdownMenuItem className="gap-2 p-2">
+              <div className="flex size-6 items-center justify-center rounded-md border">
+                <StoreIcon className="size-4" />
+              </div>
+              <div className="font-medium text-foreground">{organization.name}</div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="gap-2 p-2 cursor-pointer">
+              <Link href="/dashboard/settings/organization" className="flex items-center w-full">
+                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent mr-2">
+                  <SettingsIcon className="size-4" />
+                </div>
+                <div className="font-medium text-muted-foreground">Pengaturan Apotek</div>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 p-2 cursor-pointer text-primary">
+              <div className="flex size-6 items-center justify-center rounded-md border border-primary/20 bg-primary/10">
+                <PlusIcon className="size-4" />
+              </div>
+              <div className="flex items-center gap-2 font-medium">
+                Tambahkan Apotek
+                {organization.plan === "Gratis" && (
+                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground uppercase tracking-wider">
+                    Pro
+                  </span>
+                )}
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  )
+}

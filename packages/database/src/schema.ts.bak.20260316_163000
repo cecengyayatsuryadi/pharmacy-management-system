@@ -1,0 +1,109 @@
+import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core"
+import { relations } from "drizzle-orm"
+
+export const organizations = pgTable("organizations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  plan: varchar("plan", { length: 50 }).notNull().default("gratis"), // 'gratis' | 'pro'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+})
+
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  users: many(users),
+  categories: many(categories),
+  medicines: many(medicines),
+}))
+
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  password: text("password").notNull(),
+  role: varchar("role", { length: 50 }).notNull().default("staff"), // 'admin' | 'staff'
+  status: varchar("status", { length: 50 }).notNull().default("active"), // 'active' | 'inactive' | 'pending'
+  phone: varchar("phone", { length: 50 }),
+  image: text("image"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+})
+
+export const usersRelations = relations(users, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [users.organizationId],
+    references: [organizations.id],
+  }),
+}))
+
+export type Organization = typeof organizations.$inferSelect
+export type NewOrganization = typeof organizations.$inferInsert
+export type User = typeof users.$inferSelect
+export type NewUser = typeof users.$inferInsert
+
+export const categories = pgTable("categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+})
+
+export const categoriesRelations = relations(categories, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [categories.organizationId],
+    references: [organizations.id],
+  }),
+}))
+
+export const medicines = pgTable("medicines", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  categoryId: uuid("category_id")
+    .notNull()
+    .references(() => categories.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  sku: varchar("sku", { length: 100 }).unique(),
+  price: text("price").notNull().default("0"), // Simpan sebagai string untuk presisi desimal
+  stock: text("stock").notNull().default("0"),
+  unit: varchar("unit", { length: 50 }).notNull().default("pcs"), // tablet, botol, dll
+  expiryDate: timestamp("expiry_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+})
+
+export const medicinesRelations = relations(medicines, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [medicines.organizationId],
+    references: [organizations.id],
+  }),
+  category: one(categories, {
+    fields: [medicines.categoryId],
+    references: [categories.id],
+  }),
+}))
+
+export type Category = typeof categories.$inferSelect
+export type NewCategory = typeof categories.$inferInsert
+export type Medicine = typeof medicines.$inferSelect
+export type NewMedicine = typeof medicines.$inferInsert

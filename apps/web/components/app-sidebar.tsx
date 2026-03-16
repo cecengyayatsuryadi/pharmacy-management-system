@@ -1,0 +1,160 @@
+import * as React from "react"
+import { auth } from "@/auth"
+
+import { NavMain } from "@/components/nav-main"
+import { NavLinks } from "@/components/nav-links"
+import { NavUser } from "@/components/nav-user"
+import { ApotekSwitcher } from "@/components/apotek-switcher"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+} from "@workspace/ui/components/sidebar"
+import {
+  LayoutDashboardIcon,
+  PillIcon,
+  PackageIcon,
+  ShoppingCartIcon,
+  ClipboardListIcon,
+  Settings2Icon,
+  CircleHelpIcon,
+  StoreIcon,
+} from "lucide-react"
+
+const data = {
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: <LayoutDashboardIcon />,
+      isActive: true,
+    },
+    {
+      title: "Data Master",
+      url: "#",
+      icon: <PillIcon />,
+      items: [
+        {
+          title: "Data Obat",
+          url: "/dashboard/medicines",
+        },
+        {
+          title: "Kategori",
+          url: "/dashboard/categories",
+        },
+      ],
+    },
+    {
+      title: "Inventori",
+      url: "#",
+      icon: <PackageIcon />,
+      items: [
+        {
+          title: "Stok Masuk",
+          url: "/dashboard/inventory/in",
+        },
+        {
+          title: "Stok Keluar",
+          url: "/dashboard/inventory/out",
+        },
+        {
+          title: "Stok Opname",
+          url: "/dashboard/inventory/adjustment",
+        },
+      ],
+    },
+  ],
+  operational: [
+    {
+      name: "Kasir (POS)",
+      url: "/dashboard/pos",
+      icon: <ShoppingCartIcon />,
+    },
+    {
+      name: "Laporan",
+      url: "/dashboard/reports",
+      icon: <ClipboardListIcon />,
+    },
+  ],
+  secondary: [
+    {
+      name: "Pengaturan",
+      url: "/dashboard/settings",
+      icon: <Settings2Icon />,
+    },
+    {
+      name: "Bantuan",
+      url: "/dashboard/help",
+      icon: <CircleHelpIcon />,
+    },
+  ],
+}
+
+export async function AppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
+  const session = await auth()
+
+  const user = {
+    name: session?.user?.name ?? "User",
+    email: session?.user?.email ?? "",
+    avatar: session?.user?.image ?? "",
+  }
+
+  const role = session?.user?.role
+
+  // Filter main items and their children based on role
+  const filteredNavMain = data.navMain.map(item => ({
+    ...item,
+    items: item.items?.filter(subItem => {
+      if ((subItem as any).adminOnly && role !== "admin") return false
+      return true
+    })
+  }))
+
+  // Filter operational items based on role
+  const filteredOperational = data.operational.filter(p => {
+    if (p.name === "Laporan" && role !== "admin") return false
+    return true
+  })
+
+  // Real data from session with capitalization normalization
+  const orgName = session?.user?.organizationName
+    ? session.user.organizationName
+        .toLowerCase()
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    : "Apotek Saya"
+
+  const organization = {
+    name: orgName,
+    logo: (
+      <img src="/logos/logo.svg" alt="Logo" className="size-8 object-contain" />
+    ),
+    plan: session?.user?.organizationPlan
+      ? session.user.organizationPlan.charAt(0).toUpperCase() +
+        session.user.organizationPlan.slice(1).toLowerCase()
+      : "Gratis",
+  }
+
+  return (
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <ApotekSwitcher organization={organization} />
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={filteredNavMain} label="Menu Utama" />
+        <NavLinks items={filteredOperational} label="Operasional" />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavLinks items={data.secondary} label="Dukungan" />
+        <NavUser user={user} />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  )
+}
+

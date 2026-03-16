@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/database",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "drizzle-orm": "^0.39.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "@workspace/eslint-config": "*",
+    "@workspace/typescript-config": "*",
+    "drizzle-kit": "^0.30.2",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  }
+}
