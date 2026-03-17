@@ -28,6 +28,7 @@ const breadcrumbMap: Record<string, string> = {
 export function DashboardHeader() {
   const pathname = usePathname()
   const pageTitle = breadcrumbMap[pathname] || "Dashboard"
+  const isDashboardHome = pathname === "/dashboard"
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -41,13 +42,15 @@ export function DashboardHeader() {
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="/dashboard">
-                Manajemen Apotek
+                Dashboard
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{pageTitle}</BreadcrumbPage>
-            </BreadcrumbItem>
+            {!isDashboardHome && <BreadcrumbSeparator className="hidden md:block" />}
+            {!isDashboardHome && (
+              <BreadcrumbItem>
+                <BreadcrumbPage>{pageTitle}</BreadcrumbPage>
+              </BreadcrumbItem>
+            )}
           </BreadcrumbList>
         </Breadcrumb>
       </div>

@@ -63,10 +63,10 @@ export function DashboardClient({ stats }: DashboardClientProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Penjualan Hari Ini</CardTitle>
-            <TrendingUpIcon className="size-4 text-emerald-600" />
+            <TrendingUpIcon className="size-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">{formatCurrency(stats.todayRevenue)}</div>
+            <div className="text-2xl font-bold text-success">{formatCurrency(stats.todayRevenue)}</div>
             <p className="text-xs text-muted-foreground">Total omzet hari ini</p>
           </CardContent>
         </Card>
@@ -93,10 +93,10 @@ export function DashboardClient({ stats }: DashboardClientProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Hampir Kedaluwarsa</CardTitle>
-            <CalendarIcon className="size-4 text-orange-500" />
+            <CalendarIcon className="size-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-500">{stats.expiringCount}</div>
+            <div className="text-2xl font-bold text-warning">{stats.expiringCount}</div>
             <p className="text-xs text-muted-foreground">Akan expired dlm 6 bulan</p>
           </CardContent>
         </Card>
@@ -105,13 +105,13 @@ export function DashboardClient({ stats }: DashboardClientProps) {
       <div className="grid gap-4 md:grid-cols-2">
         {/* Stok Kritis Table */}
         <Card className="flex flex-col">
-          <CardHeader className="py-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Stok Kritis (Beli Lagi)</CardTitle>
-              <Badge variant="destructive">Prioritas</Badge>
+          <CardHeader className="px-4 py-1">
+            <div className="flex items-start justify-between gap-3">
+              <CardTitle className="text-base leading-tight">Stok Kritis (Beli Lagi)</CardTitle>
+              <Badge variant="destructive" className="dark:!bg-destructive dark:!text-destructive-foreground">Prioritas</Badge>
             </div>
           </CardHeader>
-          <CardContent className="p-0 flex-1">
+          <CardContent className="flex-1 p-0">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -143,13 +143,13 @@ export function DashboardClient({ stats }: DashboardClientProps) {
 
         {/* Expiring Items Table */}
         <Card className="flex flex-col">
-          <CardHeader className="py-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Hampir Kedaluwarsa (Cek Fisik)</CardTitle>
-              <Badge variant="outline" className="text-orange-500 border-orange-500">Perhatian</Badge>
+          <CardHeader className="px-4 py-1">
+            <div className="flex items-start justify-between gap-3">
+              <CardTitle className="text-base leading-tight">Hampir Kedaluwarsa (Cek Fisik)</CardTitle>
+              <Badge variant="warning">Perhatian</Badge>
             </div>
           </CardHeader>
-          <CardContent className="p-0 flex-1">
+          <CardContent className="flex-1 p-0">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -170,7 +170,7 @@ export function DashboardClient({ stats }: DashboardClientProps) {
                     <TableRow key={item.id}>
                       <TableCell className="font-medium text-sm">{item.name}</TableCell>
                       <TableCell className="text-sm">{item.stock}</TableCell>
-                      <TableCell className="text-right text-orange-600 font-medium text-sm">
+                      <TableCell className="text-right text-warning font-medium text-sm">
                         {item.expiryDate ? format(new Date(item.expiryDate), "dd MMM yyyy", { locale: id }) : "-"}
                       </TableCell>
                     </TableRow>
@@ -185,8 +185,8 @@ export function DashboardClient({ stats }: DashboardClientProps) {
       {/* Category Chart - Full Width at Bottom */}
       <Card>
         <CardHeader>
-          <CardTitle>Sebaran Kategori Obat</CardTitle>
-          <CardDescription>Jumlah obat unik per kategori di dalam inventori</CardDescription>
+          <CardTitle>Distribusi Kategori Obat</CardTitle>
+          <CardDescription>Jumlah jenis obat pada setiap kategori di persediaan</CardDescription>
         </CardHeader>
         <CardContent className="pl-2">
           <ChartContainer config={chartConfig} className="aspect-auto h-[300px] w-full">

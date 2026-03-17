@@ -14,7 +14,7 @@ import { type Session } from "next-auth"
 
 type ProfileFormUser = Pick<Session["user"], "id" | "name" | "email" | "phone">
 
-export function ProfileForm({ user }: { user: ProfileFormUser }) {
+export function ProfileForm({ user, withCard = true }: { user: ProfileFormUser; withCard?: boolean }) {
   const [state, action] = useActionState(updateProfileAction, null)
   
   React.useEffect(() => {
@@ -25,19 +25,14 @@ export function ProfileForm({ user }: { user: ProfileFormUser }) {
     }
   }, [state])
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Profil Saya</CardTitle>
-        <CardDescription>
-          Perbarui informasi publik dan nomor telepon Anda.
-        </CardDescription>
-      </CardHeader>
-      <form action={action}>
-        <CardContent className="space-y-4">
+  const formBody = (
+    <form action={action}>
+      <CardContent className={withCard ? "space-y-4" : "space-y-4 px-0"}>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" value={user.email ?? ""} disabled className="bg-muted" />
+            <Label>Email</Label>
+            <div className="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
+              {user.email ?? "-"}
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">Nama Lengkap</Label>
@@ -53,18 +48,31 @@ export function ProfileForm({ user }: { user: ProfileFormUser }) {
               <p className="text-sm text-destructive">{state.errors.phone[0]}</p>
             )}
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-end pt-4">
+      </CardContent>
+      <CardFooter className={withCard ? "flex justify-end pt-4" : "flex justify-end px-0 pt-4"}>
           <SubmitButton icon={<SaveIcon className="mr-2 size-4" />}>
             Simpan Perubahan
           </SubmitButton>
-        </CardFooter>
-      </form>
+      </CardFooter>
+    </form>
+  )
+
+  if (!withCard) return formBody
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Profil Saya</CardTitle>
+        <CardDescription>
+          Perbarui informasi publik dan nomor telepon Anda.
+        </CardDescription>
+      </CardHeader>
+      {formBody}
     </Card>
   )
 }
 
-export function PasswordForm() {
+export function PasswordForm({ withCard = true }: { withCard?: boolean }) {
   const [state, action] = useActionState(updatePasswordAction, null)
   const formRef = React.useRef<HTMLFormElement>(null)
   
@@ -77,16 +85,9 @@ export function PasswordForm() {
     }
   }, [state])
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Ganti Password</CardTitle>
-        <CardDescription>
-          Pastikan password Anda kuat dan aman.
-        </CardDescription>
-      </CardHeader>
-      <form action={action} ref={formRef}>
-        <CardContent className="space-y-4">
+  const formBody = (
+    <form action={action} ref={formRef}>
+      <CardContent className={withCard ? "space-y-4" : "space-y-4 px-0"}>
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Password Saat Ini</Label>
             <Input id="currentPassword" name="currentPassword" type="password" required />
@@ -108,13 +109,26 @@ export function PasswordForm() {
               <p className="text-sm text-destructive">{state.errors.confirmPassword[0]}</p>
             )}
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-end pt-4">
+      </CardContent>
+      <CardFooter className={withCard ? "flex justify-end pt-4" : "flex justify-end px-0 pt-4"}>
           <SubmitButton icon={<KeyIcon className="mr-2 size-4" />}>
             Update Password
           </SubmitButton>
-        </CardFooter>
-      </form>
+      </CardFooter>
+    </form>
+  )
+
+  if (!withCard) return formBody
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Ganti Password</CardTitle>
+        <CardDescription>
+          Pastikan password Anda kuat dan aman.
+        </CardDescription>
+      </CardHeader>
+      {formBody}
     </Card>
   )
 }
