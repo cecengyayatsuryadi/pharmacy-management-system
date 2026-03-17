@@ -9,18 +9,26 @@ import bcrypt from "bcryptjs"
 import { getErrorMessage } from "@/lib/utils/error"
 
 const profileSchema = z.object({
-  name: z.string().min(2, { message: "Nama minimal 2 karakter" }),
+  name: z.string({ required_error: "Nama minimal 2 karakter" }).min(2, { message: "Nama minimal 2 karakter" }),
   phone: z.string().optional().nullable(),
 })
 
-const passwordSchema = z.object({
-  currentPassword: z.string().min(1, { message: "Password saat ini harus diisi" }),
-  newPassword: z.string().min(6, { message: "Password baru minimal 6 karakter" }),
-  confirmPassword: z.string().min(6, { message: "Konfirmasi password minimal 6 karakter" }),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Konfirmasi password tidak cocok",
-  path: ["confirmPassword"],
-})
+const passwordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, { message: "Password saat ini harus diisi" }),
+    newPassword: z
+      .string()
+      .min(6, { message: "Password baru minimal 6 karakter" }),
+    confirmPassword: z
+      .string()
+      .min(6, { message: "Konfirmasi password minimal 6 karakter" }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Konfirmasi password tidak cocok",
+    path: ["confirmPassword"],
+  })
 
 export async function updateProfileAction(prevState: any, formData: FormData) {
   const session = await auth()
@@ -54,6 +62,12 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
     revalidatePath("/dashboard/settings")
     return { message: "Profil berhasil diperbarui!", success: true }
   } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      (error.message === "NEXT_REDIRECT" || error.name === "NextRedirect")
+    ) {
+      throw error
+    }
     console.error("UPDATE_PROFILE_ERROR:", error)
     return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
@@ -93,9 +107,9 @@ export async function updatePasswordAction(prevState: any, formData: FormData) {
     // 2. Verify current password
     const passwordMatch = await bcrypt.compare(currentPassword, user.password)
     if (!passwordMatch) {
-      return { 
+      return {
         errors: { currentPassword: ["Password saat ini salah"] },
-        message: "Password saat ini salah." 
+        message: "Password saat ini salah.",
       }
     }
 
@@ -113,6 +127,12 @@ export async function updatePasswordAction(prevState: any, formData: FormData) {
 
     return { message: "Password berhasil diperbarui!", success: true }
   } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      (error.message === "NEXT_REDIRECT" || error.name === "NextRedirect")
+    ) {
+      throw error
+    }
     console.error("UPDATE_PASSWORD_ERROR:", error)
     return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
