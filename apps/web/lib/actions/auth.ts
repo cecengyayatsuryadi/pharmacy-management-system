@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm"
 import { AuthError } from "next-auth"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
+import { getErrorMessage } from "@/lib/utils/error"
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Email tidak valid" }),
@@ -124,8 +125,8 @@ export async function signupAction(prevState: any, formData: FormData) {
     })
 
     return { message: "Pendaftaran berhasil! Mengalihkan..." }
-  } catch (error: any) {
-    if (error.message === "NEXT_REDIRECT" || error.name === "NextRedirect") {
+  } catch (error: unknown) {
+    if (error instanceof Error && (error.message === "NEXT_REDIRECT" || error.name === "NextRedirect")) {
       throw error
     }
 
@@ -135,10 +136,10 @@ export async function signupAction(prevState: any, formData: FormData) {
     
     console.error("SIGNUP_ERROR:", error)
     
-    if (error.code === "ECONNREFUSED") {
+    if (error && typeof error === "object" && "code" in error && error.code === "ECONNREFUSED") {
       return { message: "Koneksi ke database gagal. Pastikan Docker sudah jalan." }
     }
 
-    return { message: `Terjadi kesalahan sistem: ${error.message || "Unknown error"}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }

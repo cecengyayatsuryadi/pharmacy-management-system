@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
+import { getErrorMessage } from "@/lib/utils/error"
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: "Nama minimal 2 karakter" }),
@@ -52,9 +53,9 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
 
     revalidatePath("/dashboard/settings")
     return { message: "Profil berhasil diperbarui!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("UPDATE_PROFILE_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
@@ -111,8 +112,8 @@ export async function updatePasswordAction(prevState: any, formData: FormData) {
       .where(eq(users.id, userId))
 
     return { message: "Password berhasil diperbarui!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("UPDATE_PASSWORD_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }

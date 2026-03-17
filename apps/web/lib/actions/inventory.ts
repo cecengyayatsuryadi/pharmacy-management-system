@@ -5,6 +5,7 @@ import { db, medicines, stockMovements, users } from "@workspace/database"
 import { eq, and, desc, ilike, or, sql, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { getErrorMessage } from "@/lib/utils/error"
 
 const stockMovementSchema = z.object({
   medicineId: z.string().uuid({ message: "Obat tidak valid" }),
@@ -196,8 +197,8 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
       message: messageLabel, 
       success: true 
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("INVENTORY_ACTION_ERROR:", error)
-    return { message: error.message || "Terjadi kesalahan sistem" }
+    return { message: getErrorMessage(error) }
   }
 }

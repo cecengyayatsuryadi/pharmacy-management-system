@@ -5,6 +5,7 @@ import { db, medicines, sales, saleItems, stockMovements } from "@workspace/data
 import { eq, sql, desc, and } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { getErrorMessage } from "@/lib/utils/error"
 
 const saleItemSchema = z.object({
   medicineId: z.string().uuid("ID Obat tidak valid"),
@@ -173,8 +174,8 @@ export async function createSaleAction(data: SaleInput) {
     revalidatePath("/dashboard/inventory")
     revalidatePath("/dashboard/pos")
     return { data: fullSale }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Sale Error:", error)
-    return { error: error.message || "Gagal memproses penjualan" }
+    return { error: getErrorMessage(error) }
   }
 }
