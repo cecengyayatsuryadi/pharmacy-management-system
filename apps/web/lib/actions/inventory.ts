@@ -77,7 +77,7 @@ export async function getStockMovementsAction(
     .innerJoin(medicines, eq(stockMovements.medicineId, medicines.id))
     .where(finalCondition)
 
-  const total = Number(totalCount.count)
+  const total = Number(totalCount?.count ?? 0)
   const totalPages = Math.ceil(total / limit)
 
   return {

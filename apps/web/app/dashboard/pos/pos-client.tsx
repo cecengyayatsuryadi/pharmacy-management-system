@@ -180,7 +180,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
                   if (e.key === 'Enter') {
                     e.preventDefault()
                     if (filteredMedicines.length === 1) {
-                      addToCart(filteredMedicines[0])
+                      if (filteredMedicines[0]) addToCart(filteredMedicines[0])
                       setSearch("")
                     } else if (filteredMedicines.length > 1) {
                       // Jika hasil > 1 tapi ada yang SKU-nya cocok persis (misal scan barcode)

@@ -17,7 +17,7 @@ const globalForDb = globalThis as unknown as {
 const connectionString = process.env.DATABASE_URL as string
 
 if (!connectionString) {
-  console.warn("DATABASE_URL is not set. Database connection will fail.")
+  throw new Error("DATABASE_URL is not set. Database connection will fail.")
 }
 
 const conn = globalForDb.conn ?? postgres(connectionString)
