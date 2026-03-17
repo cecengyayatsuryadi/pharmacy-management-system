@@ -57,8 +57,31 @@ import {
 import { getSalesReportAction } from "@/lib/actions/report"
 import { toast } from "sonner"
 
+interface ReportTransaction {
+  id: string
+  invoiceNumber: string
+  createdAt: Date | string
+  paymentMethod: string
+  totalAmount: string
+  user: {
+    name: string | null
+  } | null
+}
+
+interface ReportData {
+  summary: {
+    totalRevenue: number
+    totalCogs: number
+    grossProfit: number
+    margin: number
+  }
+  trend: Array<{ date: string; revenue: number }>
+  topProducts: Array<{ name: string; quantity: number; revenue: number; profit: number }>
+  transactions: ReportTransaction[]
+}
+
 interface ReportClientProps {
-  initialData: any
+  initialData: ReportData
   initialFilter: { startDate: Date, endDate: Date }
   plan: string
 }
@@ -333,7 +356,7 @@ export function ReportClient({ initialData, initialFilter, plan }: ReportClientP
                   </TableCell>
                 </TableRow>
               ) : (
-                data.transactions.map((sale: any) => (
+                data.transactions.map((sale) => (
                   <TableRow key={sale.id}>
                     <TableCell className="font-mono text-xs text-primary">{sale.invoiceNumber}</TableCell>
                     <TableCell className="text-xs">{format(new Date(sale.createdAt), "dd MMM yyyy, HH:mm", { locale: id })}</TableCell>

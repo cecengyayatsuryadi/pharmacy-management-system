@@ -61,10 +61,29 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
   const [lastSale, setLastSale] = React.useState<(Sale & { items: (SaleItem & { medicine: { name: string } })[] }) | null>(null)
   const [showReceipt, setShowReceipt] = React.useState(false)
 
-  const filteredMedicines = medicines.filter(m => 
-    m.name.toLowerCase().includes(search.toLowerCase()) || 
-    (m.sku && m.sku.toLowerCase().includes(search.toLowerCase()))
-  ).slice(0, 10)
+  // Perf: normalize once and memoize filtering to avoid repeated lowercasing on every render.
+  const normalizedSearch = search.trim().toLowerCase()
+  const filteredMedicines = React.useMemo(() => {
+    if (!normalizedSearch) return medicines.slice(0, 10)
+    return medicines
+      .filter(
+        (m) =>
+          m.name.toLowerCase().includes(normalizedSearch) ||
+          (m.sku && m.sku.toLowerCase().includes(normalizedSearch))
+      )
+      .slice(0, 10)
+  }, [medicines, normalizedSearch])
+
+  // Perf: reuse one formatter instance instead of creating a new Intl formatter each call.
+  const currencyFormatter = React.useMemo(
+    () =>
+      new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+      }),
+    []
+  )
 
   const addToCart = (medicine: Medicine) => {
     const existing = cart.find(c => c.medicineId === medicine.id)
@@ -139,6 +158,8 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
 
     if (res.error) {
       toast.error(res.error)
+    } else if (!res.data) {
+      toast.error("Data transaksi tidak ditemukan")
     } else {
       toast.success("Penjualan berhasil")
       setLastSale(res.data || null)
@@ -150,16 +171,12 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
   }
 
   const formatIDR = (val: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0
-    }).format(val)
+    return currencyFormatter.format(val)
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col gap-4">
-      <ResizablePanelGroup orientation="horizontal" className="rounded-lg border">
+    <div className="flex h-[calc(100dvh-6rem)] min-h-[32rem] flex-col gap-4">
+      <ResizablePanelGroup orientation="horizontal" className="h-full min-h-0 rounded-lg border">
         {/* Left Side: Product Search */}
         <ResizablePanel defaultSize={60}>
           <div className="flex h-full flex-col p-4">
@@ -167,6 +184,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
               <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input
                 placeholder="Cari nama obat atau SKU..."
+                aria-label="Cari obat berdasarkan nama atau SKU"
                 className="pl-9"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -179,7 +197,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
                     } else if (filteredMedicines.length > 1) {
                       // Jika hasil > 1 tapi ada yang SKU-nya cocok persis (misal scan barcode)
                       const exactMatch = filteredMedicines.find(
-                        (m) => m.sku?.toLowerCase() === search.toLowerCase()
+                        (m) => m.sku?.toLowerCase() === normalizedSearch
                       )
                       if (exactMatch) {
                         addToCart(exactMatch)
@@ -202,14 +220,16 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
                   >
                     <CardHeader className="p-4 pb-2">
                       <div className="flex items-start justify-between">
-                        <CardTitle className="text-sm font-bold line-clamp-1">{m.name}</CardTitle>
+                        <CardTitle className="pr-2 text-sm leading-snug whitespace-normal break-words">
+                          {m.name}
+                        </CardTitle>
                         <Badge variant={parseFloat(m.stock) <= 0 ? "destructive" : "secondary"}>
                           {m.stock} {m.unit}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
-                      <p className="text-xs text-muted-foreground mb-1">{m.sku || "-"}</p>
+                      <p className="mb-1 font-mono text-xs text-muted-foreground">{m.sku || "-"}</p>
                       <p className="font-bold text-primary">{formatIDR(parseFloat(m.price))}</p>
                     </CardContent>
                   </Card>
@@ -245,6 +265,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
                           variant="ghost" 
                           size="icon" 
                           className="size-6 text-destructive"
+                          aria-label={`Hapus ${item.name} dari keranjang`}
                           onClick={() => removeFromCart(item.medicineId)}
                         >
                           <Trash2Icon className="size-3" />
@@ -256,6 +277,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
                             variant="outline" 
                             size="icon" 
                             className="size-6"
+                            aria-label={`Kurangi jumlah ${item.name}`}
                             onClick={() => updateQuantity(item.medicineId, -1)}
                           >
                             <MinusIcon className="size-3" />
@@ -265,6 +287,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
                             variant="outline" 
                             size="icon" 
                             className="size-6"
+                            aria-label={`Tambah jumlah ${item.name}`}
                             onClick={() => updateQuantity(item.medicineId, 1)}
                           >
                             <PlusIcon className="size-3" />

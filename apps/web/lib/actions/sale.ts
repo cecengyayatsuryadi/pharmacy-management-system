@@ -46,7 +46,7 @@ export async function createSaleAction(data: SaleInput) {
   try {
     const result = await db.transaction(async (tx) => {
       // 1. Generate Invoice Number
-      // Format: INV-YYYYMMDD-NNNN
+      // Format: INV + tanggal (YYYYMMDD) + urutan 4 digit (zero-padded)
       const today = new Date()
       const dateStr = today.toISOString().slice(0, 10).replace(/-/g, "")
       
@@ -98,14 +98,16 @@ export async function createSaleAction(data: SaleInput) {
       // 4. Process Items (Update Stock, Create SaleItems, Create StockMovements)
       // Aggregate items by medicineId to handle duplicates
       const aggregatedItems = items.reduce((acc, item) => {
-        if (!acc[item.medicineId]) {
+        const existing = acc[item.medicineId]
+        if (!existing) {
           acc[item.medicineId] = {
             medicineId: item.medicineId,
-            quantity: 0,
+            quantity: item.quantity,
             priceAtSale: item.priceAtSale,
           }
+        } else {
+          existing.quantity += item.quantity
         }
-        acc[item.medicineId].quantity += item.quantity
         return acc
       }, {} as Record<string, { medicineId: string; quantity: number; priceAtSale: number }>)
 

@@ -74,11 +74,11 @@ describe('createStockMovementAction', () => {
   })
 
   describe('Happy Paths', () => {
-    it('should successfully create an "in" stock movement', async () => {
+    it('should successfully create an "out" stock movement', async () => {
       const formData = new FormData()
       formData.append('medicineId', '123e4567-e89b-12d3-a456-426614174000') // valid UUID
-      formData.append('type', 'in')
-      formData.append('quantity', '10')
+      formData.append('type', 'out')
+      formData.append('quantity', '2')
 
       // Mock db.transaction callback
       const mockTx = {
@@ -88,7 +88,7 @@ describe('createStockMovementAction', () => {
         for: vi.fn().mockResolvedValue([{
           id: '123e4567-e89b-12d3-a456-426614174000',
           stock: '5',
-          purchasePrice: '100'
+          price: '150'
         }]),
         update: vi.fn().mockReturnThis(),
         set: vi.fn().mockReturnThis(),
@@ -104,7 +104,7 @@ describe('createStockMovementAction', () => {
       const result = await createStockMovementAction({}, formData)
 
       expect(result).toEqual({
-        message: 'Stok masuk berhasil dicatat',
+        message: 'Stok keluar berhasil dicatat',
         success: true
       })
 
@@ -116,7 +116,7 @@ describe('createStockMovementAction', () => {
       // Verify revalidation
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/medicines')
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory')
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/in')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/out')
     })
   })
 

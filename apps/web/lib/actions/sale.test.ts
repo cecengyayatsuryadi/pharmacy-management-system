@@ -82,7 +82,7 @@ describe('createSaleAction', () => {
   })
 
   it('should process a single item correctly', async () => {
-    mockTransaction.for.mockResolvedValueOnce([
+    mockTransaction.for.mockResolvedValue([
       { id: '123e4567-e89b-12d3-a456-426614174000', stock: '10', purchasePrice: '5', name: 'Med 1' }
     ])
 
@@ -101,7 +101,7 @@ describe('createSaleAction', () => {
   })
 
   it('should correctly aggregate duplicate items', async () => {
-    mockTransaction.for.mockResolvedValueOnce([
+    mockTransaction.for.mockResolvedValue([
       { id: '123e4567-e89b-12d3-a456-426614174000', stock: '10', purchasePrice: '5', name: 'Med 1' }
     ])
 
@@ -128,7 +128,7 @@ describe('createSaleAction', () => {
   })
 
   it('should throw an error if stock is insufficient after aggregation', async () => {
-    mockTransaction.for.mockResolvedValueOnce([
+    mockTransaction.for.mockResolvedValue([
       { id: '123e4567-e89b-12d3-a456-426614174000', stock: '4', purchasePrice: '5', name: 'Med 1' }
     ])
 
@@ -146,7 +146,7 @@ describe('createSaleAction', () => {
   })
 
   it('should throw an error if medicine is not found (or outside tenant scope)', async () => {
-    mockTransaction.for.mockResolvedValueOnce([]) // Empty array meaning nothing found
+    mockTransaction.for.mockResolvedValue([]) // Empty array meaning nothing found
 
     const payload = {
       items: [{ medicineId: '123e4567-e89b-12d3-a456-426614174000', quantity: 2, priceAtSale: 10 }],
