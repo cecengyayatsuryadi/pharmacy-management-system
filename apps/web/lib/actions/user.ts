@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth"
 import { db, users } from "@workspace/database"
-import { eq, and } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
@@ -30,7 +30,7 @@ const passwordSchema = z
     path: ["confirmPassword"],
   })
 
-export async function updateProfileAction(prevState: any, formData: FormData) {
+export async function updateProfileAction(prevState: unknown, formData: FormData) {
   const session = await auth()
   const userId = session?.user?.id
 
@@ -73,7 +73,7 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
   }
 }
 
-export async function updatePasswordAction(prevState: any, formData: FormData) {
+export async function updatePasswordAction(prevState: unknown, formData: FormData) {
   const session = await auth()
   const userId = session?.user?.id
 
