@@ -2,17 +2,12 @@
 
 import * as React from "react"
 import { Medicine, Organization } from "@workspace/database"
+import { Medicine, Organization, Sale, SaleItem } from "@workspace/database"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
 } from "@workspace/ui/components/table"
 import { 
   PlusIcon, 
@@ -59,12 +54,13 @@ interface CartItem {
 }
 
 export function POSClient({ medicines, organization }: { medicines: Medicine[], organization: Organization }) {
+export function POSClient({ medicines, organization }: { medicines: Medicine[], organization: Organization }) {
   const [cart, setCart] = React.useState<CartItem[]>([])
   const [search, setSearch] = React.useState("")
   const [paymentMethod, setPaymentMethod] = React.useState("cash")
   const [paidAmount, setPaidAmount] = React.useState(0)
   const [isProcessing, setIsProcessing] = React.useState(false)
-  const [lastSale, setLastSale] = React.useState<any>(null)
+  const [lastSale, setLastSale] = React.useState<(Sale & { items: (SaleItem & { medicine: { name: string } })[] }) | null>(null)
   const [showReceipt, setShowReceipt] = React.useState(false)
 
   const filteredMedicines = medicines.filter(m => 
@@ -147,7 +143,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
       toast.error(res.error)
     } else {
       toast.success("Penjualan berhasil")
-      setLastSale(res.data)
+      setLastSale(res.data || null)
       setShowReceipt(true)
       setCart([])
       setPaidAmount(0)
@@ -398,7 +394,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
             </div>
 
             <div className="flex flex-col gap-1 border-t border-dashed pt-2 mt-2">
-              {lastSale?.items?.map((item: any, i: number) => (
+              {lastSale?.items?.map((item, i: number) => (
                 <div key={i} className="flex flex-col text-xs">
                   <span className="font-medium">{item.medicine?.name}</span>
                   <div className="flex justify-between">

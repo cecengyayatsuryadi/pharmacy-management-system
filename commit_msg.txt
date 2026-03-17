@@ -1,0 +1,6 @@
+🧹 [Code Health] Improve POSClient props type safety
+
+🎯 **What:** The `organization` prop in `POSClient` was typed as `any`. Replaced it with the `Organization | undefined` type imported from `@workspace/database` to accurately reflect the data being passed by the parent `POSPage` component. In addition, tightened the type of `lastSale` to represent `Sale` containing `items` mapping to `SaleItem` with `Medicine`.
+💡 **Why:** Using `any` overrides TypeScript's safety features and increases the chance of runtime errors if the expected data shape changes. Replacing it with explicit types improves maintainability, enabling reliable intellisense, type checking, and easier refactoring.
+✅ **Verification:** Verified by checking the data passed down by `POSPage`, updating the definitions, handling potential `undefined` states, fixing one unrelated TS error in `inventory.ts`, clearing lint warnings on `pos-client.tsx`, and running a successful Next.js build.
+✨ **Result:** Enhanced type safety inside the POS Client component without altering its functionality.
