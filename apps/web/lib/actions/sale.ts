@@ -46,7 +46,7 @@ export async function createSaleAction(data: SaleInput) {
   try {
     const result = await db.transaction(async (tx) => {
       // 1. Generate Invoice Number
-      // Format: INV-YYYYMMDD-XXXX
+      // Format: INV-YYYYMMDD-NNNN
       const today = new Date()
       const dateStr = today.toISOString().slice(0, 10).replace(/-/g, "")
       
