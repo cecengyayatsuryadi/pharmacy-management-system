@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { db, sales, saleItems, medicines } from "@workspace/database"
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm"
+import { getErrorMessage } from "@/lib/utils/error"
 
 export interface ReportFilter {
   startDate: Date
@@ -131,8 +132,8 @@ export async function getSalesReportAction(filter: ReportFilter) {
       topProducts,
       transactions: recentSales
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("REPORT_ACTION_ERROR:", error)
-    throw new Error(`Gagal menarik data laporan: ${error.message}`)
+    throw new Error(`Gagal menarik data laporan: ${getErrorMessage(error)}`)
   }
 }

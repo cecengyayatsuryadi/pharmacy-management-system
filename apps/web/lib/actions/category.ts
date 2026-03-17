@@ -5,6 +5,7 @@ import { db, categories } from "@workspace/database"
 import { eq, and, count, ilike } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { getErrorMessage } from "@/lib/utils/error"
 
 const categorySchema = z.object({
   name: z.string().min(2, { message: "Nama kategori minimal 2 karakter" }),
@@ -83,9 +84,9 @@ export async function createCategoryAction(prevState: any, formData: FormData) {
 
     revalidatePath("/dashboard/categories")
     return { message: "Kategori berhasil dibuat!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("CREATE_CATEGORY_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
@@ -131,9 +132,9 @@ export async function updateCategoryAction(
 
     revalidatePath("/dashboard/categories")
     return { message: "Kategori berhasil diperbarui!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("UPDATE_CATEGORY_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
@@ -159,8 +160,8 @@ export async function deleteCategoryAction(id: string) {
 
     revalidatePath("/dashboard/categories")
     return { message: "Kategori berhasil dihapus!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("DELETE_CATEGORY_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }

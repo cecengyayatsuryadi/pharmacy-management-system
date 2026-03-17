@@ -6,6 +6,7 @@ import { db, medicines } from "@workspace/database"
 import { eq, and, count, ilike, or, type SQL } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { getErrorMessage } from "@/lib/utils/error"
 
 const medicineSchema = z.object({
   name: z.string().min(2, { message: "Nama obat minimal 2 karakter" }),
@@ -125,9 +126,9 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
 
     revalidatePath("/dashboard/medicines")
     return { message: "Data obat berhasil ditambahkan!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("CREATE_MEDICINE_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
@@ -175,9 +176,9 @@ export async function updateMedicineAction(
 
     revalidatePath("/dashboard/medicines")
     return { message: "Data obat berhasil diperbarui!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("UPDATE_MEDICINE_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
@@ -209,8 +210,8 @@ export async function deleteMedicineAction(id: string) {
 
     revalidatePath("/dashboard/medicines")
     return { message: "Data obat berhasil dihapus!", success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("DELETE_MEDICINE_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${error.message}` }
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
