@@ -22,6 +22,10 @@ export default async function POSPage() {
     })
   ])
 
+  if (!orgData) {
+    redirect("/login")
+  }
+
   return (
     <POSClient medicines={allMedicines} organization={orgData} />
   )
