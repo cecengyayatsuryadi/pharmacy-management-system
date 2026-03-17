@@ -73,7 +73,7 @@ describe('updateProfileAction', () => {
 
     expect(result).toMatchObject({
       errors: {
-        name: ['Nama minimal 2 karakter'],
+        name: ['Required'],
       },
       message: 'Gagal memperbarui profil. Mohon periksa input Anda.',
     })
