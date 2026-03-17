@@ -22,19 +22,23 @@ import {
   useSidebar,
 } from "@workspace/ui/components/sidebar"
 import { signOut } from "next-auth/react"
-import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
+import { ChevronsUpDownIcon, BadgeCheckIcon, BellIcon, LogOutIcon } from "lucide-react"
+import { SettingsDialog } from "@/components/settings-dialog"
 
 export function NavUser({
   user,
 }: {
   user: {
+    id: string
     name: string
     email: string
+    phone: string
     avatar: string
   }
 }) {
   const { isMobile } = useSidebar()
   const [mounted, setMounted] = React.useState(false)
+  const [profileDialogOpen, setProfileDialogOpen] = React.useState(false)
 
   React.useEffect(() => {
     setMounted(true)
@@ -106,7 +110,12 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault()
+                  setProfileDialogOpen(true)
+                }}
+              >
                 <BadgeCheckIcon />
                 Profil Akun
               </DropdownMenuItem>
@@ -122,6 +131,16 @@ export function NavUser({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <SettingsDialog
+          user={{
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+          }}
+          open={profileDialogOpen}
+          onOpenChange={setProfileDialogOpen}
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   )

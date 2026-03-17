@@ -14,13 +14,12 @@ import {
 } from "@workspace/ui/components/sidebar"
 import {
   LayoutDashboardIcon,
-  PillIcon,
   PackageIcon,
   ShoppingCartIcon,
   ClipboardListIcon,
   Settings2Icon,
   CircleHelpIcon,
-  StoreIcon,
+  HandCoinsIcon,
 } from "lucide-react"
 
 const data = {
@@ -32,9 +31,9 @@ const data = {
       isActive: true,
     },
     {
-      title: "Data Master",
+      title: "Inventori",
       url: "#",
-      icon: <PillIcon />,
+      icon: <PackageIcon />,
       items: [
         {
           title: "Data Obat",
@@ -44,13 +43,10 @@ const data = {
           title: "Kategori",
           url: "/dashboard/categories",
         },
-      ],
-    },
-    {
-      title: "Inventori",
-      url: "#",
-      icon: <PackageIcon />,
-      items: [
+        {
+          title: "Supplier",
+          url: "/dashboard/suppliers",
+        },
         {
           title: "Stok Masuk",
           url: "/dashboard/inventory/in",
@@ -62,6 +58,25 @@ const data = {
         {
           title: "Stok Opname",
           url: "/dashboard/inventory/adjustment",
+        },
+      ],
+    },
+    {
+      title: "Procurement",
+      url: "#",
+      icon: <HandCoinsIcon />,
+      items: [
+        {
+          title: "Pembelian",
+          url: "/dashboard/procurement/purchases",
+        },
+        {
+          title: "Retur Supplier",
+          url: "/dashboard/procurement/returns",
+        },
+        {
+          title: "Mapping Supplier Obat",
+          url: "/dashboard/procurement/mappings",
         },
       ],
     },
@@ -99,8 +114,10 @@ export async function AppSidebar({
   const organizationId = session?.user?.organizationId
 
   const user = {
+    id: session?.user?.id ?? "",
     name: session?.user?.name ?? "User",
     email: session?.user?.email ?? "",
+    phone: session?.user?.phone ?? "",
     avatar: session?.user?.image ?? "",
   }
 
