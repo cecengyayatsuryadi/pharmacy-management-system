@@ -11,8 +11,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner"
 import { updateOrganizationAction } from "@/lib/actions/organization"
 import { SaveIcon, Loader2Icon, Building2Icon } from "lucide-react"
+import type { Organization } from "@workspace/database"
 
-export function OrganizationForm({ organization }: { organization: any }) {
+export function OrganizationForm({ organization }: { organization: Organization }) {
   const [state, action] = useActionState(updateOrganizationAction, null)
   
   React.useEffect(() => {

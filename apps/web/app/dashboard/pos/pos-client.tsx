@@ -179,7 +179,7 @@ export function POSClient({ medicines, organization }: { medicines: Medicine[], 
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()
-                    if (filteredMedicines.length === 1) {
+                    if (filteredMedicines.length === 1 && filteredMedicines[0]) {
                       addToCart(filteredMedicines[0])
                       setSearch("")
                     } else if (filteredMedicines.length > 1) {
