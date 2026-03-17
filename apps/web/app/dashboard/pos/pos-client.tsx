@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Medicine, Organization } from "@workspace/database"
 import { Medicine, Organization, Sale, SaleItem } from "@workspace/database"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -53,7 +52,6 @@ interface CartItem {
   stock: number
 }
 
-export function POSClient({ medicines, organization }: { medicines: Medicine[], organization: Organization }) {
 export function POSClient({ medicines, organization }: { medicines: Medicine[], organization: Organization }) {
   const [cart, setCart] = React.useState<CartItem[]>([])
   const [search, setSearch] = React.useState("")
