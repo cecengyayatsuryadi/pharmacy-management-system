@@ -1,6 +1,6 @@
 import * as React from "react"
 import { auth } from "@/auth"
-
+import { getFormattedOrganizationPlan } from "@/lib/organization-plan"
 import { NavMain } from "@/components/nav-main"
 import { NavLinks } from "@/components/nav-links"
 import { NavUser } from "@/components/nav-user"
@@ -96,6 +96,7 @@ export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const session = await auth()
+  const organizationId = session?.user?.organizationId
 
   const user = {
     name: session?.user?.name ?? "User",
@@ -129,15 +130,16 @@ export async function AppSidebar({
         .join(" ")
     : "Apotek Saya"
 
+  const organizationPlan = organizationId
+    ? await getFormattedOrganizationPlan(organizationId)
+    : "Gratis"
+
   const organization = {
     name: orgName,
     logo: (
       <img src="/logos/logo.svg" alt="Logo" className="size-8 object-contain" />
     ),
-    plan: session?.user?.organizationPlan
-      ? session.user.organizationPlan.charAt(0).toUpperCase() +
-        session.user.organizationPlan.slice(1).toLowerCase()
-      : "Gratis",
+    plan: organizationPlan,
   }
 
   return (
@@ -157,4 +159,3 @@ export async function AppSidebar({
     </Sidebar>
   )
 }
-

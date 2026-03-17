@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { getOrganizationPlan } from "@/lib/organization-plan"
 import { redirect } from "next/navigation"
 import { getSalesReportAction } from "@/lib/actions/report"
 import { ReportClient } from "./report-client"
@@ -8,7 +9,6 @@ export default async function ReportsPage() {
   const session = await auth()
   const organizationId = session?.user?.organizationId
   const role = session?.user?.role
-  const plan = session?.user?.organizationPlan
 
   if (!organizationId) {
     redirect("/login")
@@ -25,6 +25,7 @@ export default async function ReportsPage() {
     endDate: endOfMonth(new Date()),
   }
 
+  const plan = await getOrganizationPlan(organizationId)
   const initialData = await getSalesReportAction(initialFilter)
 
   return (

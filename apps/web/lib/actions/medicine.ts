@@ -1,6 +1,7 @@
 "use server"
 
 import { auth } from "@/auth"
+import { getOrganizationPlan } from "@/lib/organization-plan"
 import { db, medicines } from "@workspace/database"
 import { eq, and, count, ilike, or, type SQL } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -79,11 +80,12 @@ export async function getMedicines(page = 1, limit = 10, search = "", categoryId
 export async function createMedicineAction(prevState: any, formData: FormData) {
   const session = await auth()
   const organizationId = session?.user?.organizationId
-  const plan = session?.user?.organizationPlan
 
   if (!organizationId) {
     return { message: "Unauthorized" }
   }
+
+  const plan = await getOrganizationPlan(organizationId)
 
   // SaaS Guardrail: Check limit for 'gratis' plan (Architecture Sec 2.A)
   if (plan === "gratis") {
