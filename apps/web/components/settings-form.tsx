@@ -10,8 +10,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner"
 import { updateProfileAction, updatePasswordAction } from "@/lib/actions/user"
 import { SaveIcon, KeyIcon, Loader2Icon } from "lucide-react"
+import { type Session } from "next-auth"
 
-export function ProfileForm({ user }: { user: any }) {
+type ProfileFormUser = Pick<Session["user"], "id" | "name" | "email" | "phone">
+
+export function ProfileForm({ user }: { user: ProfileFormUser }) {
   const [state, action] = useActionState(updateProfileAction, null)
   
   React.useEffect(() => {
@@ -34,18 +37,18 @@ export function ProfileForm({ user }: { user: any }) {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" value={user.email} disabled className="bg-muted" />
+            <Input id="email" value={user.email ?? ""} disabled className="bg-muted" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">Nama Lengkap</Label>
-            <Input id="name" name="name" defaultValue={user.name} required />
+            <Input id="name" name="name" defaultValue={user.name ?? ""} required />
             {state?.errors?.name && (
               <p className="text-sm text-destructive">{state.errors.name[0]}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Nomor Telepon</Label>
-            <Input id="phone" name="phone" defaultValue={user.phone} placeholder="0812..." />
+            <Input id="phone" name="phone" defaultValue={user.phone ?? ""} placeholder="0812..." />
             {state?.errors?.phone && (
               <p className="text-sm text-destructive">{state.errors.phone[0]}</p>
             )}

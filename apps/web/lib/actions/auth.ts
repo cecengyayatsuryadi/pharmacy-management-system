@@ -7,6 +7,7 @@ import { AuthError } from "next-auth"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
 import { getErrorMessage } from "@/lib/utils/error"
+import { isRedirectError } from "next/dist/client/components/redirect-error"
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Email tidak valid" }),
@@ -40,7 +41,10 @@ export async function loginAction(prevState: any, formData: FormData) {
       password,
       redirectTo: "/dashboard",
     })
-  } catch (error) {
+  } catch (error: unknown) {
+    if (isRedirectError(error)) {
+      throw error
+    }
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
@@ -49,8 +53,7 @@ export async function loginAction(prevState: any, formData: FormData) {
           return { message: "Terjadi kesalahan sistem saat login." }
       }
     }
-    // Re-throw redirect errors so Next.js can handle them
-    throw error
+    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
@@ -126,7 +129,7 @@ export async function signupAction(prevState: any, formData: FormData) {
 
     return { message: "Pendaftaran berhasil! Mengalihkan..." }
   } catch (error: unknown) {
-    if (error instanceof Error && (error.message === "NEXT_REDIRECT" || error.name === "NextRedirect")) {
+    if (isRedirectError(error)) {
       throw error
     }
 

@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth"
 import { db, medicines, sales, saleItems, stockMovements } from "@workspace/database"
-import { eq, sql, desc, and } from "drizzle-orm"
+import { eq, desc, and, inArray, asc } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { getErrorMessage } from "@/lib/utils/error"
@@ -96,39 +96,82 @@ export async function createSaleAction(data: SaleInput) {
       }
 
       // 4. Process Items (Update Stock, Create SaleItems, Create StockMovements)
-      for (const item of items) {
-        // Fetch medicine with row lock and org scope
-        const [medicine] = await tx
-          .select()
-          .from(medicines)
-          .where(and(
-            eq(medicines.id, item.medicineId),
-            eq(medicines.organizationId, organizationId)
-          ))
-          .for("update")
+      // Aggregate items by medicineId to handle duplicates
+      const aggregatedItems = items.reduce((acc, item) => {
+        if (!acc[item.medicineId]) {
+          acc[item.medicineId] = {
+            medicineId: item.medicineId,
+            quantity: 0,
+            priceAtSale: item.priceAtSale,
+          }
+        }
+        acc[item.medicineId].quantity += item.quantity
+        return acc
+      }, {} as Record<string, { medicineId: string; quantity: number; priceAtSale: number }>)
 
+      const uniqueMedicineIds = Object.keys(aggregatedItems)
+      // Sort to prevent deadlocks when locking rows
+      uniqueMedicineIds.sort()
+
+      // Fetch all required medicines in a single batched query, locking rows
+      const fetchedMedicines = await tx
+        .select()
+        .from(medicines)
+        .where(
+          and(
+            inArray(medicines.id, uniqueMedicineIds),
+            eq(medicines.organizationId, organizationId)
+          )
+        )
+        .orderBy(asc(medicines.id))
+        .for("update")
+
+      const medicineMap = new Map(fetchedMedicines.map((m) => [m.id, m]))
+
+      const saleItemsToInsert = []
+      const stockMovementsToInsert = []
+      const medicineUpdatePromises = []
+
+      for (const item of items) {
+        const medicine = medicineMap.get(item.medicineId)
         if (!medicine) {
           throw new Error(`Obat tidak ditemukan atau akses ditolak: ${item.medicineId}`)
         }
+      }
+
+      for (const aggItem of Object.values(aggregatedItems)) {
+        const medicine = medicineMap.get(aggItem.medicineId)!
 
         const currentStock = parseFloat(medicine.stock)
-        const newStock = currentStock - item.quantity
+        const newStock = currentStock - aggItem.quantity
 
         if (newStock < 0) {
           throw new Error(`Stok tidak cukup untuk ${medicine.name} (Sisa: ${currentStock})`)
         }
 
-        // Update Medicine Stock
-        await tx
-          .update(medicines)
-          .set({ stock: newStock.toString(), updatedAt: new Date() })
-          .where(and(
-            eq(medicines.id, item.medicineId),
-            eq(medicines.organizationId, organizationId)
-          ))
+        medicineUpdatePromises.push(
+          tx
+            .update(medicines)
+            .set({ stock: newStock.toString(), updatedAt: new Date() })
+            .where(and(
+              eq(medicines.id, aggItem.medicineId),
+              eq(medicines.organizationId, organizationId)
+            ))
+        )
+      }
 
-        // Create Sale Item
-        await tx.insert(saleItems).values({
+      // Calculate saleItems and stockMovements over the original array to maintain order/audit
+      // Since stock movements track current stock, we need to track it manually per item if duplicates exist
+      const runningStockMap = new Map<string, number>()
+      fetchedMedicines.forEach(m => runningStockMap.set(m.id, parseFloat(m.stock)))
+
+      for (const item of items) {
+        const medicine = medicineMap.get(item.medicineId)!
+        const currentStock = runningStockMap.get(item.medicineId)!
+        const newStock = currentStock - item.quantity
+        runningStockMap.set(item.medicineId, newStock)
+
+        saleItemsToInsert.push({
           saleId: sale.id,
           medicineId: item.medicineId,
           quantity: item.quantity.toString(),
@@ -137,8 +180,7 @@ export async function createSaleAction(data: SaleInput) {
           totalPrice: (item.quantity * item.priceAtSale).toString(),
         })
 
-        // Create Stock Movement (Audit Trail)
-        await tx.insert(stockMovements).values({
+        stockMovementsToInsert.push({
           organizationId,
           medicineId: item.medicineId,
           userId,
@@ -149,6 +191,17 @@ export async function createSaleAction(data: SaleInput) {
           reference: invoiceNumber,
           note: `Penjualan Kasir - ${invoiceNumber}`,
         })
+      }
+
+      // Execute batch updates and inserts
+      if (medicineUpdatePromises.length > 0) {
+        await Promise.all(medicineUpdatePromises)
+      }
+      if (saleItemsToInsert.length > 0) {
+        await tx.insert(saleItems).values(saleItemsToInsert)
+      }
+      if (stockMovementsToInsert.length > 0) {
+        await tx.insert(stockMovements).values(stockMovementsToInsert)
       }
 
       return sale.id
