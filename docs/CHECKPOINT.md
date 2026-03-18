@@ -2,8 +2,8 @@
 
 ## Snapshot
 - **Tanggal:** 18 Maret 2026
-- **Status:** Core Architecture Upgrade (Merged to Master)
-- **Kondisi Workspace:** Bersih (Branch: `master`, Hard-Reset dari eksperimen UI).
+- **Status:** Master Products Expanded (Kategori & Golongan) - Pre-Merge Ready
+- **Kondisi Workspace:** Bersih (Branch: `feat/master-categories-groups`, Unit Tests: 100% Pass).
 
 ## Milestone Terbaru (Done)
 1. **Navigasi Pro (Dual-Sidebar):**
@@ -14,11 +14,16 @@
    - Auto-generate kode obat (MED-XXXXX) dan Status Aktif/Non-aktif.
    - UI Detail View khusus untuk informasi medis mendalam.
    - MedicineStockBadge untuk tracking status stok (Normal, Menipis, Habis).
-3. **Advanced Inventory (3 Pilar):**
+3. **Master Kategori & Golongan (Baru):**
+   - CRUD Kategori dan Golongan Obat.
+   - Badge warna dinamis untuk identifikasi golongan regulasi.
+   - Proteksi penghapusan entitas yang sedang digunakan oleh produk aktif.
+   - Integrasi pemilihan Golongan Obat ke dalam Form Master Obat.
+4. **Advanced Inventory (3 Pilar):**
    - **Pilar 1 (Ledger):** Tracking saldo sebelum dan sesudah mutasi secara absolut.
    - **Pilar 2 (Segmentation):** Pemisahan stok Fisik, Reserved (antrean), dan Quarantine (rusak/expired).
    - **Pilar 3 (Conversion):** Fondasi logic pecah satuan otomatis (Box -> Strip -> Tablet).
-4. **Build Stability:**
+5. **Build Stability:**
    - Resolusi total terhadap isu `db.query` relations dan `next-auth` v5 mocking di Unit Tests.
    - Standarisasi database schema berdasarkan domain domain (Core, Master, Inventory, Sales, Procurement).
 
