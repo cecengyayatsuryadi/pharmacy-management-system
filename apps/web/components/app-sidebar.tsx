@@ -197,16 +197,8 @@ export function AppSidebar({
       <TooltipProvider delayDuration={0}>
         {/* Primary Sidebar - RAIL */}
         <aside className="z-30 flex h-full w-[var(--sidebar-width-icon)] flex-col border-r bg-sidebar shrink-0 sticky top-0">
-          <div 
-            className="flex h-16 items-center justify-center border-b shrink-0 cursor-pointer hover:bg-sidebar-accent transition-colors"
-            onClick={() => hasSubMenu && setOpen(!open)}
-            title={hasSubMenu ? "Toggle Sidebar" : "Logo"}
-          >
-             <img src="/logos/logo.svg" alt="Logo" className="size-8 object-contain" />
-          </div>
-          
           {/* Fitur Operasional */}
-          <div className="flex-1 overflow-y-auto no-scrollbar py-2">
+          <div className="flex-1 overflow-y-auto no-scrollbar py-2 mt-2">
             <nav className="flex flex-col items-center gap-1 px-2">
               {featureModules.map((m) => {
                 const isActive = activeModule?.id === m.id
