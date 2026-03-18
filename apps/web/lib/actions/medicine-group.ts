@@ -1,19 +1,19 @@
 "use server"
 
 import { auth } from "@/auth"
-import { db, categories } from "@workspace/database"
+import { db, medicineGroups, medicines } from "@workspace/database"
 import { eq, and, count, ilike, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { getErrorMessage } from "@/lib/utils/error"
-import { medicines } from "@workspace/database"
 
-const categorySchema = z.object({
-  name: z.string().min(2, { message: "Nama kategori minimal 2 karakter" }),
+const medicineGroupSchema = z.object({
+  name: z.string().min(2, { message: "Nama golongan minimal 2 karakter" }),
+  color: z.string().startsWith("#", { message: "Warna harus berupa kode hex (misal: #3b82f6)" }),
   description: z.string().optional(),
 })
 
-export async function getCategories(page = 1, limit = 10, search = "") {
+export async function getMedicineGroups(page = 1, limit = 10, search = "") {
   const session = await auth()
   const organizationId = session?.user?.organizationId
 
@@ -22,40 +22,40 @@ export async function getCategories(page = 1, limit = 10, search = "") {
   }
 
   const offset = (page - 1) * limit
-  const whereClause = eq(categories.organizationId, organizationId)
+  const whereClause = eq(medicineGroups.organizationId, organizationId)
 
   try {
-    // Menggunakan query builder untuk join dan count
     const data = await db
       .select({
-        id: categories.id,
-        organizationId: categories.organizationId,
-        name: categories.name,
-        description: categories.description,
-        createdAt: categories.createdAt,
-        updatedAt: categories.updatedAt,
+        id: medicineGroups.id,
+        organizationId: medicineGroups.organizationId,
+        name: medicineGroups.name,
+        color: medicineGroups.color,
+        description: medicineGroups.description,
+        createdAt: medicineGroups.createdAt,
+        updatedAt: medicineGroups.updatedAt,
         medicinesCount: count(medicines.id),
       })
-      .from(categories)
-      .leftJoin(medicines, eq(medicines.categoryId, categories.id))
+      .from(medicineGroups)
+      .leftJoin(medicines, eq(medicines.groupId, medicineGroups.id))
       .where(
         and(
           whereClause,
-          search ? ilike(categories.name, `%${search}%`) : undefined
+          search ? ilike(medicineGroups.name, `%${search}%`) : undefined
         )
       )
-      .groupBy(categories.id)
+      .groupBy(medicineGroups.id)
       .limit(limit)
       .offset(offset)
-      .orderBy(sql`${categories.createdAt} DESC`)
+      .orderBy(sql`${medicineGroups.createdAt} DESC`)
 
     const countResult = await db
       .select({ value: count() })
-      .from(categories)
+      .from(medicineGroups)
       .where(
         and(
           whereClause,
-          search ? ilike(categories.name, `%${search}%`) : undefined
+          search ? ilike(medicineGroups.name, `%${search}%`) : undefined
         )
       )
 
@@ -71,12 +71,12 @@ export async function getCategories(page = 1, limit = 10, search = "") {
       }
     }
   } catch (error) {
-    console.error("GET_CATEGORIES_ERROR:", error)
+    console.error("GET_MEDICINE_GROUPS_ERROR:", error)
     return { data: [], metadata: { total: 0, page: 1, limit: 10, totalPages: 0 } }
   }
 }
 
-export async function createCategoryAction(prevState: any, formData: FormData) {
+export async function createMedicineGroupAction(prevState: any, formData: FormData) {
   const session = await auth()
   const organizationId = session?.user?.organizationId
 
@@ -84,33 +84,34 @@ export async function createCategoryAction(prevState: any, formData: FormData) {
     return { message: "Unauthorized" }
   }
 
-  const validatedFields = categorySchema.safeParse(
+  const validatedFields = medicineGroupSchema.safeParse(
     Object.fromEntries(formData.entries())
   )
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Gagal membuat kategori. Mohon periksa input Anda.",
+      message: "Gagal membuat golongan. Mohon periksa input Anda.",
     }
   }
 
   try {
-    await db.insert(categories).values({
+    await db.insert(medicineGroups).values({
       name: validatedFields.data.name,
+      color: validatedFields.data.color,
       description: validatedFields.data.description,
       organizationId,
     })
 
     revalidatePath("/dashboard/inventory/categories")
-    return { message: "Kategori berhasil dibuat!", success: true }
+    return { message: "Golongan berhasil dibuat!", success: true }
   } catch (error: unknown) {
-    console.error("CREATE_CATEGORY_ERROR:", error)
+    console.error("CREATE_MEDICINE_GROUP_ERROR:", error)
     return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
-export async function updateCategoryAction(
+export async function updateMedicineGroupAction(
   id: string,
   prevState: any,
   formData: FormData
@@ -122,43 +123,44 @@ export async function updateCategoryAction(
     return { message: "Unauthorized" }
   }
 
-  const validatedFields = categorySchema.safeParse(
+  const validatedFields = medicineGroupSchema.safeParse(
     Object.fromEntries(formData.entries())
   )
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Gagal memperbarui kategori. Mohon periksa input Anda.",
+      message: "Gagal memperbarui golongan. Mohon periksa input Anda.",
     }
   }
 
   try {
     const [updated] = await db
-      .update(categories)
+      .update(medicineGroups)
       .set({
         name: validatedFields.data.name,
+        color: validatedFields.data.color,
         description: validatedFields.data.description,
         updatedAt: new Date(),
       })
       .where(
-        and(eq(categories.id, id), eq(categories.organizationId, organizationId))
+        and(eq(medicineGroups.id, id), eq(medicineGroups.organizationId, organizationId))
       )
       .returning()
 
     if (!updated) {
-      return { message: "Kategori tidak ditemukan atau akses ditolak." }
+      return { message: "Golongan tidak ditemukan atau akses ditolak." }
     }
 
     revalidatePath("/dashboard/inventory/categories")
-    return { message: "Kategori berhasil diperbarui!", success: true }
+    return { message: "Golongan berhasil diperbarui!", success: true }
   } catch (error: unknown) {
-    console.error("UPDATE_CATEGORY_ERROR:", error)
+    console.error("UPDATE_MEDICINE_GROUP_ERROR:", error)
     return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }
 
-export async function deleteCategoryAction(id: string) {
+export async function deleteMedicineGroupAction(id: string) {
   const session = await auth()
   const organizationId = session?.user?.organizationId
 
@@ -167,34 +169,34 @@ export async function deleteCategoryAction(id: string) {
   }
 
   try {
-    // Cek apakah ada produk yang menggunakan kategori ini
+    // Cek apakah ada produk yang menggunakan golongan ini
     const products = await db
       .select({ value: count() })
       .from(medicines)
-      .where(and(eq(medicines.categoryId, id), eq(medicines.organizationId, organizationId)))
+      .where(and(eq(medicines.groupId, id), eq(medicines.organizationId, organizationId)))
 
     if ((products[0]?.value ?? 0) > 0) {
       return { 
-        message: `Gagal menghapus! Masih ada ${products[0]?.value} produk yang menggunakan kategori ini.`, 
+        message: `Gagal menghapus! Masih ada ${products[0]?.value} produk yang menggunakan golongan ini.`, 
         success: false 
       }
     }
 
     const [deleted] = await db
-      .delete(categories)
+      .delete(medicineGroups)
       .where(
-        and(eq(categories.id, id), eq(categories.organizationId, organizationId))
+        and(eq(medicineGroups.id, id), eq(medicineGroups.organizationId, organizationId))
       )
       .returning()
 
     if (!deleted) {
-      return { message: "Kategori tidak ditemukan atau akses ditolak." }
+      return { message: "Golongan tidak ditemukan atau akses ditolak." }
     }
 
     revalidatePath("/dashboard/inventory/categories")
-    return { message: "Kategori berhasil dihapus!", success: true }
+    return { message: "Golongan berhasil dihapus!", success: true }
   } catch (error: unknown) {
-    console.error("DELETE_CATEGORY_ERROR:", error)
+    console.error("DELETE_MEDICINE_GROUP_ERROR:", error)
     return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
   }
 }

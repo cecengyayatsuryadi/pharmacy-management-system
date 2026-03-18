@@ -74,6 +74,21 @@ export const categories = pgTable("categories", {
     .$onUpdate(() => new Date()),
 })
 
+export const medicineGroups = pgTable("medicine_groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  color: varchar("color", { length: 50 }).notNull().default("#3b82f6"), // Default blue-500
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+})
+
 export const units = pgTable("units", {
   id: uuid("id").primaryKey().defaultRandom(),
   organizationId: uuid("organization_id")
@@ -110,6 +125,8 @@ export const medicines = pgTable("medicines", {
   categoryId: uuid("category_id")
     .notNull()
     .references(() => categories.id),
+  groupId: uuid("group_id")
+    .references(() => medicineGroups.id),
   baseUnitId: uuid("base_unit_id")
     .notNull()
     .references(() => units.id),
@@ -397,6 +414,7 @@ export const saleItems = pgTable("sale_items", {
 export const organizationsRelations = relations(organizations, ({ many }) => ({
   users: many(users),
   categories: many(categories),
+  medicineGroups: many(medicineGroups),
   suppliers: many(suppliers),
   medicines: many(medicines),
   memberships: many(memberships),
@@ -430,6 +448,14 @@ export const categoriesRelations = relations(categories, ({ one }) => ({
   }),
 }))
 
+export const medicineGroupsRelations = relations(medicineGroups, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [medicineGroups.organizationId],
+    references: [organizations.id],
+  }),
+  medicines: many(medicines),
+}))
+
 export const unitsRelations = relations(units, ({ one, many }) => ({
   organization: one(organizations, {
     fields: [units.organizationId],
@@ -451,6 +477,7 @@ export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
 export const medicinesRelations = relations(medicines, ({ one, many }) => ({
   organization: one(organizations, { fields: [medicines.organizationId], references: [organizations.id] }),
   category: one(categories, { fields: [medicines.categoryId], references: [categories.id] }),
+  group: one(medicineGroups, { fields: [medicines.groupId], references: [medicineGroups.id] }),
   baseUnit: one(units, { fields: [medicines.baseUnitId], references: [units.id] }),
   batches: many(medicineBatches),
   stockItems: many(stockItems),
@@ -601,6 +628,7 @@ export const saleItemsRelations = relations(saleItems, ({ one }) => ({
 export type Organization = typeof organizations.$inferSelect
 export type User = typeof users.$inferSelect
 export type Category = typeof categories.$inferSelect
+export type MedicineGroup = typeof medicineGroups.$inferSelect
 export type Unit = typeof units.$inferSelect
 export type Warehouse = typeof warehouses.$inferSelect
 export type Medicine = typeof medicines.$inferSelect
@@ -615,6 +643,7 @@ export type SaleItem = typeof saleItems.$inferSelect
 export type NewMedicine = typeof medicines.$inferInsert
 export type NewStockMovement = typeof stockMovements.$inferInsert
 export type NewCategory = typeof categories.$inferInsert
+export type NewMedicineGroup = typeof medicineGroups.$inferInsert
 export type NewSupplier = typeof suppliers.$inferInsert
 export type NewPurchase = typeof purchases.$inferInsert
 export type NewPurchaseItem = typeof purchaseItems.$inferInsert

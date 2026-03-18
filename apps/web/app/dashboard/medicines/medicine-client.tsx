@@ -80,14 +80,15 @@ import {
   deleteMedicineAction,
 } from "@/lib/actions/medicine"
 import { MedicineStockBadge } from "@/components/medicine-stock-badge"
-import type { Medicine, Category, Unit } from "@workspace/database"
+import type { Medicine, Category, MedicineGroup, Unit } from "@workspace/database"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 
 interface MedicineClientProps {
-  initialData: (Medicine & { category: Category, baseUnit: Unit | null })[]
+  initialData: (Medicine & { category: Category, group: MedicineGroup | null, baseUnit: Unit | null })[]
   categories: Category[]
+  medicineGroups: MedicineGroup[]
   units: Unit[]
   metadata: {
     total: number
@@ -106,7 +107,7 @@ function SubmitButton({ label }: { label: string }) {
   )
 }
 
-export function MedicineClient({ initialData, categories, units, metadata }: MedicineClientProps) {
+export function MedicineClient({ initialData, categories, medicineGroups, units, metadata }: MedicineClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const currentPage = Number(searchParams.get("page")) || 1
@@ -115,7 +116,7 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
   const [isSheetOpen, setIsSheetOpen] = React.useState(false)
   const [isDetailOpen, setIsDetailOpen] = React.useState(false)
   const [mode, setMode] = React.useState<"create" | "edit">("create")
-  const [selectedMedicine, setSelectedMedicine] = React.useState<(Medicine & { category: Category, baseUnit: Unit | null }) | null>(
+  const [selectedMedicine, setSelectedMedicine] = React.useState<(Medicine & { category: Category, group: MedicineGroup | null, baseUnit: Unit | null }) | null>(
     null
   )
 
@@ -266,6 +267,22 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
             </SelectContent>
           </Select>
           <Select
+            defaultValue={searchParams.get("groupId") || "all"}
+            onValueChange={(v) => handleFilterChange("groupId", v)}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Golongan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Golongan</SelectItem>
+              {medicineGroups.map((g) => (
+                <SelectItem key={g.id} value={g.id}>
+                  {g.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
             defaultValue={searchParams.get("status") || "all"}
             onValueChange={(v) => handleFilterChange("status", v)}
           >
@@ -321,9 +338,23 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <span className="text-xs font-medium">{medicine.category.name}</span>
-                        <Badge variant="outline" className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold text-muted-foreground border-muted-foreground/30">
-                          {medicine.classification || "Bebas"}
-                        </Badge>
+                        {medicine.group ? (
+                          <Badge 
+                            variant="outline" 
+                            className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold"
+                            style={{ 
+                              borderColor: medicine.group.color, 
+                              color: medicine.group.color,
+                              backgroundColor: `${medicine.group.color}10`
+                            }}
+                          >
+                            {medicine.group.name}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold text-muted-foreground border-muted-foreground/30">
+                            {medicine.classification || "Bebas"}
+                          </Badge>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-mono text-[13px] font-bold">
@@ -464,18 +495,17 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
                       </Select>
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="classification">Golongan Obat</Label>
-                      <Select name="classification" defaultValue={selectedMedicine?.classification || "Bebas"}>
+                      <Label htmlFor="groupId">Golongan Obat <span className="text-destructive">*</span></Label>
+                      <Select name="groupId" defaultValue={selectedMedicine?.groupId || ""} required>
                         <SelectTrigger>
                           <SelectValue placeholder="Pilih Golongan" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Bebas">Bebas</SelectItem>
-                          <SelectItem value="Bebas Terbatas">Bebas Terbatas</SelectItem>
-                          <SelectItem value="Keras">Keras (G)</SelectItem>
-                          <SelectItem value="Psikotropika">Psikotropika</SelectItem>
-                          <SelectItem value="Narkotika">Narkotika</SelectItem>
-                          <SelectItem value="Herbal/Jamu">Herbal / Jamu</SelectItem>
+                          {medicineGroups.map((g) => (
+                            <SelectItem key={g.id} value={g.id}>
+                              {g.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>

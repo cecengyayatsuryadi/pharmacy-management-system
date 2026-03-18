@@ -12,8 +12,9 @@ const medicineSchema = z.object({
   name: z.string().min(2, { message: "Nama obat minimal 2 karakter" }),
   genericName: z.string().optional().nullable(),
   categoryId: z.string().uuid({ message: "Kategori tidak valid" }),
+  groupId: z.string().uuid({ message: "Golongan tidak valid" }).optional().nullable(),
   baseUnitId: z.string().uuid({ message: "Satuan tidak valid" }),
-  classification: z.string().min(1, { message: "Golongan obat harus diisi" }).default("Bebas"),
+  classification: z.string().optional().nullable().default("Bebas"),
   code: z.string().optional(),
   sku: z.string().optional().nullable(),
   purchasePrice: z.string().min(1, { message: "Harga beli harus diisi" }),
@@ -34,7 +35,7 @@ const medicineSchema = z.object({
   expiryDate: z.string().optional().nullable(),
 })
 
-export async function getMedicines(page = 1, limit = 10, search = "", categoryId = "", status = "") {
+export async function getMedicines(page = 1, limit = 10, search = "", categoryId = "", status = "", groupId = "") {
   const session = await auth()
   const organizationId = session?.user?.organizationId
 
@@ -59,6 +60,10 @@ export async function getMedicines(page = 1, limit = 10, search = "", categoryId
     filters.push(eq(medicines.categoryId, categoryId))
   }
 
+  if (groupId && groupId !== "all") {
+    filters.push(eq(medicines.groupId, groupId))
+  }
+
   if (status === "active") {
     filters.push(eq(medicines.isActive, true))
   } else if (status === "inactive") {
@@ -72,6 +77,7 @@ export async function getMedicines(page = 1, limit = 10, search = "", categoryId
       where: whereClause,
       with: {
         category: true,
+        group: true,
         baseUnit: true,
       },
       limit,
@@ -145,6 +151,7 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
     await db.insert(medicines).values({
       organizationId,
       ...validatedFields.data,
+      groupId: validatedFields.data.groupId || null,
       classification: validatedFields.data.classification || "Bebas",
       code: finalCode,
       isActive: validatedFields.data.isActive === "true",
@@ -193,6 +200,7 @@ export async function updateMedicineAction(
       .update(medicines)
       .set({
         ...restOfData,
+        groupId: restOfData.groupId || null,
         ...(code ? { code } : {}),
         classification: restOfData.classification || "Bebas",
         isActive: validatedFields.data.isActive === "true",
