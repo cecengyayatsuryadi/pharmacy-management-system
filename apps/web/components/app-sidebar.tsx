@@ -100,10 +100,9 @@ const moduleData: Record<string, any> = {
         url: "#",
         items: [
           { title: "Stok Real-time", url: "/dashboard/inventory/stock" },
-          { title: "Stok Masuk", url: "/dashboard/inventory/stock/in" },
-          { title: "Stok Keluar", url: "/dashboard/inventory/stock/out" },
+          { title: "Mutasi Stok", url: "/dashboard/inventory/stock/mutations" },
+          { title: "Transfer Antar Gudang", url: "/dashboard/inventory/stock/transfer" },
           { title: "Stok Opname", url: "/dashboard/inventory/stock/adjustment" },
-          { title: "Transfer Stok", url: "/dashboard/inventory/transfer" },
         ],
       },
       {
