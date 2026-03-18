@@ -1,102 +1,71 @@
-import { db, organizations, medicines, warehouses, units, medicineBatches, stockItems } from "./index"
+import { db, medicines, stockMovements, stockItems, medicineBatches, warehouses } from "./index"
 import { eq } from "drizzle-orm"
 
 async function main() {
-  console.log("🚀 Memulai Migrasi Data Inventori Baru...")
+  console.log("🚀 Memulai Migrasi Saldo Stok ke Tabel Inventory Baru...")
 
-  const allOrgs = await db.select().from(organizations)
+  // 1. Ambil data obat yang punya stok > 0
+  const allMedicines = await db.query.medicines.findMany()
+  
+  // 2. Ambil gudang default (buat aja satu kalo belum ada)
+  let defaultWarehouse = await db.query.warehouses.findFirst()
+  if (!defaultWarehouse) {
+    console.log("🏪 Membuat Gudang Utama...")
+    const [newWarehouse] = await db.insert(warehouses).values({
+      name: "Gudang Utama",
+      code: "WH-MAIN",
+      organizationId: allMedicines[0]?.organizationId || "",
+      address: "Alamat default hasil migrasi",
+    }).returning()
+    defaultWarehouse = newWarehouse
+  }
 
-  for (const org of allOrgs) {
-    console.log(`\n🏢 Memproses Organisasi: ${org.name} (${org.id})`)
+  if (!defaultWarehouse) throw new Error("Gagal menginisialisasi gudang default")
 
-    // 1. Pastikan Satuan Default (Pcs) ada
-    let [defaultUnit] = await db
-      .select()
-      .from(units)
-      .where(eq(units.organizationId, org.id))
-      .limit(1)
+  for (const med of allMedicines) {
+    const currentStock = parseFloat(med.stock)
+    
+    if (currentStock > 0) {
+      console.log(`📦 Memigrasi stok: ${med.name} (${currentStock})`)
 
-    if (!defaultUnit) {
-      console.log("  - Membuat satuan default (Pcs)...")
-      const [newUnit] = await db
-        .insert(units)
-        .values({
-          organizationId: org.id,
-          name: "Pcs / Biji",
-          abbreviation: "pcs",
-        })
-        .returning()
-      defaultUnit = newUnit
-    }
+      // 3. Buat Batch awal untuk stok yang ada sekarang
+      const [initialBatch] = await db.insert(medicineBatches).values({
+        medicineId: med.id,
+        organizationId: med.organizationId,
+        batchNumber: "BATCH-INITIAL",
+        expiryDate: med.expiryDate || new Date(new Date().setFullYear(new Date().getFullYear() + 2)), // Default 2 tahun kalo kosong
+      }).returning()
 
-    // 2. Pastikan Gudang Default ada
-    let [defaultWarehouse] = await db
-      .select()
-      .from(warehouses)
-      .where(eq(warehouses.organizationId, org.id))
-      .limit(1)
-
-    if (!defaultWarehouse) {
-      console.log("  - Membuat gudang default (Gudang Utama)...")
-      const [newWarehouse] = await db
-        .insert(warehouses)
-        .values({
-          organizationId: org.id,
-          code: "GUD-UTAMA",
-          name: "Gudang Utama",
-          isActive: true,
-        })
-        .returning()
-      defaultWarehouse = newWarehouse
-    }
-
-    // 3. Migrasi Stok Obat
-    const orgMedicines = await db
-      .select()
-      .from(medicines)
-      .where(eq(medicines.organizationId, org.id))
-
-    for (const med of orgMedicines) {
-      // Update Base Unit ID jika masih kosong
-      if (!med.baseUnitId && defaultUnit) {
-        await db
-          .update(medicines)
-          .set({ baseUnitId: defaultUnit.id })
-          .where(eq(medicines.id, med.id))
-      }
-
-      const currentStock = Number(med.stock)
-      if (currentStock > 0) {
-        console.log(`  - Migrasi stok ${med.name}: ${currentStock} ${med.unit}`)
-
-        // Buat batch awal dummy
-        const [initialBatch] = await db
-          .insert(medicineBatches)
-          .values({
-            organizationId: org.id,
-            medicineId: med.id,
-            batchNumber: "INITIAL-STOCK",
-            expiryDate: med.expiryDate || new Date(new Date().setFullYear(new Date().getFullYear() + 2)), // Fallback 2 tahun
-          })
-          .returning()
-
-        // Masukkan ke saldo stok gudang utama
+      if (initialBatch) {
+        // 4. Masukkan ke tabel stock_items (Inventory)
         await db.insert(stockItems).values({
-          organizationId: org.id,
-          warehouseId: defaultWarehouse.id,
           medicineId: med.id,
+          organizationId: med.organizationId,
+          warehouseId: defaultWarehouse.id,
           batchId: initialBatch.id,
-          quantity: currentStock.toString(),
+          quantity: med.stock,
+        })
+
+        // 5. Catat movement sebagai 'in' (saldo awal)
+        await db.insert(stockMovements).values({
+          medicineId: med.id,
+          organizationId: med.organizationId,
+          userId: "SYSTEM", // Placeholder user ID
+          warehouseId: defaultWarehouse.id,
+          batchId: initialBatch.id,
+          type: "in",
+          quantity: med.stock,
+          note: "Saldo awal hasil migrasi sistem",
         })
       }
     }
   }
 
-  console.log("\n✅ MIGRASI SELESAI! Seluruh data stok lama telah dipindahkan ke sistem baru.")
+  console.log("✅ Migrasi Stok Selesai!")
   process.exit(0)
 }
 
 main().catch((err) => {
-  console.error("\n❌ GAGAL MIGRASI:", err)
+  console.error("❌ GAGAL MIGRASI:", err)
   process.exit(1)
 })

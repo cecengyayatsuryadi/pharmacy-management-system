@@ -12,6 +12,6 @@ export default async function WarehousePage() {
   const warehouses = await getWarehousesAction()
 
   return (
-    <WarehouseClient warehouses={warehouses} />
+    <WarehouseClient initialWarehouses={warehouses} />
   )
 }

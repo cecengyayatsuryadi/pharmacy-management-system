@@ -15,12 +15,11 @@ export default async function UnitsPage(props: {
     redirect("/login")
   }
 
-  const { data, metadata } = await getUnitsAction(page, 10, search)
+  const { data } = await getUnitsAction(page, 10, search)
 
   return (
     <UnitClient 
-      initialData={data} 
-      metadata={metadata} 
+      initialUnits={data} 
     />
   )
 }

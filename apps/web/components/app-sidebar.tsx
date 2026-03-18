@@ -17,6 +17,7 @@ import {
   CircleHelpIcon,
   HandCoinsIcon,
   BoxesIcon,
+  PackageIcon,
 } from "lucide-react"
 import { AppSettingsDialog } from "@/components/app-settings-dialog"
 import {
@@ -165,8 +166,8 @@ export function AppSidebar({
   const allModules = [...featureModules, ...systemModules]
   const activeModule = allModules.find(m => m.matcher(pathname)) || allModules[0]
   
-  const hasSubMenu = !!moduleData[activeModule.id]
-  const currentModuleData = moduleData[activeModule.id]
+  const hasSubMenu = activeModule ? !!moduleData[activeModule.id] : false
+  const currentModuleData = activeModule ? moduleData[activeModule.id] : null
 
   const handleModuleClick = (moduleId: string, e: React.MouseEvent) => {
     if (moduleId === "settings") {
@@ -177,7 +178,7 @@ export function AppSidebar({
 
     const targetHasSubMenu = !!moduleData[moduleId]
 
-    if (activeModule.id === moduleId) {
+    if (activeModule?.id === moduleId) {
       if (targetHasSubMenu) {
         e.preventDefault()
         setOpen(!open)
@@ -196,10 +197,19 @@ export function AppSidebar({
       <TooltipProvider delayDuration={0}>
         {/* Primary Sidebar - RAIL */}
         <aside className="z-30 flex h-full w-[var(--sidebar-width-icon)] flex-col border-r bg-sidebar shrink-0 sticky top-0">
-          <div className="flex-1 overflow-y-auto no-scrollbar py-2 mt-2">
+          <div 
+            className="flex h-16 items-center justify-center border-b shrink-0 cursor-pointer hover:bg-sidebar-accent transition-colors"
+            onClick={() => hasSubMenu && setOpen(!open)}
+            title={hasSubMenu ? "Toggle Sidebar" : "Logo"}
+          >
+             <img src="/logos/logo.svg" alt="Logo" className="size-8 object-contain" />
+          </div>
+          
+          {/* Fitur Operasional */}
+          <div className="flex-1 overflow-y-auto no-scrollbar py-2">
             <nav className="flex flex-col items-center gap-1 px-2">
               {featureModules.map((m) => {
-                const isActive = activeModule.id === m.id
+                const isActive = activeModule?.id === m.id
                 return (
                   <Tooltip key={m.id}>
                     <TooltipTrigger asChild>
@@ -223,9 +233,10 @@ export function AppSidebar({
             </nav>
           </div>
 
+          {/* Sistem & Dukungan (Bawah) */}
           <div className="py-4 flex flex-col items-center gap-1 border-t shrink-0">
             {systemModules.map((m) => {
-              const isActive = activeModule.id === m.id
+              const isActive = activeModule?.id === m.id
               return (
                 <Tooltip key={m.id}>
                   <TooltipTrigger asChild>
@@ -251,7 +262,7 @@ export function AppSidebar({
       </TooltipProvider>
 
       {/* Secondary Sidebar - PANEL */}
-      {hasSubMenu && (
+      {hasSubMenu && currentModuleData && (
         <Sidebar collapsible="offcanvas" className="hidden border-l-0 md:flex h-full" {...props}>
           <style dangerouslySetInnerHTML={{ __html: `
             [data-slot="sidebar"][data-state="expanded"] [data-slot="sidebar-container"] {
@@ -261,7 +272,7 @@ export function AppSidebar({
             }
           `}} />
           <SidebarContent>
-            <NavMain items={currentModuleData.navMain} label={activeModule.title} />
+            <NavMain items={currentModuleData.navMain} label={activeModule?.title || ""} />
           </SidebarContent>
           <SidebarRail />
         </Sidebar>
