@@ -28,5 +28,12 @@
 - Pahami siklus hidup obat: Batch tracking -> Expired alert -> Stock movements.
 - Metode akuntansi stok: Utamakan kebenaran data HPP dan saldo stok real-time.
 
+## 6. Documentation Index (Context for AI)
+AI Agent **WAJIB** membaca dokumen-dokumen berikut di awal setiap sesi baru atau sebelum mengerjakan fitur utama:
+- **`docs/ONBOARDING.md`**: Ringkasan menyeluruh proyek (onboarding guide).
+- **`docs/ARCHITECTURE.md`**: Arsitektur sistem, data flow, dan design decisions.
+- **`docs/API_DOCUMENTATION.md`**: Referensi Server Actions sebagai API layer.
+- **`docs/RUNBOOK.md`**: Panduan operasional, troubleshooting, dan database maintenance.
+
 ---
-*Last Updated: 17 Maret 2026*
+*Last Updated: 18 Maret 2026*
