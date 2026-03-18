@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth"
 import { db, units } from "@workspace/database"
-import { and, eq, ilike, or } from "drizzle-orm"
+import { and, eq, ilike, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { getErrorMessage } from "@/lib/utils/error"
@@ -12,7 +12,7 @@ const unitSchema = z.object({
   abbreviation: z.string().min(1, "Singkatan wajib diisi"),
 })
 
-export async function getUnitsAction() {
+export async function getUnitsAction(page: number = 1, limit: number = 10, search: string = "") {
   const session = await auth()
   const organizationId = session?.user?.organizationId
 
@@ -20,10 +20,34 @@ export async function getUnitsAction() {
     throw new Error("Unauthorized")
   }
 
-  return await db.query.units.findMany({
-    where: eq(units.organizationId, organizationId),
-    orderBy: (units, { asc }) => [asc(units.name)],
-  })
+  const offset = (page - 1) * limit
+
+  const whereClause = and(
+    eq(units.organizationId, organizationId),
+    search ? ilike(units.name, `%${search}%`) : undefined
+  )
+
+  const [data, totalCount] = await Promise.all([
+    db.query.units.findMany({
+      where: whereClause,
+      limit,
+      offset,
+      orderBy: (units, { asc }) => [asc(units.name)],
+    }),
+    db.select({ count: count() }).from(units).where(whereClause)
+  ])
+
+  const total = totalCount[0]?.count ?? 0
+
+  return {
+    data,
+    metadata: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  }
 }
 
 export async function createUnitAction(_prevState: any, formData: FormData) {
