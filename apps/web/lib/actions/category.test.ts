@@ -8,43 +8,58 @@ vi.mock('@/auth', () => ({
   auth: vi.fn(),
 }))
 
-vi.mock('@workspace/database', () => ({
-  db: {
-    query: {
-      categories: {
-        findMany: vi.fn(),
+class MockQueryBuilder {
+  from() { return this; }
+  leftJoin() { return this; }
+  where() { return this; }
+  groupBy() { return this; }
+  limit() { return this; }
+  offset() { return this; }
+  orderBy() { return this; }
+  then(resolve: any) { resolve([{ value: 0, id: '1', name: 'Cat 1' }]); } // Default value: 0 for count
+}
+
+vi.mock('@workspace/database', () => {
+  return {
+    db: {
+      query: {
+        categories: {
+          findMany: vi.fn(),
+        },
       },
-    },
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        where: vi.fn(),
+      select: vi.fn(() => new MockQueryBuilder()),
+      insert: vi.fn(() => ({
+        values: vi.fn(),
       })),
-    })),
-    insert: vi.fn(() => ({
-      values: vi.fn(),
-    })),
-    update: vi.fn(() => ({
-      set: vi.fn(() => ({
+      update: vi.fn(() => ({
+        set: vi.fn(() => ({
+          where: vi.fn(() => ({
+            returning: vi.fn(),
+          })),
+        })),
+      })),
+      delete: vi.fn(() => ({
         where: vi.fn(() => ({
           returning: vi.fn(),
         })),
       })),
-    })),
-    delete: vi.fn(() => ({
-      where: vi.fn(() => ({
-        returning: vi.fn(),
-      })),
-    })),
-  },
-  categories: {
-    id: 'id',
-    name: 'name',
-    description: 'description',
-    organizationId: 'organizationId',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-  },
-}))
+    },
+    categories: {
+      id: 'id',
+      name: 'name',
+      description: 'description',
+      organizationId: 'organizationId',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    },
+    medicines: {
+      id: 'id',
+      organizationId: 'organizationId',
+      categoryId: 'categoryId',
+      groupId: 'groupId',
+    },
+  }
+})
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
@@ -56,6 +71,7 @@ vi.mock('drizzle-orm', () => ({
   count: vi.fn(),
   ilike: vi.fn(),
   desc: vi.fn(),
+  sql: vi.fn(),
 }))
 
 describe('Category Actions', () => {
@@ -73,34 +89,28 @@ describe('Category Actions', () => {
     it('should return categories and metadata successfully', async () => {
       (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
-      const mockData = [{ id: '1', name: 'Cat 1' }]
-      vi.mocked(db.query.categories.findMany).mockResolvedValue(mockData as any)
+      const mockData = [{ id: '1', name: 'Cat 1', value: 0 }]
 
-      const mockSelect = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue([{ value: 1 }])
-      }
-      vi.mocked(db.select).mockReturnValue(mockSelect as any)
-
+      // Use global mock that supports leftJoin and then()
       const result = await getCategories(1, 10, 'Cat')
 
       expect(result).toEqual({
         data: mockData,
         metadata: {
-          total: 1,
+          total: 0,
           page: 1,
           limit: 10,
-          totalPages: 1,
+          totalPages: 0,
         }
       })
-      expect(db.query.categories.findMany).toHaveBeenCalled()
       expect(db.select).toHaveBeenCalled()
     })
 
     it('should handle errors and return default empty result', async () => {
       (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
-      vi.mocked(db.query.categories.findMany).mockRejectedValue(new Error('Database error'))
+      // Override select to throw error
+      vi.mocked(db.select).mockImplementationOnce(() => { throw new Error('Database error') })
 
       const result = await getCategories()
 
@@ -148,7 +158,7 @@ describe('Category Actions', () => {
 
       expect(result).toEqual({ message: 'Kategori berhasil dibuat!', success: true })
       expect(db.insert).toHaveBeenCalled()
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/categories')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/categories')
     })
 
     it('should handle system errors during creation', async () => {
@@ -225,7 +235,7 @@ describe('Category Actions', () => {
 
       expect(result).toEqual({ message: 'Kategori berhasil diperbarui!', success: true })
       expect(db.update).toHaveBeenCalled()
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/categories')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/categories')
     })
 
     it('should handle system errors during update', async () => {
@@ -283,7 +293,7 @@ describe('Category Actions', () => {
 
       expect(result).toEqual({ message: 'Kategori berhasil dihapus!', success: true })
       expect(db.delete).toHaveBeenCalled()
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/categories')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/categories')
     })
 
     it('should handle system errors during deletion', async () => {

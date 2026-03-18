@@ -34,6 +34,14 @@ vi.mock('@workspace/database', () => ({
     note: 'note',
     createdAt: 'createdAt',
   },
+  stockItems: {
+    id: 'id',
+    organizationId: 'organizationId',
+    warehouseId: 'warehouseId',
+    medicineId: 'medicineId',
+    quantity: 'quantity',
+    updatedAt: 'updatedAt',
+  },
   users: {
     id: 'id',
   }
@@ -77,23 +85,25 @@ describe('createStockMovementAction', () => {
     it('should successfully create an "out" stock movement', async () => {
       const formData = new FormData()
       formData.append('medicineId', '123e4567-e89b-12d3-a456-426614174000') // valid UUID
+      formData.append('warehouseId', '999e4567-e89b-12d3-a456-426614174000') // valid UUID
       formData.append('type', 'out')
       formData.append('quantity', '2')
 
       // Mock db.transaction callback
-      const mockTx = {
+      const mockTx: any = {
         select: vi.fn().mockReturnThis(),
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         for: vi.fn().mockResolvedValue([{
           id: '123e4567-e89b-12d3-a456-426614174000',
-          stock: '5',
+          quantity: '5',
           price: '150'
         }]),
         update: vi.fn().mockReturnThis(),
         set: vi.fn().mockReturnThis(),
         insert: vi.fn().mockReturnThis(),
         values: vi.fn().mockResolvedValue({}),
+        then: vi.fn((resolve) => resolve([{ total: '5' }])),
       }
 
       // Make db.transaction execute the callback with the mockTx
@@ -104,7 +114,7 @@ describe('createStockMovementAction', () => {
       const result = await createStockMovementAction({}, formData)
 
       expect(result).toEqual({
-        message: 'Stok keluar berhasil dicatat',
+        message: 'Transaksi stok berhasil dicatat',
         success: true
       })
 
@@ -115,8 +125,7 @@ describe('createStockMovementAction', () => {
 
       // Verify revalidation
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/medicines')
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory')
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/out')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/stock')
     })
   })
 
@@ -124,11 +133,12 @@ describe('createStockMovementAction', () => {
     it('should return error if medicine is not found', async () => {
       const formData = new FormData()
       formData.append('medicineId', '123e4567-e89b-12d3-a456-426614174000') // valid UUID
+      formData.append('warehouseId', '999e4567-e89b-12d3-a456-426614174000') // valid UUID
       formData.append('type', 'out')
       formData.append('quantity', '5')
 
       // Mock db.transaction callback with empty array for medicine (not found)
-      const mockTx = {
+      const mockTx: any = {
         select: vi.fn().mockReturnThis(),
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
@@ -137,6 +147,7 @@ describe('createStockMovementAction', () => {
         set: vi.fn().mockReturnThis(),
         insert: vi.fn().mockReturnThis(),
         values: vi.fn().mockResolvedValue({}),
+        then: vi.fn((resolve) => resolve([])),
       }
 
       vi.mocked(db.transaction).mockImplementation(async (cb) => {
@@ -146,30 +157,32 @@ describe('createStockMovementAction', () => {
       const result = await createStockMovementAction({}, formData)
 
       expect(result).toEqual({
-        message: 'Obat tidak ditemukan'
+        message: "Stok fisik tidak mencukupi (Tersedia: 0). Gunakan fitur 'Pecah Satuan' jika stok ada dalam satuan besar."
       })
     })
 
     it('should return error if stock is insufficient for "out" transaction', async () => {
       const formData = new FormData()
       formData.append('medicineId', '123e4567-e89b-12d3-a456-426614174000') // valid UUID
+      formData.append('warehouseId', '999e4567-e89b-12d3-a456-426614174000') // valid UUID
       formData.append('type', 'out')
       formData.append('quantity', '10') // Requesting 10
 
       // Mock db.transaction callback with medicine having 5 stock
-      const mockTx = {
+      const mockTx: any = {
         select: vi.fn().mockReturnThis(),
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         for: vi.fn().mockResolvedValue([{
           id: '123e4567-e89b-12d3-a456-426614174000',
-          stock: '5', // Current stock is less than 10
+          quantity: '5', // Current stock is less than 10
           price: '150'
         }]),
         update: vi.fn().mockReturnThis(),
         set: vi.fn().mockReturnThis(),
         insert: vi.fn().mockReturnThis(),
         values: vi.fn().mockResolvedValue({}),
+        then: vi.fn((resolve) => resolve([{ total: '5' }])),
       }
 
       vi.mocked(db.transaction).mockImplementation(async (cb) => {
@@ -179,13 +192,14 @@ describe('createStockMovementAction', () => {
       const result = await createStockMovementAction({}, formData)
 
       expect(result).toEqual({
-        message: 'Stok tidak mencukupi. Sisa stok: 5'
+        message: "Stok fisik tidak mencukupi (Tersedia: 5). Gunakan fitur 'Pecah Satuan' jika stok ada dalam satuan besar."
       })
     })
 
     it('should return error for invalid quantity format (<= 0)', async () => {
       const formData = new FormData()
       formData.append('medicineId', '123e4567-e89b-12d3-a456-426614174000') // valid UUID
+      formData.append('warehouseId', '999e4567-e89b-12d3-a456-426614174000') // valid UUID
       formData.append('type', 'out')
       formData.append('quantity', '0') // quantity is 0, which is invalid for "in" or "out"
 

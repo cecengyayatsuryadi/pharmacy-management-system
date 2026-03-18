@@ -14,7 +14,7 @@ const stockMovementSchema = z.object({
   expiryDate: z.string().optional(),  // Used for new batch creation
   batchId: z.string().uuid().optional(), // Used for 'out' or 'adjustment'
   type: z.enum(["in", "out", "adjustment"], { message: "Tipe transaksi tidak valid" }),
-  quantity: z.coerce.number().finite().nonnegative({ message: "Jumlah harus berupa angka positif" }),
+  quantity: z.coerce.number().finite().positive({ message: "Jumlah harus lebih dari 0 untuk transaksi masuk/keluar" }),
   priceAtTransaction: z.string().optional().default("0"),
   reference: z.string().optional(),
   note: z.string().optional(),

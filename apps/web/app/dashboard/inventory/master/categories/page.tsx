@@ -4,11 +4,10 @@ import { getMedicineGroups } from "@/lib/actions/medicine-group"
 import { CategoriesClient } from "./categories-client"
 import { redirect } from "next/navigation"
 
-export default async function CategoriesPage({
-  searchParams,
-}: {
-  searchParams: { page?: string; search?: string; tab?: string }
+export default async function CategoriesPage(props: {
+  searchParams: Promise<{ page?: string; search?: string; tab?: string }>
 }) {
+  const searchParams = await props.searchParams
   const session = await auth()
   if (!session?.user?.organizationId) {
     redirect("/login")
