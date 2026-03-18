@@ -56,11 +56,43 @@ import {
   PaginationPrevious,
 } from "@workspace/ui/components/pagination"
 import { createStockMovementAction } from "@/lib/actions/inventory"
-import type { Medicine, StockMovement, User } from "@workspace/database"
+import type { Medicine, StockMovement, User, Supplier } from "@workspace/database"
+
+type InventoryMovementRow = {
+  id: string
+  type: string
+  quantity: string
+  resultingStock: string
+  reference: string | null
+  note: string | null
+  createdAt: Date
+  purchaseNumber?: string | null
+  invoiceNumber?: string | null
+  medicine: {
+    id: string
+    name: string
+    sku: string | null
+    unit: string
+    stock: string
+  }
+  user: {
+    id: string
+    name: string
+    email: string
+    role: string
+  }
+  supplier?: {
+    id: string
+    name: string
+    code: string
+  } | null
+}
 
 interface InventoryClientProps {
   medicines: Medicine[]
-  initialMovements: (StockMovement & { medicine: Medicine, user: User })[]
+  suppliers?: Supplier[]
+  primarySupplierByMedicine?: Record<string, string>
+  initialMovements: InventoryMovementRow[]
   metadata: {
     total: number
     page: number
@@ -69,6 +101,8 @@ interface InventoryClientProps {
   }
   defaultType: "in" | "out" | "adjustment"
   title: string
+  submitAction?: (prevState: any, formData: FormData) => Promise<any>
+  showPurchaseColumns?: boolean
 }
 
 function SubmitButton({ label }: { label: string }) {
@@ -80,12 +114,25 @@ function SubmitButton({ label }: { label: string }) {
   )
 }
 
-export function InventoryClient({ medicines, initialMovements, metadata, defaultType, title }: InventoryClientProps) {
+export function InventoryClient({ 
+  medicines, 
+  suppliers = [], 
+  primarySupplierByMedicine = {}, 
+  initialMovements, 
+  metadata, 
+  defaultType, 
+  title,
+  submitAction,
+  showPurchaseColumns = false
+}: InventoryClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const currentPage = Number(searchParams.get("page")) || 1
   const [mounted, setMounted] = React.useState(false)
-  const [state, formAction] = useActionState(createStockMovementAction, null)
+  const [state, formAction] = useActionState(
+    submitAction ?? createStockMovementAction,
+    null
+  )
   const [isOpen, setIsOpen] = React.useState(false)
   const [isComboOpen, setIsComboOpen] = React.useState(false)
   const [selectedMedicineId, setSelectedMedicineId] = React.useState("")

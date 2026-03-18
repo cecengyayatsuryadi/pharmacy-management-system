@@ -81,8 +81,12 @@ export function AppSettingsDialog({ trigger }: { trigger: React.ReactNode }) {
               <div className="flex items-center gap-2 px-4">
               <Breadcrumb>
                 <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbLink href="#">Pengaturan</BreadcrumbLink>
+                    <BreadcrumbPage>Pengaturan</BreadcrumbPage>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>

@@ -99,8 +99,12 @@ export function SettingsDialog({
               <div className="flex items-center gap-2 px-4">
                 <Breadcrumb>
                   <BreadcrumbList>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
                     <BreadcrumbItem>
-                      <BreadcrumbLink href="#">Profil Akun</BreadcrumbLink>
+                      <BreadcrumbPage>Profil Akun</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
