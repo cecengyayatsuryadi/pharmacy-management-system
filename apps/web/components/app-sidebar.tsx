@@ -20,6 +20,13 @@ import {
   Settings2Icon,
   CircleHelpIcon,
   HandCoinsIcon,
+  LibraryIcon,
+  DatabaseIcon,
+  WarehouseIcon,
+  ClockIcon,
+  ActivityIcon,
+  BoxesIcon,
+  BarcodeIcon,
 } from "lucide-react"
 
 const data = {
@@ -31,33 +38,93 @@ const data = {
       isActive: true,
     },
     {
-      title: "Inventori",
+      title: "Inventory",
       url: "#",
-      icon: <PackageIcon />,
+      icon: <BoxesIcon />,
       items: [
         {
-          title: "Data Obat",
-          url: "/dashboard/medicines",
+          title: "Master Produk",
+          url: "#",
+          items: [
+            {
+              title: "Data Obat",
+              url: "/dashboard/medicines",
+            },
+            {
+              title: "Kategori & Golongan",
+              url: "/dashboard/categories",
+            },
+            {
+              title: "Satuan & Konversi",
+              url: "/dashboard/inventory/master/units",
+            },
+            {
+              title: "Barcode Manager",
+              url: "/dashboard/inventory/master/barcodes",
+            },
+          ],
         },
         {
-          title: "Kategori",
-          url: "/dashboard/categories",
+          title: "Stok",
+          url: "#",
+          items: [
+            {
+              title: "Stok Real-time",
+              url: "/dashboard/inventory/stock",
+            },
+            {
+              title: "Stok Masuk",
+              url: "/dashboard/inventory/stock/in",
+            },
+            {
+              title: "Stok Keluar",
+              url: "/dashboard/inventory/stock/out",
+            },
+            {
+              title: "Stok Opname",
+              url: "/dashboard/inventory/stock/adjustment",
+            },
+            {
+              title: "Transfer Stok",
+              url: "/dashboard/inventory/transfer",
+            },
+          ],
+        },
+        {
+          title: "Batch & Kadaluarsa",
+          url: "#",
+          items: [
+            {
+              title: "Tracking Batch",
+              url: "/dashboard/inventory/batch",
+            },
+            {
+              title: "Alert Expired",
+              url: "/dashboard/inventory/batch/expired-alerts",
+            },
+            {
+              title: "Pemusnahan Obat",
+              url: "/dashboard/inventory/batch/disposal",
+            },
+          ],
+        },
+        {
+          title: "Gudang",
+          url: "#",
+          items: [
+            {
+              title: "Master Gudang",
+              url: "/dashboard/inventory/warehouse",
+            },
+            {
+              title: "Lokasi Rak",
+              url: "/dashboard/inventory/warehouse/racks",
+            },
+          ],
         },
         {
           title: "Supplier",
           url: "/dashboard/suppliers",
-        },
-        {
-          title: "Stok Masuk",
-          url: "/dashboard/inventory/in",
-        },
-        {
-          title: "Stok Keluar",
-          url: "/dashboard/inventory/out",
-        },
-        {
-          title: "Stok Opname",
-          url: "/dashboard/inventory/adjustment",
         },
       ],
     },

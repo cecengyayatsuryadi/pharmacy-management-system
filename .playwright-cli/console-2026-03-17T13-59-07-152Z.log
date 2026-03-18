@@ -1,0 +1,3160 @@
+[ 5007489ms] [ERROR] ./Desktop/project/apotek/apps/web/components/settings-dialog.tsx:20:1
+Export Separator doesn't exist in target module
+  18 |   DialogTitle,
+  19 | } from "@workspace/ui/components/dialog"
+> 20 | import {
+     | ^^^^^^^^
+> 21 |   Separator,
+     | ^^^^^^^^^^^^
+> 22 |   Sidebar,
+     | ^^^^^^^^^^^^
+> 23 |   SidebarContent,
+     | ^^^^^^^^^^^^
+> 24 |   SidebarGroup,
+     | ^^^^^^^^^^^^
+> 25 |   SidebarGroupContent,
+     | ^^^^^^^^^^^^
+> 26 |   SidebarMenu,
+     | ^^^^^^^^^^^^
+> 27 |   SidebarMenuButton,
+     | ^^^^^^^^^^^^
+> 28 |   SidebarMenuItem,
+     | ^^^^^^^^^^^^
+> 29 |   SidebarProvider,
+     | ^^^^^^^^^^^^
+> 30 |   SidebarSeparator,
+     | ^^^^^^^^^^^^
+> 31 | } from "@workspace/ui/components/sidebar"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  32 | import { IdCardIcon, KeyRoundIcon } from "lucide-react"
+  33 | import { type Session } from "next-auth"
+  34 | import { PasswordForm, ProfileForm } from "@/components/settings-form"
+
+The export Separator was not found in module [project]/Desktop/project/apotek/packages/ui/src/components/sidebar.tsx [app-client] (ecmascript).
+Did you mean to import SidebarSeparator?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./Desktop/project/apotek/apps/web/components/settings-dialog.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/settings/page.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[ 5007504ms] [ERROR] ./Desktop/project/apotek/apps/web/components/settings-dialog.tsx:20:1
+Export Separator doesn't exist in target module
+  18 |   DialogTitle,
+  19 | } from "@workspace/ui/components/dialog"
+> 20 | import {
+     | ^^^^^^^^
+> 21 |   Separator,
+     | ^^^^^^^^^^^^
+> 22 |   Sidebar,
+     | ^^^^^^^^^^^^
+> 23 |   SidebarContent,
+     | ^^^^^^^^^^^^
+> 24 |   SidebarGroup,
+     | ^^^^^^^^^^^^
+> 25 |   SidebarGroupContent,
+     | ^^^^^^^^^^^^
+> 26 |   SidebarMenu,
+     | ^^^^^^^^^^^^
+> 27 |   SidebarMenuButton,
+     | ^^^^^^^^^^^^
+> 28 |   SidebarMenuItem,
+     | ^^^^^^^^^^^^
+> 29 |   SidebarProvider,
+     | ^^^^^^^^^^^^
+> 30 |   SidebarSeparator,
+     | ^^^^^^^^^^^^
+> 31 | } from "@workspace/ui/components/sidebar"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  32 | import { IdCardIcon, KeyRoundIcon } from "lucide-react"
+  33 | import { type Session } from "next-auth"
+  34 | import { PasswordForm, ProfileForm } from "@/components/settings-form"
+
+The export Separator was not found in module [project]/Desktop/project/apotek/packages/ui/src/components/sidebar.tsx [app-ssr] (ecmascript).
+Did you mean to import SidebarSeparator?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./Desktop/project/apotek/apps/web/components/settings-dialog.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/settings/page.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[ 5446544ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5447557ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5448577ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5449610ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5450630ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5455639ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5460651ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5465668ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 5470701ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=Zpcogbfd63ukhRBLPUeqX' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6197613ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://localhost:3000/login?_rsc=hl69e:0
+[ 6197988ms] [ERROR] Failed to fetch RSC payload for http://localhost:3000/login. Falling back to browser navigation. TypeError: network error @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[ 6201619ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/__nextjs_original-stack-frames:0
+[ 6201655ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=R9A72yl7s9qNlsvV4oetb' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6764152ms] [ERROR] ./Desktop/project/apotek/apps/web/components/app-settings-dialog.tsx:13:1
+Module not found: Can't resolve '@workspace/ui/components/switch'
+  11 | } from "@workspace/ui/components/dialog"
+  12 | import { Label } from "@workspace/ui/components/label"
+> 13 | import { Switch } from "@workspace/ui/components/switch"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 | import { Separator } from "@workspace/ui/components/separator"
+  15 |
+  16 | export function AppSettingsDialog({ trigger }: { trigger: React.ReactNode }) {
+
+Import map: aliased to relative '../../packages/ui/src/components/switch' inside of [project]/Desktop/project/apotek/apps/web
+
+Import traces:
+  Client Component Browser:
+    ./Desktop/project/apotek/apps/web/components/app-settings-dialog.tsx [Client Component Browser]
+    ./Desktop/project/apotek/apps/web/components/nav-links.tsx [Client Component Browser]
+    ./Desktop/project/apotek/apps/web/components/nav-links.tsx [Server Component]
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx [Server Component]
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./Desktop/project/apotek/apps/web/components/app-settings-dialog.tsx [Client Component SSR]
+    ./Desktop/project/apotek/apps/web/components/nav-links.tsx [Client Component SSR]
+    ./Desktop/project/apotek/apps/web/components/nav-links.tsx [Server Component]
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx [Server Component]
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[ 6851643ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=xwZqzhnmeeIRi_hKVe7Z9' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6852646ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=xwZqzhnmeeIRi_hKVe7Z9' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6853651ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=xwZqzhnmeeIRi_hKVe7Z9' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6854657ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=xwZqzhnmeeIRi_hKVe7Z9' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6855665ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=xwZqzhnmeeIRi_hKVe7Z9' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6860674ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=xwZqzhnmeeIRi_hKVe7Z9' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[ 6865681ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=xwZqzhnmeeIRi_hKVe7Z9' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[13288355ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/login?_rsc=hl69e:0
+[13351751ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13379135ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13379161ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13379166ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13381978ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13382129ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13382364ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13382380ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13382499ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13382564ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13384553ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388705ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388754ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388782ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388816ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388869ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388878ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388893ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388918ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388929ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13388941ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389002ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389019ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389027ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389035ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389048ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389059ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389065ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389087ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389119ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13389143ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13398868ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13398929ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13399003ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13399084ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13399123ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13399226ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13399528ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13400313ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13400432ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13400618ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406024ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406113ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406169ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406254ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406391ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406422ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406501ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406562ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406598ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406709ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406756ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13406806ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13407163ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13407248ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13407288ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13407403ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13407772ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login?_rsc=hl69e:0
+[13407998ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408080ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408148ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408225ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408254ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408310ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408349ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408412ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13408478ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_ef1451b2._.js:3127
+[13413857ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login:0
+[13487350ms] Error: ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts
+
+
+    at <unknown> (Error: ./Desktop/project/apotek/packages/database/src/index.ts:24:1)
+    at Object.getCompilationErrors (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:1008:59)
+    at DevBundlerService.getCompilationError (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/lib/dev-bundler-service.js:44:55)
+    at DevServer.getCompilationError (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/dev/next-dev-server.js:706:42)
+    at DevServer.findPageComponents (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/dev/next-dev-server.js:676:43)
+    at async DevServer.renderErrorToResponseImpl (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/base-server.js:1733:26)
+[13486290ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[13486291ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Server Component:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/auth.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[13486292ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/pos/page.tsx
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/sale.ts
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[13486293ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/user.ts
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/dashboard.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/page.tsx
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[13486293ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/settings/organization/page.tsx
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/organization.ts
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[13486294ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/user.ts
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/report.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/reports/page.tsx
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[13486294ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/user.ts
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/category.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/medicines/page.tsx
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[13492991ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14888917ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/proxy.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14941373ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14969236ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14969256ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14969278ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14969289ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14969304ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14969922ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14969942ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14970174ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14970188ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14972128ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14972139ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14972163ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14972179ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14972654ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14972690ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14972694ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14973088ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14973101ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14973285ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14973300ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14973583ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14973621ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14973816ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14977707ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14977847ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978005ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978132ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978386ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978405ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978424ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978671ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978692ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978706ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14978827ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979162ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979195ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979218ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979237ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979456ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979480ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979492ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979757ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14979797ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14980239ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14980251ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14980538ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14980570ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14980585ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14980598ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14980631ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14989795ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14989843ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14989909ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14991450ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14991457ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14991469ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992198ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992206ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992434ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992454ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992459ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992724ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992737ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992746ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992907ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14992914ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993335ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993345ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993501ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993519ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993680ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993689ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993696ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993885ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993893ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14993900ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994116ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994122ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994418ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994430ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994667ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994673ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994799ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14994926ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14995224ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[14998285ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/login:0
+[15004315ms] Error: ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts
+
+
+    at <unknown> (Error: ./Desktop/project/apotek/packages/database/src/index.ts:24:1)
+    at Object.getCompilationErrors (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:1008:59)
+    at DevBundlerService.getCompilationError (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/lib/dev-bundler-service.js:44:55)
+    at DevServer.getCompilationError (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/dev/next-dev-server.js:706:42)
+    at DevServer.findPageComponents (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/dev/next-dev-server.js:676:43)
+    at async DevServer.renderErrorToResponseImpl (file:///home/lilletboy/Desktop/project/apotek/node_modules/next/dist/server/base-server.js:1733:26)
+[15004244ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[15004280ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15004284ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Server Component:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/auth.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15004285ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/pos/page.tsx
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/sale.ts
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15004286ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/user.ts
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/dashboard.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/page.tsx
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15004287ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/settings/organization/page.tsx
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/organization.ts
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15004287ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/user.ts
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/report.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/reports/page.tsx
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15004291ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import traces:
+  #1 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/user.ts
+
+  #2 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/actions/category.ts
+    ./Desktop/project/apotek/apps/web/app/dashboard/medicines/page.tsx
+
+  #3 [Server Component]:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/lib/organization-plan.ts
+    ./Desktop/project/apotek/apps/web/components/app-sidebar.tsx
+    ./Desktop/project/apotek/apps/web/app/dashboard/layout.tsx @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15005737ms] [ERROR] ./Desktop/project/apotek/packages/database/src/index.ts:24:1
+Parsing ecmascript source code failed
+  22 | =======
+  23 |   throw new Error("DATABASE_URL is not set.")
+> 24 | >>>>>>> Stashed changes
+     | ^^^^^^^
+  25 | }
+  26 |
+  27 | const conn = globalForDb.conn ?? postgres(connectionString)
+
+Merge conflict marker encountered.
+
+Import trace:
+  Edge Middleware:
+    ./Desktop/project/apotek/packages/database/src/index.ts
+    ./Desktop/project/apotek/apps/web/auth.config.ts
+    ./Desktop/project/apotek/apps/web/auth.ts
+    ./Desktop/project/apotek/apps/web/middleware.ts @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_d58a20de._.js:1920
+[15160262ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15161291ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15162293ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15163298ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15164305ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15169316ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15174320ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15179326ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15184348ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15189361ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15194815ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[15199937ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_473b69ed._.js:2266
+[16524086ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=hgUxJhI7tH4bY4g0dQnJF' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[16525188ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=hgUxJhI7tH4bY4g0dQnJF' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[16526208ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=hgUxJhI7tH4bY4g0dQnJF' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[25611642ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=UQ3H5M1u-wJdaOyq5jrjL' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[25612648ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=UQ3H5M1u-wJdaOyq5jrjL' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[25613655ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=UQ3H5M1u-wJdaOyq5jrjL' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[25614660ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=UQ3H5M1u-wJdaOyq5jrjL' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[25615673ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=UQ3H5M1u-wJdaOyq5jrjL' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878
+[25620682ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=UQ3H5M1u-wJdaOyq5jrjL' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3000/_next/static/chunks/3d3bc_next_dist_client_40337fe1._.js:10878

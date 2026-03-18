@@ -23,6 +23,8 @@ export const organizationsRelations = relations(organizations, ({ many }) => ({
   suppliers: many(suppliers),
   medicines: many(medicines),
   memberships: many(memberships),
+  warehouses: many(warehouses),
+  units: many(units),
 }))
 
 export const users = pgTable("users", {
@@ -145,14 +147,15 @@ export const medicines = pgTable("medicines", {
   categoryId: uuid("category_id")
     .notNull()
     .references(() => categories.id),
+  baseUnitId: uuid("base_unit_id").references(() => units.id), // Satuan terkecil (misal: tablet)
   name: varchar("name", { length: 255 }).notNull(),
   sku: varchar("sku", { length: 100 }),
   purchasePrice: numeric("purchase_price", { precision: 12, scale: 2 }).notNull().default("0"), // Harga Beli
   price: numeric("price", { precision: 12, scale: 2 }).notNull().default("0"), // Harga Jual
-  stock: numeric("stock", { precision: 12, scale: 2 }).notNull().default("0"),
+  stock: numeric("stock", { precision: 12, scale: 2 }).notNull().default("0"), // Legacy/Cache
   minStock: numeric("min_stock", { precision: 12, scale: 2 }).notNull().default("0"), // Stok Minimum Alert
-  unit: varchar("unit", { length: 50 }).notNull().default("pcs"), // tablet, botol, dll
-  expiryDate: timestamp("expiry_date"),
+  unit: varchar("unit", { length: 50 }).notNull().default("pcs"), // tablet, botol, dll (Legacy)
+  expiryDate: timestamp("expiry_date"), // Legacy (Batch tracking preferred)
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -172,12 +175,69 @@ export const medicinesRelations = relations(medicines, ({ one, many }) => ({
     fields: [medicines.categoryId],
     references: [categories.id],
   }),
+  baseUnit: one(units, {
+    fields: [medicines.baseUnitId],
+    references: [units.id],
+  }),
   supplierMedicines: many(supplierMedicines),
   stockMovements: many(stockMovements),
   purchaseItems: many(purchaseItems),
+  batches: many(medicineBatches),
+  stockItems: many(stockItems),
+  unitConversions: many(unitConversions),
 }))
 
-export const stockMovements = pgTable("stock_movements", {
+// --- INVENTORY EXPANSION TABLES ---
+
+export const warehouses = pgTable("warehouses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  code: varchar("code", { length: 50 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  address: text("address"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+}, (table) => ({
+  warehouseCodeOrgIndex: uniqueIndex("warehouse_code_org_idx").on(table.organizationId, table.code),
+}))
+
+export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [warehouses.organizationId],
+    references: [organizations.id],
+  }),
+  stockItems: many(stockItems),
+  transferFrom: many(stockTransfers, { relationName: "fromWarehouse" }),
+  transferTo: many(stockTransfers, { relationName: "toWarehouse" }),
+}))
+
+export const units = pgTable("units", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: varchar("name", { length: 50 }).notNull(),
+  abbreviation: varchar("abbreviation", { length: 20 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+})
+
+export const unitsRelations = relations(units, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [units.organizationId],
+    references: [organizations.id],
+  }),
+  medicines: many(medicines),
+  conversionsFrom: many(unitConversions, { relationName: "fromUnit" }),
+  conversionsTo: many(unitConversions, { relationName: "toUnit" }),
+}))
+
+export const unitConversions = pgTable("unit_conversions", {
   id: uuid("id").primaryKey().defaultRandom(),
   organizationId: uuid("organization_id")
     .notNull()
@@ -185,12 +245,195 @@ export const stockMovements = pgTable("stock_movements", {
   medicineId: uuid("medicine_id")
     .notNull()
     .references(() => medicines.id),
+  fromUnitId: uuid("from_unit_id")
+    .notNull()
+    .references(() => units.id),
+  toUnitId: uuid("to_unit_id")
+    .notNull()
+    .references(() => units.id),
+  factor: numeric("factor", { precision: 12, scale: 4 }).notNull(), // e.g., 1 Box = 10 Strip
+}, (table) => ({
+  conversionUniqueIdx: uniqueIndex("unit_conversion_unique_idx").on(
+    table.organizationId,
+    table.medicineId,
+    table.fromUnitId,
+    table.toUnitId
+  ),
+}))
+
+export const unitConversionsRelations = relations(unitConversions, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [unitConversions.organizationId],
+    references: [organizations.id],
+  }),
+  medicine: one(medicines, {
+    fields: [unitConversions.medicineId],
+    references: [medicines.id],
+  }),
+  fromUnit: one(units, {
+    fields: [unitConversions.fromUnitId],
+    references: [units.id],
+    relationName: "fromUnit",
+  }),
+  toUnit: one(units, {
+    fields: [unitConversions.toUnitId],
+    references: [units.id],
+    relationName: "toUnit",
+  }),
+}))
+
+export const medicineBatches = pgTable("medicine_batches", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  batchNumber: varchar("batch_number", { length: 100 }).notNull(),
+  expiryDate: timestamp("expiry_date").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  batchUniqueIdx: uniqueIndex("batch_unique_idx").on(
+    table.organizationId,
+    table.medicineId,
+    table.batchNumber
+  ),
+}))
+
+export const medicineBatchesRelations = relations(medicineBatches, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [medicineBatches.organizationId],
+    references: [organizations.id],
+  }),
+  medicine: one(medicines, {
+    fields: [medicineBatches.medicineId],
+    references: [medicines.id],
+  }),
+  stockItems: many(stockItems),
+  stockMovements: many(stockMovements),
+}))
+
+export const stockItems = pgTable("stock_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  warehouseId: uuid("warehouse_id")
+    .notNull()
+    .references(() => warehouses.id),
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  batchId: uuid("batch_id")
+    .references(() => medicineBatches.id), // Nullable for non-batch stock if needed
+  quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull().default("0"),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+}, (table) => ({
+  stockItemUniqueIdx: uniqueIndex("stock_item_unique_idx").on(
+    table.organizationId,
+    table.warehouseId,
+    table.medicineId,
+    table.batchId
+  ),
+}))
+
+export const stockItemsRelations = relations(stockItems, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [stockItems.organizationId],
+    references: [organizations.id],
+  }),
+  warehouse: one(warehouses, {
+    fields: [stockItems.warehouseId],
+    references: [warehouses.id],
+  }),
+  medicine: one(medicines, {
+    fields: [stockItems.medicineId],
+    references: [medicines.id],
+  }),
+  batch: one(medicineBatches, {
+    fields: [stockItems.batchId],
+    references: [medicineBatches.id],
+  }),
+}))
+
+export const stockTransfers = pgTable("stock_transfers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  fromWarehouseId: uuid("from_warehouse_id")
+    .notNull()
+    .references(() => warehouses.id),
+  toWarehouseId: uuid("to_warehouse_id")
+    .notNull()
+    .references(() => warehouses.id),
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  batchId: uuid("batch_id")
+    .references(() => medicineBatches.id),
+  quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"), // 'pending', 'completed', 'cancelled'
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id),
+  note: text("note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+})
+
+export const stockTransfersRelations = relations(stockTransfers, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [stockTransfers.organizationId],
+    references: [organizations.id],
+  }),
+  fromWarehouse: one(warehouses, {
+    fields: [stockTransfers.fromWarehouseId],
+    references: [warehouses.id],
+    relationName: "fromWarehouse",
+  }),
+  toWarehouse: one(warehouses, {
+    fields: [stockTransfers.toWarehouseId],
+    references: [warehouses.id],
+    relationName: "toWarehouse",
+  }),
+  medicine: one(medicines, {
+    fields: [stockTransfers.medicineId],
+    references: [medicines.id],
+  }),
+  batch: one(medicineBatches, {
+    fields: [stockTransfers.batchId],
+    references: [medicineBatches.id],
+  }),
+  user: one(users, {
+    fields: [stockTransfers.userId],
+    references: [users.id],
+  }),
+}))
+
+// --- END INVENTORY EXPANSION TABLES ---
+
+export const stockMovements = pgTable("stock_movements", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  warehouseId: uuid("warehouse_id")
+    .references(() => warehouses.id), // Added
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id),
+  batchId: uuid("batch_id")
+    .references(() => medicineBatches.id), // Added
   purchaseId: uuid("purchase_id").references(() => purchases.id),
   supplierId: uuid("supplier_id").references(() => suppliers.id),
-  type: varchar("type", { length: 50 }).notNull(), // 'in', 'out', 'adjustment'
+  type: varchar("type", { length: 50 }).notNull(), // 'in', 'out', 'adjustment', 'transfer_in', 'transfer_out'
   quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
   priceAtTransaction: numeric("price_at_transaction", { precision: 12, scale: 2 }).notNull().default("0"),
   resultingStock: numeric("resulting_stock", { precision: 12, scale: 2 }).notNull().default("0"),
@@ -204,6 +447,10 @@ export const stockMovementsRelations = relations(stockMovements, ({ one }) => ({
     fields: [stockMovements.organizationId],
     references: [organizations.id],
   }),
+  warehouse: one(warehouses, {
+    fields: [stockMovements.warehouseId],
+    references: [warehouses.id],
+  }),
   medicine: one(medicines, {
     fields: [stockMovements.medicineId],
     references: [medicines.id],
@@ -211,6 +458,10 @@ export const stockMovementsRelations = relations(stockMovements, ({ one }) => ({
   user: one(users, {
     fields: [stockMovements.userId],
     references: [users.id],
+  }),
+  batch: one(medicineBatches, {
+    fields: [stockMovements.batchId],
+    references: [medicineBatches.id],
   }),
   supplier: one(suppliers, {
     fields: [stockMovements.supplierId],
@@ -409,3 +660,16 @@ export type Sale = typeof sales.$inferSelect
 export type NewSale = typeof sales.$inferInsert
 export type SaleItem = typeof saleItems.$inferSelect
 export type NewSaleItem = typeof saleItems.$inferInsert
+
+export type Warehouse = typeof warehouses.$inferSelect
+export type NewWarehouse = typeof warehouses.$inferInsert
+export type Unit = typeof units.$inferSelect
+export type NewUnit = typeof units.$inferInsert
+export type UnitConversion = typeof unitConversions.$inferSelect
+export type NewUnitConversion = typeof unitConversions.$inferInsert
+export type MedicineBatch = typeof medicineBatches.$inferSelect
+export type NewMedicineBatch = typeof medicineBatches.$inferInsert
+export type StockItem = typeof stockItems.$inferSelect
+export type NewStockItem = typeof stockItems.$inferInsert
+export type StockTransfer = typeof stockTransfers.$inferSelect
+export type NewStockTransfer = typeof stockTransfers.$inferInsert

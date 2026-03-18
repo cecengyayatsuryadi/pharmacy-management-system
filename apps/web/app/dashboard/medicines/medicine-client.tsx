@@ -60,14 +60,15 @@ import {
   updateMedicineAction,
   deleteMedicineAction,
 } from "@/lib/actions/medicine"
-import type { Medicine, Category } from "@workspace/database"
+import type { Medicine, Category, Unit } from "@workspace/database"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
 import { SearchIcon, XIcon } from "lucide-react"
 
 interface MedicineClientProps {
-  initialData: (Medicine & { category: Category })[]
+  initialData: (Medicine & { category: Category, baseUnit: Unit | null })[]
   categories: Category[]
+  units: Unit[]
   metadata: {
     total: number
     page: number
@@ -85,7 +86,7 @@ function SubmitButton({ label }: { label: string }) {
   )
 }
 
-export function MedicineClient({ initialData, categories, metadata }: MedicineClientProps) {
+export function MedicineClient({ initialData, categories, units, metadata }: MedicineClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const currentPage = Number(searchParams.get("page")) || 1
@@ -232,16 +233,16 @@ export function MedicineClient({ initialData, categories, metadata }: MedicineCl
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="unit">Satuan</Label>
-                  <Select name="unit" defaultValue="pcs">
+                  <Select name="baseUnitId" required>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih Satuan" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pcs">Pcs / Biji</SelectItem>
-                      <SelectItem value="tablet">Tablet</SelectItem>
-                      <SelectItem value="strip">Strip</SelectItem>
-                      <SelectItem value="botol">Botol</SelectItem>
-                      <SelectItem value="box">Box / Dus</SelectItem>
+                      {units.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.name} ({u.abbreviation})
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -351,7 +352,7 @@ export function MedicineClient({ initialData, categories, metadata }: MedicineCl
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span>{medicine.stock} {medicine.unit}</span>
+                        <span>{medicine.stock} {medicine.baseUnit?.abbreviation || medicine.unit}</span>
                         {Number(medicine.stock) <= Number(medicine.minStock) && (
                           <Badge variant="outline" className="w-fit text-red-500 border-red-500 bg-red-50">
                             Stok Rendah
@@ -493,16 +494,16 @@ export function MedicineClient({ initialData, categories, metadata }: MedicineCl
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="edit-unit">Satuan</Label>
-                <Select name="unit" defaultValue={selectedMedicine?.unit}>
+                <Select name="baseUnitId" defaultValue={selectedMedicine?.baseUnitId || undefined}>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih Satuan" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pcs">Pcs / Biji</SelectItem>
-                    <SelectItem value="tablet">Tablet</SelectItem>
-                    <SelectItem value="strip">Strip</SelectItem>
-                    <SelectItem value="botol">Botol</SelectItem>
-                    <SelectItem value="box">Box / Dus</SelectItem>
+                    {units.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.name} ({u.abbreviation})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
