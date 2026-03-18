@@ -13,7 +13,9 @@ import {
   HistoryIcon,
   PlusIcon,
   ArrowUpCircleIcon,
-  ArrowDownCircleIcon
+  ArrowDownCircleIcon,
+  LockIcon,
+  ShieldAlertIcon
 } from "lucide-react"
 import { format, isPast, isWithinInterval, addDays } from "date-fns"
 import { id } from "date-fns/locale"
@@ -38,11 +40,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@workspace/ui/components/pagination"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip"
 import type { Warehouse } from "@workspace/database"
 
 interface StockItem {
   id: string
   quantity: string
+  reservedQuantity: string
+  quarantineQuantity: string
+  availableQuantity: string
   updatedAt: Date
   medicine: {
     id: string
@@ -110,10 +121,10 @@ export function StockClient({ initialData, warehouses, metadata }: StockClientPr
     if (!date) return null
     const expiryDate = new Date(date)
     if (isPast(expiryDate)) {
-      return <Badge variant="destructive" className="text-[10px] h-5">Expired</Badge>
+      return <Badge variant="destructive">Expired</Badge>
     }
     if (isWithinInterval(expiryDate, { start: new Date(), end: addDays(new Date(), 90) })) {
-      return <Badge variant="outline" className="text-orange-500 border-orange-500 text-[10px] h-5">Hampir Expired</Badge>
+      return <Badge variant="warning">Hampir Expired</Badge>
     }
     return null
   }
@@ -123,25 +134,22 @@ export function StockClient({ initialData, warehouses, metadata }: StockClientPr
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Stok Real-time</h2>
-          <p className="text-muted-foreground">
-            Pantau saldo stok obat berdasarkan gudang dan nomor batch.
+          <p className="text-muted-foreground text-sm">
+            Pantau ketersediaan stok fisik vs stok layak jual (Available).
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-2" onClick={() => router.push("/dashboard/inventory/stock/in")}>
             <ArrowUpCircleIcon className="size-4 text-emerald-600" />
             <span className="hidden sm:inline">Stok Masuk</span>
-            <span className="sm:hidden">Masuk</span>
           </Button>
           <Button variant="outline" size="sm" className="gap-2" onClick={() => router.push("/dashboard/inventory/stock/out")}>
             <ArrowDownCircleIcon className="size-4 text-red-600" />
             <span className="hidden sm:inline">Stok Keluar</span>
-            <span className="sm:hidden">Keluar</span>
           </Button>
           <Button size="sm" className="gap-2" onClick={() => router.push("/dashboard/inventory/stock/adjustment")}>
             <PlusIcon className="size-4" />
             <span className="hidden sm:inline">Stok Opname</span>
-            <span className="sm:hidden">Opname</span>
           </Button>
         </div>
       </div>
@@ -158,21 +166,6 @@ export function StockClient({ initialData, warehouses, metadata }: StockClientPr
               debouncedSearch(e.target.value)
             }}
           />
-          {searchValue && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
-              onClick={() => {
-                setSearchValue("")
-                const params = new URLSearchParams(searchParams.toString())
-                params.delete("search")
-                router.push(`?${params.toString()}`)
-              }}
-            >
-              <XIcon className="size-3" />
-            </Button>
-          )}
         </div>
         <Select
           defaultValue={searchParams.get("warehouseId") || "all"}
@@ -195,75 +188,79 @@ export function StockClient({ initialData, warehouses, metadata }: StockClientPr
         </Select>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nama Obat</TableHead>
-                <TableHead>Lokasi Gudang</TableHead>
-                <TableHead>Batch & Kadaluarsa</TableHead>
-                <TableHead className="text-right">Saldo Stok</TableHead>
-                <TableHead>Update Terakhir</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {initialData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                    Belum ada saldo stok tercatat.
-                  </TableCell>
+      <TooltipProvider>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead>Nama Obat</TableHead>
+                  <TableHead>Lokasi / Batch</TableHead>
+                  <TableHead className="text-right">Fisik</TableHead>
+                  <TableHead className="text-right">Reserved</TableHead>
+                  <TableHead className="text-right">Quarantine</TableHead>
+                  <TableHead className="text-right bg-primary/5 font-bold text-primary">Available</TableHead>
+                  <TableHead>Update</TableHead>
                 </TableRow>
-              ) : (
-                initialData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{item.medicine.name}</span>
-                        <span className="text-[10px] text-muted-foreground">SKU: {item.medicine.sku || "-"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="font-normal">
-                        {item.warehouse.name}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        {item.batch ? (
-                          <>
-                            <span className="text-xs font-mono font-medium">{item.batch.batchNumber}</span>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] text-muted-foreground">
-                                {format(new Date(item.batch.expiryDate), "dd MMM yyyy")}
-                              </span>
-                              {getExpiryStatus(item.batch.expiryDate)}
-                            </div>
-                          </>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic">Tanpa Batch</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex flex-col items-end">
-                        <span className="text-lg font-bold text-primary">{item.quantity}</span>
-                        <span className="text-[10px] text-muted-foreground uppercase">{item.medicine.unit}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <HistoryIcon className="size-3" />
-                        {format(new Date(item.updatedAt), "dd/MM/yy HH:mm")}
-                      </div>
+              </TableHeader>
+              <TableBody>
+                {initialData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                      Tidak ada data stok ditemukan.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ) : (
+                  initialData.map((item) => (
+                    <TableRow key={item.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-sm">{item.medicine.name}</span>
+                          <span className="text-[10px] text-muted-foreground">{item.medicine.sku || "-"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-xs">{item.warehouse.name}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono text-muted-foreground">{item.batch?.batchNumber || "NO BATCH"}</span>
+                            {getExpiryStatus(item.batch?.expiryDate || null)}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-xs">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-help underline decoration-dotted decoration-muted-foreground/30 font-mono text-xs text-amber-600">
+                            {item.reservedQuantity}
+                          </TooltipTrigger>
+                          <TooltipContent>Stok sedang dipesan di antrean kasir</TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-help underline decoration-dotted decoration-muted-foreground/30 font-mono text-xs text-red-600">
+                            {item.quarantineQuantity}
+                          </TooltipTrigger>
+                          <TooltipContent>Stok rusak atau sedang dikarantina</TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell className="text-right bg-primary/5 font-bold text-primary font-mono">
+                        {item.availableQuantity}
+                      </TableCell>
+                      <TableCell className="text-[10px] text-muted-foreground whitespace-nowrap">
+                        {format(new Date(item.updatedAt), "dd/MM HH:mm")}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </TooltipProvider>
 
       {metadata.totalPages > 1 && (
         <Pagination className="mt-4">

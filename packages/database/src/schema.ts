@@ -328,6 +328,8 @@ export const stockItems = pgTable("stock_items", {
   batchId: uuid("batch_id")
     .references(() => medicineBatches.id), // Nullable for non-batch stock if needed
   quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull().default("0"),
+  reservedQuantity: numeric("reserved_quantity", { precision: 12, scale: 2 }).notNull().default("0"),
+  quarantineQuantity: numeric("quarantine_quantity", { precision: 12, scale: 2 }).notNull().default("0"),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .notNull()
