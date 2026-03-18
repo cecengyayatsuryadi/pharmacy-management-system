@@ -25,10 +25,12 @@ export async function getStockItemsAction(
     search ? ilike(medicines.name, `%${search}%`) : undefined
   )
 
-  const data = await db
+  const rawData = await db
     .select({
       id: stockItems.id,
       quantity: stockItems.quantity,
+      reservedQuantity: stockItems.reservedQuantity,
+      quarantineQuantity: stockItems.quarantineQuantity,
       updatedAt: stockItems.updatedAt,
       medicine: {
         id: medicines.id,
@@ -54,6 +56,18 @@ export async function getStockItemsAction(
     .limit(limit)
     .offset(offset)
     .orderBy(desc(stockItems.updatedAt))
+
+  // Menambahkan kalkulasi Available Stock
+  const data = rawData.map(item => {
+    const total = parseFloat(item.quantity)
+    const reserved = parseFloat(item.reservedQuantity || "0")
+    const quarantine = parseFloat(item.quarantineQuantity || "0")
+    
+    return {
+      ...item,
+      availableQuantity: (total - reserved - quarantine).toFixed(2)
+    }
+  })
 
   const countResult = await db
     .select({ value: count() })
