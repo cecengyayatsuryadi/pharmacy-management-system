@@ -1,5 +1,7 @@
 import { auth } from "@/auth"
 import { getUnitsAction } from "@/lib/actions/unit"
+import { getMedicines } from "@/lib/actions/medicine"
+import { getConversionsAction } from "@/lib/actions/conversion"
 import { UnitClient } from "./unit-client"
 import { redirect } from "next/navigation"
 
@@ -15,11 +17,16 @@ export default async function UnitsPage(props: {
     redirect("/login")
   }
 
-  const { data } = await getUnitsAction(page, 10, search)
+  // Fetch data
+  const { data: units } = await getUnitsAction(page, 100, search)
+  const { data: medicines } = await getMedicines(1, 100, "")
+  const conversions = await getConversionsAction()
 
   return (
     <UnitClient 
-      initialUnits={data} 
+      initialUnits={units}
+      medicines={medicines}
+      conversions={conversions}
     />
   )
 }
