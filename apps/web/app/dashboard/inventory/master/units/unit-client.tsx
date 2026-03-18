@@ -8,7 +8,9 @@ import {
   SearchIcon,
   ScaleIcon,
   ArrowRightIcon,
-  LinkIcon
+  LinkIcon,
+  CheckIcon,
+  ChevronsUpDownIcon
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -33,10 +35,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@workspace/ui/components/command"
 import { toast } from "@workspace/ui/components/sonner"
 import { createUnitAction } from "@/lib/actions/unit"
 import { createConversionAction } from "@/lib/actions/conversion"
-import type { Unit } from "@workspace/database"
+import { getMedicines } from "@/lib/actions/medicine"
+import type { Unit, Medicine, UnitConversion } from "@workspace/database"
+
+type ConversionWithRelations = UnitConversion & {
+  medicine: Medicine;
+  fromUnit: Unit;
+  toUnit: Unit;
+}
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus()
@@ -53,8 +75,8 @@ export function UnitClient({
   conversions
 }: { 
   initialUnits: Unit[];
-  medicines: any[];
-  conversions: any[];
+  medicines: Medicine[];
+  conversions: ConversionWithRelations[];
 }) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
@@ -67,6 +89,32 @@ export function UnitClient({
   const [previewFactor, setPreviewFactor] = React.useState<number | "">(1)
   const [fromUnitId, setFromUnitId] = React.useState<string>("")
   const [toUnitId, setToUnitId] = React.useState<string>("")
+
+  // Combobox specific state
+  const [openCombobox, setOpenCombobox] = React.useState(false)
+  const [medQuery, setMedQuery] = React.useState("")
+  const [asyncMedicines, setAsyncMedicines] = React.useState<Medicine[]>(medicines || [])
+  const [isLoadingMeds, setIsLoadingMeds] = React.useState(false)
+
+  React.useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!openCombobox) return;
+      setIsLoadingMeds(true)
+      try {
+        const { data } = await getMedicines(1, 15, medQuery)
+        setAsyncMedicines(data)
+      } catch (err) {
+        // Fallback gracefully on error
+        setAsyncMedicines([])
+      } finally {
+        setIsLoadingMeds(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [medQuery, openCombobox])
+
+  // Get currently selected medicine object for display
+  const selectedMed = asyncMedicines.find(m => m.id === selectedMedId) || medicines?.find(m => m.id === selectedMedId)
 
   React.useEffect(() => {
     if (unitState?.success) {
@@ -91,7 +139,7 @@ export function UnitClient({
     u.abbreviation.toLowerCase().includes(search.toLowerCase())
   )
 
-  const filteredConversions = conversions.filter((c: any) => 
+  const filteredConversions = conversions.filter((c) => 
     c.medicine?.name?.toLowerCase().includes(conversionSearch.toLowerCase())
   )
 
@@ -203,20 +251,53 @@ export function UnitClient({
               </CardHeader>
               <CardContent>
                 <form action={formActionConv} className="space-y-4">
-                  <div className="space-y-2">
+                  <div className="space-y-2 flex flex-col">
                     <Label htmlFor="medicineId">Produk / Obat</Label>
-                    <Select name="medicineId" value={selectedMedId} onValueChange={setSelectedMedId} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih obat..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {medicines.map((med: any) => (
-                          <SelectItem key={med.id} value={med.id}>
-                            {med.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <input type="hidden" name="medicineId" value={selectedMedId} required />
+                    <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openCombobox}
+                          className="justify-between w-full font-normal"
+                        >
+                          {selectedMed ? selectedMed.name : "Cari obat..."}
+                          <ChevronsUpDownIcon className="opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput 
+                            placeholder="Ketik nama obat..." 
+                            value={medQuery}
+                            onValueChange={setMedQuery}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              {isLoadingMeds ? "Mencari data..." : "Obat tidak ditemukan."}
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {asyncMedicines.map((med) => (
+                                <CommandItem
+                                  key={med.id}
+                                  value={med.id}
+                                  onSelect={(currentValue) => {
+                                    setSelectedMedId(currentValue === selectedMedId ? "" : currentValue)
+                                    setOpenCombobox(false)
+                                  }}
+                                >
+                                  {med.name}
+                                  <CheckIcon
+                                    className={`ml-auto ${selectedMedId === med.id ? "opacity-100" : "opacity-0"}`}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   <div className="space-y-2 pt-2 border-t">
@@ -318,7 +399,7 @@ export function UnitClient({
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredConversions.map((conv: any) => (
+                        filteredConversions.map((conv) => (
                           <TableRow key={conv.id}>
                             <TableCell className="font-medium">{conv.medicine?.name}</TableCell>
                             <TableCell>

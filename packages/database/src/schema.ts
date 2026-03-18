@@ -649,3 +649,4 @@ export type NewPurchase = typeof purchases.$inferInsert
 export type NewPurchaseItem = typeof purchaseItems.$inferInsert
 export type NewSale = typeof sales.$inferInsert
 export type NewSaleItem = typeof saleItems.$inferInsert
+export type UnitConversion = typeof unitConversions.$inferSelect
