@@ -21,6 +21,13 @@ const signupSchema = z.object({
   organizationName: z.string().min(3, { message: "Nama Apotek minimal 3 karakter" }),
 })
 
+/**
+ * Authenticates a user and starts a session using NextAuth.
+ * 
+ * @param prevState - Previous action state.
+ * @param formData - Credentials (email and password).
+ * @returns Success message or an error object.
+ */
 export async function loginAction(prevState: any, formData: FormData) {
   const validatedFields = loginSchema.safeParse(
     Object.fromEntries(formData.entries())
@@ -57,6 +64,13 @@ export async function loginAction(prevState: any, formData: FormData) {
   }
 }
 
+/**
+ * Registers a new organization and administrator.
+ * 
+ * @param prevState - Previous action state.
+ * @param formData - Organization and administrator details.
+ * @returns Success message or an error object.
+ */
 export async function signupAction(prevState: any, formData: FormData) {
   const validatedFields = signupSchema.safeParse(
     Object.fromEntries(formData.entries())

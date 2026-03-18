@@ -23,6 +23,13 @@ const saleSchema = z.object({
 
 export type SaleInput = z.infer<typeof saleSchema>
 
+/**
+ * Processes a Point of Sale (POS) transaction.
+ * Creates a sale record, sale items, and updates inventory balances within a database transaction.
+ * 
+ * @param data - The sale input containing items, payment method, and amount paid.
+ * @returns An object containing the created sale on success or an error object.
+ */
 export async function createSaleAction(data: SaleInput) {
   const session = await auth()
   const organizationId = session?.user?.organizationId

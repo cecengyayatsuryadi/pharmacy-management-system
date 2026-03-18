@@ -5,9 +5,12 @@ import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { 
   PlusIcon, 
-  LayersIcon, 
   SearchIcon,
-  ScaleIcon
+  ScaleIcon,
+  ArrowRightIcon,
+  LinkIcon,
+  CheckIcon,
+  ChevronsUpDownIcon
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -24,140 +27,407 @@ import {
   DialogDescription
 } from "@workspace/ui/components/dialog"
 import { Badge } from "@workspace/ui/components/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@workspace/ui/components/command"
 import { toast } from "@workspace/ui/components/sonner"
 import { createUnitAction } from "@/lib/actions/unit"
-import type { Unit } from "@workspace/database"
+import { createConversionAction } from "@/lib/actions/conversion"
+import { getMedicines } from "@/lib/actions/medicine"
+import type { Unit, Medicine, UnitConversion } from "@workspace/database"
+
+type ConversionWithRelations = UnitConversion & {
+  medicine: Medicine;
+  fromUnit: Unit;
+  toUnit: Unit;
+}
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus()
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending} className="w-full">
       {pending ? "Mohon tunggu..." : label}
     </Button>
   )
 }
 
-export function UnitClient({ initialUnits }: { initialUnits: Unit[] }) {
+export function UnitClient({ 
+  initialUnits,
+  medicines,
+  conversions
+}: { 
+  initialUnits: Unit[];
+  medicines: Medicine[];
+  conversions: ConversionWithRelations[];
+}) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
+  const [conversionSearch, setConversionSearch] = React.useState("")
   
-  const [state, formAction] = useActionState(createUnitAction, null)
+  const [unitState, formActionUnit] = useActionState(createUnitAction, null)
+  const [convState, formActionConv] = useActionState(createConversionAction, null)
+
+  const [selectedMedId, setSelectedMedId] = React.useState<string>("")
+  const [previewFactor, setPreviewFactor] = React.useState<number | "">(1)
+  const [fromUnitId, setFromUnitId] = React.useState<string>("")
+  const [toUnitId, setToUnitId] = React.useState<string>("")
+
+  // Combobox specific state
+  const [openCombobox, setOpenCombobox] = React.useState(false)
+  const [medQuery, setMedQuery] = React.useState("")
+  const [asyncMedicines, setAsyncMedicines] = React.useState<Medicine[]>(medicines || [])
+  const [isLoadingMeds, setIsLoadingMeds] = React.useState(false)
 
   React.useEffect(() => {
-    if (state?.success) {
-      toast.success(state.message)
+    const timer = setTimeout(async () => {
+      if (!openCombobox) return;
+      setIsLoadingMeds(true)
+      try {
+        const { data } = await getMedicines(1, 15, medQuery)
+        setAsyncMedicines(data)
+      } catch (err) {
+        // Fallback gracefully on error
+        setAsyncMedicines([])
+      } finally {
+        setIsLoadingMeds(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [medQuery, openCombobox])
+
+  // Get currently selected medicine object for display
+  const selectedMed = asyncMedicines.find(m => m.id === selectedMedId) || medicines?.find(m => m.id === selectedMedId)
+
+  React.useEffect(() => {
+    if (unitState?.success) {
+      toast.success(unitState.message)
       setIsOpen(false)
-    } else if (state?.message) {
-      toast.error(state.message)
+    } else if (unitState?.message) {
+      toast.error(unitState.message)
     }
-  }, [state])
+  }, [unitState])
+
+  React.useEffect(() => {
+    if (convState?.success) {
+      toast.success(convState.message)
+      // Reset form locally could be done, but rely on page refresh
+    } else if (convState?.message) {
+      toast.error(convState.message)
+    }
+  }, [convState])
 
   const filteredUnits = initialUnits.filter(u => 
     u.name.toLowerCase().includes(search.toLowerCase()) || 
     u.abbreviation.toLowerCase().includes(search.toLowerCase())
   )
 
+  const filteredConversions = conversions.filter((c) => 
+    c.medicine?.name?.toLowerCase().includes(conversionSearch.toLowerCase())
+  )
+
+  // Get visually selected units for preview
+  const fromUnitObj = initialUnits.find(u => u.id === fromUnitId)
+  const toUnitObj = initialUnits.find(u => u.id === toUnitId)
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Master Satuan</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Satuan & Konversi</h2>
         <p className="text-muted-foreground">
-          Kelola satuan produk (UOM) dan konversi kemasan obat.
+          Kelola satuan produk (UOM) dan konversi kemasan obat (misal: 1 Box = 10 Strip).
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* LEFT: UNITS LIST */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle>Daftar Satuan</CardTitle>
-              <CardDescription>Master data satuan yang tersedia.</CardDescription>
-            </div>
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm">
-                  <PlusIcon className="mr-2 size-4" />
-                  Satuan
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Tambah Satuan Baru</DialogTitle>
-                  <DialogDescription>
-                    Masukkan nama satuan dan singkatannya.
-                  </DialogDescription>
-                </DialogHeader>
-                <form action={formAction} className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Nama Satuan</Label>
-                    <Input id="name" name="name" placeholder="Misal: Tablet, Box, Strip" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="abbreviation">Singkatan</Label>
-                    <Input id="abbreviation" name="abbreviation" placeholder="Misal: tbl, bx, strp" required />
-                  </div>
-                  <DialogFooter>
-                    <SubmitButton label="Simpan Satuan" />
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Cari satuan..."
-                  className="pl-9"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+      <Tabs defaultValue="units" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="units">Master Satuan</TabsTrigger>
+          <TabsTrigger value="conversions">Konversi Satuan</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="units">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle>Daftar Satuan</CardTitle>
+                <CardDescription>Master data satuan dasar yang tersedia.</CardDescription>
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Singkatan</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUnits.length === 0 ? (
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <PlusIcon className="mr-2 size-4" />
+                    Satuan
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Tambah Satuan Baru</DialogTitle>
+                    <DialogDescription>
+                      Masukkan nama satuan dan singkatannya.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form action={formActionUnit} className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Nama Satuan</Label>
+                      <Input id="name" name="name" placeholder="Misal: Tablet, Box, Strip" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="abbreviation">Singkatan</Label>
+                      <Input id="abbreviation" name="abbreviation" placeholder="Misal: tbl, bx, strp" required />
+                    </div>
+                    <DialogFooter>
+                      <SubmitButton label="Simpan Satuan" />
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="relative max-w-sm">
+                  <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Cari satuan..."
+                    className="pl-9"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={2} className="h-24 text-center text-muted-foreground">
-                        Belum ada data.
-                      </TableCell>
+                      <TableHead>Nama Satuan</TableHead>
+                      <TableHead>Singkatan</TableHead>
                     </TableRow>
-                  ) : (
-                    filteredUnits.map((unit) => (
-                      <TableRow key={unit.id}>
-                        <TableCell className="font-medium">{unit.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{unit.abbreviation}</Badge>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUnits.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={2} className="h-24 text-center text-muted-foreground">
+                          Belum ada data.
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                    ) : (
+                      filteredUnits.map((unit) => (
+                        <TableRow key={unit.id}>
+                          <TableCell className="font-medium">{unit.name}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{unit.abbreviation}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        {/* RIGHT: CONVERSION INFO (COMING SOON / PREVIEW) */}
-        <Card className="bg-muted/30 border-dashed">
-          <CardContent className="flex flex-col items-center justify-center h-full py-12 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
-              <ScaleIcon className="size-6" />
-            </div>
-            <h3 className="font-semibold text-lg">Konversi Satuan</h3>
-            <p className="text-sm text-muted-foreground max-w-[250px] mt-2">
-              Fitur mapping konversi antar satuan (misal: 1 Box = 10 Strip) akan tersedia di menu Master Produk.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="conversions">
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* LEFT: FORM */}
+            <Card className="md:col-span-1">
+              <CardHeader>
+                <CardTitle>Tambah Konversi</CardTitle>
+                <CardDescription>Definisikan relasi antar satuan untuk produk tertentu.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form action={formActionConv} className="space-y-4">
+                  <div className="space-y-2 flex flex-col">
+                    <Label htmlFor="medicineId">Produk / Obat</Label>
+                    <input type="hidden" name="medicineId" value={selectedMedId} required />
+                    <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openCombobox}
+                          className="justify-between w-full font-normal"
+                        >
+                          {selectedMed ? selectedMed.name : "Cari obat..."}
+                          <ChevronsUpDownIcon className="opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput 
+                            placeholder="Ketik nama obat..." 
+                            value={medQuery}
+                            onValueChange={setMedQuery}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              {isLoadingMeds ? "Mencari data..." : "Obat tidak ditemukan."}
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {asyncMedicines.map((med) => (
+                                <CommandItem
+                                  key={med.id}
+                                  value={med.id}
+                                  onSelect={(currentValue) => {
+                                    setSelectedMedId(currentValue === selectedMedId ? "" : currentValue)
+                                    setOpenCombobox(false)
+                                  }}
+                                >
+                                  {med.name}
+                                  <CheckIcon
+                                    className={`ml-auto ${selectedMedId === med.id ? "opacity-100" : "opacity-0"}`}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t">
+                    <Label>Satuan Besar (Dari)</Label>
+                    <Select name="fromUnitId" value={fromUnitId} onValueChange={setFromUnitId} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih satuan..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {initialUnits.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.name} ({u.abbreviation})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 space-y-2">
+                      <Label>Nilai Konversi (=)</Label>
+                      <Input 
+                        name="factor" 
+                        type="number" 
+                        min="0.01" 
+                        step="0.01" 
+                        value={previewFactor}
+                        onChange={(e) => setPreviewFactor(parseFloat(e.target.value))}
+                        required 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Satuan Kecil (Ke)</Label>
+                    <Select name="toUnitId" value={toUnitId} onValueChange={setToUnitId} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih satuan..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {initialUnits.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.name} ({u.abbreviation})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {fromUnitObj && toUnitObj && previewFactor && (
+                    <div className="p-3 bg-muted rounded-md border mt-4 text-center">
+                      <p className="text-sm font-medium">Preview Kalkulasi</p>
+                      <div className="flex items-center justify-center gap-2 mt-2 text-primary">
+                        <Badge variant="outline" className="text-sm">1 {fromUnitObj.name}</Badge>
+                        <span className="font-bold">=</span>
+                        <Badge className="text-sm">{previewFactor} {toUnitObj.name}</Badge>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <SubmitButton label="Simpan Konversi" />
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* RIGHT: LIST */}
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle>Daftar Konversi</CardTitle>
+                <CardDescription>Semua aturan konversi satuan per produk.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="relative max-w-sm">
+                    <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Cari produk..."
+                      className="pl-9"
+                      value={conversionSearch}
+                      onChange={(e) => setConversionSearch(e.target.value)}
+                    />
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Produk</TableHead>
+                        <TableHead>Satuan Besar</TableHead>
+                        <TableHead className="text-center">Konversi</TableHead>
+                        <TableHead>Satuan Kecil</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredConversions.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                            Belum ada data konversi.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredConversions.map((conv) => (
+                          <TableRow key={conv.id}>
+                            <TableCell className="font-medium">{conv.medicine?.name}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline">1 {conv.fromUnit?.name}</Badge>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-1 text-muted-foreground">
+                                <LinkIcon className="size-3" />
+                                <span className="font-bold text-foreground">x {Number(conv.factor)}</span>
+                                <ArrowRightIcon className="size-3" />
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge>{conv.toUnit?.name}</Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
