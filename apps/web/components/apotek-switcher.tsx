@@ -23,7 +23,6 @@ export function ApotekSwitcher({
 }: {
   organization: {
     name: string
-    logo: React.ReactNode
     plan: string
   }
 }) {
@@ -36,17 +35,18 @@ export function ApotekSwitcher({
 
   if (!mounted) {
     return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg">
-            <div className="flex aspect-square size-8 items-center justify-center">
-              {organization.logo}
+      <SidebarMenu className="w-full">
+        <SidebarMenuItem className="w-full">
+          <SidebarMenuButton size="lg" className="w-full justify-start items-center">
+            <div className="flex flex-col gap-0.5 text-left text-sm leading-tight flex-1">
+              <span className="truncate font-semibold text-foreground">
+                {organization.name}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                Paket {organization.plan}
+              </span>
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{organization.name}</span>
-              <span className="truncate text-xs">Paket {organization.plan}</span>
-            </div>
-            <ChevronsUpDownIcon className="ml-auto size-4" />
+            <ChevronsUpDownIcon className="ml-auto size-4 shrink-0 text-muted-foreground" />
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
@@ -54,21 +54,23 @@ export function ApotekSwitcher({
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
+    <SidebarMenu className="w-full">
+      <SidebarMenuItem className="w-full">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="w-full data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground justify-start items-center"
             >
-              <div className="flex aspect-square size-8 items-center justify-center">
-                {organization.logo}
+              <div className="flex flex-col gap-0.5 text-left text-sm leading-tight flex-1">
+                <span className="truncate font-semibold text-foreground">
+                  {organization.name}
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  Paket {organization.plan}
+                </span>
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">                <span className="truncate font-medium">{organization.name}</span>
-                <span className="truncate text-xs">Paket {organization.plan}</span>
-              </div>
-              <ChevronsUpDownIcon className="ml-auto size-4" />
+              <ChevronsUpDownIcon className="ml-auto size-4 shrink-0 text-muted-foreground" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

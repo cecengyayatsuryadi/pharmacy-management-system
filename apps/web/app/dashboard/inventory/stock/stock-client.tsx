@@ -10,7 +10,10 @@ import {
   Package2Icon,
   AlertCircleIcon,
   CalendarIcon,
-  HistoryIcon
+  HistoryIcon,
+  PlusIcon,
+  ArrowUpCircleIcon,
+  ArrowDownCircleIcon
 } from "lucide-react"
 import { format, isPast, isWithinInterval, addDays } from "date-fns"
 import { id } from "date-fns/locale"
@@ -117,11 +120,30 @@ export function StockClient({ initialData, warehouses, metadata }: StockClientPr
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Stok Real-time</h2>
-        <p className="text-muted-foreground">
-          Pantau saldo stok obat berdasarkan gudang dan nomor batch.
-        </p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Stok Real-time</h2>
+          <p className="text-muted-foreground">
+            Pantau saldo stok obat berdasarkan gudang dan nomor batch.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => router.push("/dashboard/inventory/stock/in")}>
+            <ArrowUpCircleIcon className="size-4 text-emerald-600" />
+            <span className="hidden sm:inline">Stok Masuk</span>
+            <span className="sm:hidden">Masuk</span>
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => router.push("/dashboard/inventory/stock/out")}>
+            <ArrowDownCircleIcon className="size-4 text-red-600" />
+            <span className="hidden sm:inline">Stok Keluar</span>
+            <span className="sm:hidden">Keluar</span>
+          </Button>
+          <Button size="sm" className="gap-2" onClick={() => router.push("/dashboard/inventory/stock/adjustment")}>
+            <PlusIcon className="size-4" />
+            <span className="hidden sm:inline">Stok Opname</span>
+            <span className="sm:hidden">Opname</span>
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center">

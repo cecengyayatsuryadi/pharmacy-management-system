@@ -10,11 +10,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@workspace/ui/components/breadcrumb"
-import { Separator } from "@workspace/ui/components/separator"
-import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 
 const labelOverrides: Record<string, string> = {
-  dashboard: "Ringkasan",
+  dashboard: "Dashboard",
   pos: "Kasir (POS)",
   medicines: "Data Obat",
   categories: "Kategori Obat",
@@ -31,50 +29,57 @@ const labelOverrides: Record<string, string> = {
   suppliers: "Data Supplier",
   reports: "Laporan",
   settings: "Pengaturan",
-  organization: "Profil Apotek",
+  help: "Bantuan",
 }
 
 export function DashboardHeader() {
   const pathname = usePathname()
-  const pathSegments = pathname.split("/").filter(Boolean)
+  
+  // Jika di dashboard utama, jangan tampilkan breadcrumb (biar bersih)
+  if (pathname === "/dashboard" || pathname === "/dashboard/") {
+    return null
+  }
 
-  const breadcrumbs = pathSegments.map((segment, index) => {
-    const href = `/${pathSegments.slice(0, index + 1).join("/")}`
-    const label = labelOverrides[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ")
-    const isLast = index === pathSegments.length - 1
-
-    return { href, label, isLast }
-  })
+  const segments = pathname.split("/").filter(Boolean)
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-      <div className="flex items-center gap-2 px-4">
-        <SidebarTrigger className="-ml-1" />
-        <Separator
-          orientation="vertical"
-          className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-        />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbs.map((crumb, index) => (
-              <React.Fragment key={crumb.href}>
-                <BreadcrumbItem className={index === 0 ? "" : "hidden md:block"}>
-                  {crumb.isLast ? (
-                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+    <header className="flex h-10 shrink-0 items-center gap-2 px-4">
+      <Breadcrumb>
+        <BreadcrumbList>
+          {segments.map((segment, index) => {
+            const isLast = index === segments.length - 1
+            const url = `/${segments.slice(0, index + 1).join("/")}`
+            const label = labelOverrides[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
+
+            if (segment === "dashboard" && index === 0) {
+              return (
+                <React.Fragment key={url}>
+                  <BreadcrumbItem>
+                    {isLast ? (
+                      <BreadcrumbPage className="text-xs">{label}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={url} className="text-xs">{label}</BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              )
+            }
+
+            return (
+              <React.Fragment key={url}>
+                <BreadcrumbSeparator className="[&>svg]:size-3" />
+                <BreadcrumbItem>
+                  {isLast ? (
+                    <BreadcrumbPage className="text-xs">{label}</BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink href={crumb.href}>
-                      {crumb.label}
-                    </BreadcrumbLink>
+                    <BreadcrumbLink href={url} className="text-xs">{label}</BreadcrumbLink>
                   )}
                 </BreadcrumbItem>
-                {!crumb.isLast && (
-                  <BreadcrumbSeparator className={index === 0 ? "" : "hidden md:block"} />
-                )}
               </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+            )
+          })}
+        </BreadcrumbList>
+      </Breadcrumb>
     </header>
   )
 }

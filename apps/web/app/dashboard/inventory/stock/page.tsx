@@ -30,12 +30,10 @@ export default async function StockPage(props: {
   ])
 
   return (
-    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-      <StockClient 
-        initialData={stockData.data} 
-        warehouses={warehouses}
-        metadata={stockData.metadata} 
-      />
-    </div>
+    <StockClient 
+      initialData={stockData.data} 
+      warehouses={warehouses}
+      metadata={stockData.metadata} 
+    />
   )
 }
