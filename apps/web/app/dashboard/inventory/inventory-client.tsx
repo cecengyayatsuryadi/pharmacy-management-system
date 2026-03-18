@@ -22,6 +22,13 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Badge } from "@workspace/ui/components/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { 
@@ -56,11 +63,54 @@ import {
   PaginationPrevious,
 } from "@workspace/ui/components/pagination"
 import { createStockMovementAction } from "@/lib/actions/inventory"
-import type { Medicine, StockMovement, User } from "@workspace/database"
+import { getBatchesAction } from "@/lib/actions/batch"
+import type { Medicine, StockMovement, User, Supplier, Warehouse, MedicineBatch } from "@workspace/database"
+
+type InventoryMovementRow = {
+  id: string
+  type: string
+  quantity: string
+  resultingStock: string
+  reference: string | null
+  note: string | null
+  createdAt: Date
+  purchaseNumber?: string | null
+  invoiceNumber?: string | null
+  medicine: {
+    id: string
+    name: string
+    sku: string | null
+    unit: string
+    stock: string
+  }
+  user: {
+    id: string
+    name: string
+    email: string
+    role: string
+  }
+  warehouse: {
+    id: string
+    name: string
+  } | null
+  batch: {
+    id: string
+    batchNumber: string
+    expiryDate: Date
+  } | null
+  supplier?: {
+    id: string
+    name: string
+    code: string
+  } | null
+}
 
 interface InventoryClientProps {
   medicines: Medicine[]
-  initialMovements: (StockMovement & { medicine: Medicine, user: User })[]
+  suppliers?: Supplier[]
+  warehouses?: Warehouse[]
+  primarySupplierByMedicine?: Record<string, string>
+  initialMovements: InventoryMovementRow[]
   metadata: {
     total: number
     page: number
@@ -69,6 +119,8 @@ interface InventoryClientProps {
   }
   defaultType: "in" | "out" | "adjustment"
   title: string
+  submitAction?: (prevState: any, formData: FormData) => Promise<any>
+  showPurchaseColumns?: boolean
 }
 
 function SubmitButton({ label }: { label: string }) {
@@ -80,15 +132,31 @@ function SubmitButton({ label }: { label: string }) {
   )
 }
 
-export function InventoryClient({ medicines, initialMovements, metadata, defaultType, title }: InventoryClientProps) {
+export function InventoryClient({ 
+  medicines, 
+  suppliers = [], 
+  warehouses = [],
+  primarySupplierByMedicine = {}, 
+  initialMovements, 
+  metadata, 
+  defaultType, 
+  title,
+  submitAction,
+  showPurchaseColumns = false
+}: InventoryClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const currentPage = Number(searchParams.get("page")) || 1
   const [mounted, setMounted] = React.useState(false)
-  const [state, formAction] = useActionState(createStockMovementAction, null)
+  const [state, formAction] = useActionState(
+    submitAction ?? createStockMovementAction,
+    null
+  )
   const [isOpen, setIsOpen] = React.useState(false)
   const [isComboOpen, setIsComboOpen] = React.useState(false)
   const [selectedMedicineId, setSelectedMedicineId] = React.useState("")
+  const [availableBatches, setAvailableBatches] = React.useState<any[]>([])
+  const [isLoadingBatches, setIsLoadingBatches] = React.useState(false)
   const [searchValue, setSearchValue] = React.useState(searchParams.get("search") || "")
   const formRef = React.useRef<HTMLFormElement>(null)
 
@@ -97,11 +165,22 @@ export function InventoryClient({ medicines, initialMovements, metadata, default
   }, [])
 
   React.useEffect(() => {
+    if (selectedMedicineId && (defaultType === "out" || defaultType === "adjustment")) {
+      setIsLoadingBatches(true)
+      getBatchesAction(selectedMedicineId).then(batches => {
+        setAvailableBatches(batches)
+        setIsLoadingBatches(false)
+      })
+    }
+  }, [selectedMedicineId, defaultType])
+
+  React.useEffect(() => {
     if (state?.success) {
       toast.success(state.message)
       setIsOpen(false)
       formRef.current?.reset()
       setSelectedMedicineId("")
+      setAvailableBatches([])
     } else if (state?.message) {
       toast.error(state.message)
     }
@@ -187,55 +266,126 @@ export function InventoryClient({ medicines, initialMovements, metadata, default
               <input type="hidden" name="medicineId" value={selectedMedicineId} />
               <input type="hidden" name="type" value={defaultType} />
               
-              <div className="grid gap-2">
-                <Label>Pilih Obat</Label>
-                <Popover open={isComboOpen} onOpenChange={setIsComboOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={isComboOpen}
-                      className="w-full justify-between font-normal"
-                    >
-                      {selectedMedicineId
-                        ? medicines.find((m) => m.id === selectedMedicineId)?.name
-                        : "Cari nama obat atau SKU..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Ketik nama obat..." />
-                      <CommandList>
-                        <CommandEmpty>Obat tidak ditemukan.</CommandEmpty>
-                        <CommandGroup>
-                          {medicines.map((medicine) => (
-                            <CommandItem
-                              key={medicine.id}
-                              value={medicine.name}
-                              onSelect={() => {
-                                setSelectedMedicineId(medicine.id)
-                                setIsComboOpen(false)
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedMedicineId === medicine.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col">
-                                <span>{medicine.name}</span>
-                                <span className="text-xs text-muted-foreground">SKU: {medicine.sku || "-"} | Stok: {medicine.stock}</span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label>Pilih Obat</Label>
+                  <Popover open={isComboOpen} onOpenChange={setIsComboOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isComboOpen}
+                        className="w-full justify-between font-normal"
+                      >
+                        <span className="truncate">
+                          {selectedMedicineId
+                            ? medicines.find((m) => m.id === selectedMedicineId)?.name
+                            : "Cari obat..."}
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Ketik nama obat..." />
+                        <CommandList>
+                          <CommandEmpty>Obat tidak ditemukan.</CommandEmpty>
+                          <CommandGroup>
+                            {medicines.map((medicine) => (
+                              <CommandItem
+                                key={medicine.id}
+                                value={medicine.name}
+                                onSelect={() => {
+                                  setSelectedMedicineId(medicine.id)
+                                  setIsComboOpen(false)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedMedicineId === medicine.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col">
+                                  <span>{medicine.name}</span>
+                                  <span className="text-xs text-muted-foreground">SKU: {medicine.sku || "-"} | Stok: {medicine.stock}</span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="warehouseId">Pilih Gudang</Label>
+                  <Select name="warehouseId" required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Lokasi" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {warehouses.map((w) => (
+                        <SelectItem key={w.id} value={w.id}>
+                          {w.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
+              {suppliers.length > 0 && defaultType === "in" && (
+                <div className="grid gap-2">
+                  <Label htmlFor="supplierId">Pilih Supplier</Label>
+                  <Select 
+                    name="supplierId" 
+                    defaultValue={selectedMedicineId ? primarySupplierByMedicine[selectedMedicineId] : undefined}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Supplier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name} ({s.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {defaultType === "in" ? (
+                <div className="grid grid-cols-2 gap-4 border p-3 rounded-lg bg-muted/20">
+                  <div className="grid gap-2">
+                    <Label htmlFor="batchNumber">Nomor Batch (Opsional)</Label>
+                    <Input id="batchNumber" name="batchNumber" placeholder="MISAL: B-123" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="expiryDate">Kadaluarsa</Label>
+                    <Input id="expiryDate" name="expiryDate" type="date" />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  <Label htmlFor="batchId">Pilih Batch {isLoadingBatches && <span className="text-[10px] animate-pulse">(Loading...)</span>}</Label>
+                  <Select name="batchId" required={defaultType === "out"}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={availableBatches.length > 0 ? "Pilih Batch & Gudang" : "Tidak ada batch tersedia"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableBatches.map((b) => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.batchNumber} - {b.warehouseName} (Stok: {b.totalQuantity})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
@@ -250,11 +400,6 @@ export function InventoryClient({ medicines, initialMovements, metadata, default
                     required 
                     min={defaultType === "adjustment" ? "0" : "1"}
                   />
-                  {defaultType === "adjustment" && (
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Sistem akan menghitung selisih secara otomatis.
-                    </p>
-                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="reference">No. Referensi</Label>
@@ -292,6 +437,8 @@ export function InventoryClient({ medicines, initialMovements, metadata, default
               <TableRow>
                 <TableHead>Tanggal</TableHead>
                 <TableHead>Nama Obat</TableHead>
+                <TableHead>Gudang</TableHead>
+                <TableHead>Batch</TableHead>
                 <TableHead>Keterangan</TableHead>
                 <TableHead className="text-right">Perubahan</TableHead>
                 <TableHead className="text-right">Stok Akhir</TableHead>
@@ -301,7 +448,7 @@ export function InventoryClient({ medicines, initialMovements, metadata, default
             <TableBody>
               {initialMovements.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
                     {searchValue ? "Tidak ada riwayat yang sesuai pencarian." : `Belum ada catatan ${title.toLowerCase()}.`}
                   </TableCell>
                 </TableRow>
@@ -313,13 +460,19 @@ export function InventoryClient({ medicines, initialMovements, metadata, default
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium">{move.medicine.name}</span>
+                        <span className="font-medium text-sm">{move.medicine.name}</span>
                         <span className="text-[10px] text-muted-foreground">SKU: {move.medicine.sku || "-"}</span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-xs">
+                      {move.warehouse?.name || "-"}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {move.batch?.batchNumber || "-"}
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-sm">{move.note || "Tanpa keterangan"}</span>
+                        <span className="text-xs">{move.note || "Tanpa keterangan"}</span>
                         {move.reference && (
                           <span className="text-[10px] text-primary font-mono">{move.reference}</span>
                         )}

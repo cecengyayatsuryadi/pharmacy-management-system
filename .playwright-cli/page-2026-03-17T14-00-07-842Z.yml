@@ -1,0 +1,195 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - button "Logo Apotek Demo Paket Pro" [ref=e9]:
+            - img "Logo" [ref=e11]
+            - generic [ref=e12]:
+              - generic [ref=e13]: Apotek Demo
+              - generic [ref=e14]: Paket Pro
+            - img [ref=e15]
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: Menu Utama
+          - list [ref=e21]:
+            - listitem [ref=e22]:
+              - link "Dashboard" [ref=e23] [cursor=pointer]:
+                - /url: /dashboard
+                - img [ref=e24]
+                - generic [ref=e29]: Dashboard
+            - listitem [ref=e30]:
+              - button "Data Master" [ref=e31]:
+                - img [ref=e32]
+                - generic [ref=e35]: Data Master
+                - img [ref=e36]
+            - listitem [ref=e38]:
+              - button "Inventori" [ref=e39]:
+                - img [ref=e40]
+                - generic [ref=e44]: Inventori
+                - img [ref=e45]
+            - listitem [ref=e47]:
+              - button "Procurement" [ref=e48]:
+                - img [ref=e49]
+                - generic [ref=e55]: Procurement
+                - img [ref=e56]
+        - generic [ref=e58]:
+          - generic [ref=e59]: Operasional
+          - list [ref=e60]:
+            - listitem [ref=e61]:
+              - link "Kasir (POS)" [ref=e62] [cursor=pointer]:
+                - /url: /dashboard/pos
+                - img [ref=e63]
+                - generic [ref=e67]: Kasir (POS)
+            - listitem [ref=e68]:
+              - link "Laporan" [ref=e69] [cursor=pointer]:
+                - /url: /dashboard/reports
+                - img [ref=e70]
+                - generic [ref=e73]: Laporan
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: Dukungan
+          - list [ref=e77]:
+            - listitem [ref=e78]:
+              - link "Pengaturan" [ref=e79] [cursor=pointer]:
+                - /url: /dashboard/settings
+                - img [ref=e80]
+                - generic [ref=e83]: Pengaturan
+            - listitem [ref=e84]:
+              - link "Bantuan" [ref=e85] [cursor=pointer]:
+                - /url: /dashboard/help
+                - img [ref=e86]
+                - generic [ref=e89]: Bantuan
+        - list [ref=e90]:
+          - listitem [ref=e91]:
+            - button "DE demo demo@google.com" [ref=e92]:
+              - generic [ref=e94]: DE
+              - generic [ref=e95]:
+                - generic [ref=e96]: demo
+                - generic [ref=e97]: demo@google.com
+              - img [ref=e98]
+      - button "Toggle Sidebar" [ref=e101]
+    - main [ref=e102]:
+      - generic [ref=e104]:
+        - button "Toggle Sidebar" [ref=e105]:
+          - img
+          - generic [ref=e106]: Toggle Sidebar
+        - navigation "breadcrumb" [ref=e107]:
+          - list [ref=e108]:
+            - listitem [ref=e109]:
+              - link "Manajemen Apotek" [ref=e110] [cursor=pointer]:
+                - /url: /dashboard
+            - listitem [ref=e111]:
+              - img [ref=e112]
+            - listitem [ref=e114]:
+              - link "Kasir (POS)" [disabled] [ref=e115]
+      - generic [ref=e118]:
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - img [ref=e123]
+            - textbox "Cari obat berdasarkan nama atau SKU" [active] [ref=e126]:
+              - /placeholder: Cari nama obat atau SKU...
+          - generic [ref=e130]:
+            - generic [ref=e131] [cursor=pointer]:
+              - generic [ref=e133]:
+                - generic [ref=e134]: Alcohol Swabs
+                - generic [ref=e135]: 100.00 box
+              - generic [ref=e136]:
+                - paragraph [ref=e137]: ALC-050
+                - paragraph [ref=e138]: Rp 35.000
+            - generic [ref=e139] [cursor=pointer]:
+              - generic [ref=e141]:
+                - generic [ref=e142]: Allopurinol 100mg
+                - generic [ref=e143]: 50.00 strip
+              - generic [ref=e144]:
+                - paragraph [ref=e145]: ALP-026
+                - paragraph [ref=e146]: Rp 15.000
+            - generic [ref=e147] [cursor=pointer]:
+              - generic [ref=e149]:
+                - generic [ref=e150]: Amlodipine 5mg
+                - generic [ref=e151]: 60.00 strip
+              - generic [ref=e152]:
+                - paragraph [ref=e153]: AML-022
+                - paragraph [ref=e154]: Rp 22.000
+            - generic [ref=e155] [cursor=pointer]:
+              - generic [ref=e157]:
+                - generic [ref=e158]: Amoxicillin 500mg
+                - generic [ref=e159]: 20.00 strip
+              - generic [ref=e160]:
+                - paragraph [ref=e161]: AMX-002
+                - paragraph [ref=e162]: Rp 25.000
+            - generic [ref=e163] [cursor=pointer]:
+              - generic [ref=e165]:
+                - generic [ref=e166]: Antasida Doen
+                - generic [ref=e167]: 100.00 tablet
+              - generic [ref=e168]:
+                - paragraph [ref=e169]: ANT-008
+                - paragraph [ref=e170]: Rp 5.000
+            - generic [ref=e171] [cursor=pointer]:
+              - generic [ref=e173]:
+                - generic [ref=e174]: Betadine 30ml
+                - generic [ref=e175]: 25.00 botol
+              - generic [ref=e176]:
+                - paragraph [ref=e177]: BTD-009
+                - paragraph [ref=e178]: Rp 22.000
+            - generic [ref=e179] [cursor=pointer]:
+              - generic [ref=e181]:
+                - generic [ref=e182]: Bisoprolol 5mg
+                - generic [ref=e183]: 25.00 strip
+              - generic [ref=e184]:
+                - paragraph [ref=e185]: BIS-045
+                - paragraph [ref=e186]: Rp 48.000
+            - generic [ref=e187] [cursor=pointer]:
+              - generic [ref=e189]:
+                - generic [ref=e190]: Bodrex
+                - generic [ref=e191]: 150.00 strip
+              - generic [ref=e192]:
+                - paragraph [ref=e193]: BDX-035
+                - paragraph [ref=e194]: Rp 6.500
+            - generic [ref=e195] [cursor=pointer]:
+              - generic [ref=e197]:
+                - generic [ref=e198]: CDR Effervescent
+                - generic [ref=e199]: 12.00 tube
+              - generic [ref=e200]:
+                - paragraph [ref=e201]: CDR-031
+                - paragraph [ref=e202]: Rp 60.000
+            - generic [ref=e203] [cursor=pointer]:
+              - generic [ref=e205]:
+                - generic [ref=e206]: Candesartan 8mg
+                - generic [ref=e207]: 20.00 strip
+              - generic [ref=e208]:
+                - paragraph [ref=e209]: CAN-046
+                - paragraph [ref=e210]: Rp 55.000
+        - separator [ref=e211]
+        - generic [ref=e215]:
+          - generic [ref=e216]:
+            - img [ref=e217]
+            - text: Keranjang Belanja
+            - generic [ref=e221]: "0"
+          - generic [ref=e225]: Keranjang masih kosong
+          - generic [ref=e226]:
+            - generic [ref=e227]:
+              - generic [ref=e228]:
+                - generic [ref=e229]: Subtotal
+                - generic [ref=e230]: Rp 0
+              - generic [ref=e231]:
+                - generic [ref=e232]: Total
+                - generic [ref=e233]: Rp 0
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - generic [ref=e236]:
+                  - generic [ref=e237]: Metode
+                  - combobox [ref=e238]:
+                    - generic: Tunai
+                    - img
+                - generic [ref=e239]:
+                  - generic [ref=e240]: Bayar (Rp)
+                  - spinbutton [ref=e241]: "0"
+              - generic [ref=e242]:
+                - generic [ref=e243]: "Kembalian:"
+                - generic [ref=e244]: Rp 0
+              - button "Selesaikan Penjualan" [disabled]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e250] [cursor=pointer]:
+    - img [ref=e251]
+  - alert [ref=e254]

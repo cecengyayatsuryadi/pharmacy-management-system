@@ -11,12 +11,13 @@ import { getErrorMessage } from "@/lib/utils/error"
 const medicineSchema = z.object({
   name: z.string().min(2, { message: "Nama obat minimal 2 karakter" }),
   categoryId: z.string().uuid({ message: "Kategori tidak valid" }),
-  sku: z.string().optional(),
+  baseUnitId: z.string().uuid({ message: "Satuan tidak valid" }),
+  sku: z.string().optional().nullable(),
   purchasePrice: z.string().min(1, { message: "Harga beli harus diisi" }),
   price: z.string().min(1, { message: "Harga jual harus diisi" }),
   stock: z.string().min(1, { message: "Stok harus diisi" }),
   minStock: z.string().min(1, { message: "Stok minimum harus diisi" }),
-  unit: z.string().min(1, { message: "Satuan harus diisi" }),
+  unit: z.string().optional().nullable(), // Legacy
   expiryDate: z.string().optional().nullable(),
 })
 
@@ -50,6 +51,7 @@ export async function getMedicines(page = 1, limit = 10, search = "", categoryId
       where: whereClause,
       with: {
         category: true,
+        baseUnit: true,
       },
       limit,
       offset,
@@ -88,7 +90,6 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
 
   const plan = await getOrganizationPlan(organizationId)
 
-  // SaaS Guardrail: Check limit for 'gratis' plan (Architecture Sec 2.A)
   if (plan === "gratis") {
     const countResult = await db
       .select({ value: count() })
@@ -119,6 +120,8 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
     await db.insert(medicines).values({
       ...validatedFields.data,
       organizationId,
+      sku: validatedFields.data.sku || null,
+      unit: validatedFields.data.unit || "pcs",
       expiryDate: validatedFields.data.expiryDate 
         ? new Date(validatedFields.data.expiryDate) 
         : null,
@@ -160,6 +163,8 @@ export async function updateMedicineAction(
       .update(medicines)
       .set({
         ...validatedFields.data,
+        sku: validatedFields.data.sku || null,
+        unit: validatedFields.data.unit || "pcs",
         expiryDate: validatedFields.data.expiryDate 
           ? new Date(validatedFields.data.expiryDate) 
           : null,
@@ -191,7 +196,6 @@ export async function deleteMedicineAction(id: string) {
     return { message: "Unauthorized" }
   }
 
-  // RBAC Check: Only admin can delete
   if (role !== "admin") {
     return { message: "Akses ditolak. Hanya Admin yang dapat menghapus data obat." }
   }

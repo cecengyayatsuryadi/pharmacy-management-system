@@ -27,6 +27,8 @@ async function main() {
     org = newOrg
   }
 
+  if (!org) throw new Error("Gagal menginisialisasi organisasi")
+
   // 2. Pastikan User Demo Ada
   let demoUser = await db.query.users.findFirst({
     where: eq(users.email, DEMO_EMAIL)
@@ -45,6 +47,8 @@ async function main() {
     }).returning()
     demoUser = newUser
   }
+
+  if (!demoUser) throw new Error("Gagal menginisialisasi user demo")
 
   // 3. Pastikan Membership Ada (Relasi N:N)
   const existingMembership = await db.query.memberships.findFirst({
@@ -90,7 +94,7 @@ async function main() {
   console.log("💊 Menyiapkan 50+ Data Obat...")
   const catMap = Object.fromEntries(insertedCats.map(c => [c.name, c.id]))
 
-  const seedMedicines = [
+  const seedMedicinesData = [
     { name: "Paracetamol 500mg", sku: "PCT-001", categoryName: "Obat Bebas", purchasePrice: "10000", price: "15000", stock: "50", minStock: "10", unit: "strip", expiryDate: new Date("2027-12-31") },
     { name: "Amoxicillin 500mg", sku: "AMX-002", categoryName: "Obat Keras (G)", purchasePrice: "18000", price: "25000", stock: "20", minStock: "5", unit: "strip", expiryDate: new Date("2026-06-15") },
     { name: "Xanax 0.5mg", sku: "XNX-003", categoryName: "Psikotropika", purchasePrice: "60000", price: "85000", stock: "3", minStock: "5", unit: "tablet", expiryDate: new Date("2026-01-01") },
@@ -144,10 +148,10 @@ async function main() {
   ]
 
   const insertedMedicines = await db.insert(medicines).values(
-    seedMedicines.map(med => ({
+    seedMedicinesData.map(med => ({
       name: med.name,
       sku: med.sku,
-      categoryId: catMap[med.categoryName],
+      categoryId: catMap[med.categoryName] || "", // Pastikan string tidak kosong
       organizationId: org!.id,
       purchasePrice: med.purchasePrice,
       price: med.price,
@@ -161,42 +165,44 @@ async function main() {
   // 7. Seed Histori Stok (Stock Movements)
   console.log("📦 Menyiapkan Histori Stok (Initial In, Out, & Adjustments)...")
   
-  const movements = insertedMedicines.map(med => ({
+  // Gunakan tipe data eksplisit untuk insert stockMovements
+  const initialMovements = insertedMedicines.map(med => ({
     medicineId: med.id,
     organizationId: org!.id,
     userId: demoUser!.id,
-    type: "in" as const,
+    type: "in",
     quantity: med.stock,
-    notes: "Stok awal (Seeding)",
+    note: "Stok awal (Seeding)",
     createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   }))
 
+  const extraMovements: any[] = []
   const randomMeds = insertedMedicines.slice(0, 15)
   randomMeds.forEach((med, index) => {
     if (index % 3 === 0) {
-      movements.push({
+      extraMovements.push({
         medicineId: med.id,
         organizationId: org!.id,
         userId: demoUser!.id,
-        type: "out" as const,
+        type: "out",
         quantity: "5.00",
-        notes: "Barang rusak / dibuang",
+        note: "Barang rusak / dibuang",
         createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
       })
     } else if (index % 2 === 0) {
-      movements.push({
+      extraMovements.push({
         medicineId: med.id,
         organizationId: org!.id,
         userId: demoUser!.id,
-        type: "adjustment" as const,
+        type: "adjustment",
         quantity: "2.00",
-        notes: "Koreksi Stok Opname (Selisih +)",
+        note: "Koreksi Stok Opname (Selisih +)",
         createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
       })
     }
   })
 
-  await db.insert(stockMovements).values(movements)
+  await db.insert(stockMovements).values([...initialMovements, ...extraMovements])
 
   console.log("✅ SEEDING SELESAI! Akun demo sekarang mendukung multi-cabang & detail apotek.")
   process.exit(0)

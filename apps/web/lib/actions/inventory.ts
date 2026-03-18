@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/auth"
-import { db, medicines, stockMovements, users } from "@workspace/database"
+import { db, medicines, stockMovements, users, warehouses, medicineBatches, stockItems, suppliers } from "@workspace/database"
 import { eq, and, desc, ilike, or, sql, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
@@ -9,6 +9,10 @@ import { getErrorMessage } from "@/lib/utils/error"
 
 const stockMovementSchema = z.object({
   medicineId: z.string().uuid({ message: "Obat tidak valid" }),
+  warehouseId: z.string().uuid({ message: "Gudang tidak valid" }),
+  batchNumber: z.string().optional(), // Used for 'in'
+  expiryDate: z.string().optional(),  // Used for new batch creation
+  batchId: z.string().uuid().optional(), // Used for 'out' or 'adjustment'
   type: z.enum(["in", "out", "adjustment"], { message: "Tipe transaksi tidak valid" }),
   quantity: z.coerce.number().finite().nonnegative({ message: "Jumlah harus berupa angka positif" }),
   priceAtTransaction: z.string().optional().default("0"),
@@ -59,12 +63,40 @@ export async function getStockMovementsAction(
       reference: stockMovements.reference,
       note: stockMovements.note,
       createdAt: stockMovements.createdAt,
-      medicine: medicines,
-      user: users,
+      medicine: {
+        id: medicines.id,
+        name: medicines.name,
+        sku: medicines.sku,
+        unit: medicines.unit,
+        stock: medicines.stock,
+      },
+      user: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+      },
+      warehouse: {
+        id: warehouses.id,
+        name: warehouses.name,
+      },
+      batch: {
+        id: medicineBatches.id,
+        batchNumber: medicineBatches.batchNumber,
+        expiryDate: medicineBatches.expiryDate,
+      },
+      supplier: {
+        id: suppliers.id,
+        name: suppliers.name,
+        code: suppliers.code,
+      }
     })
     .from(stockMovements)
     .innerJoin(medicines, eq(stockMovements.medicineId, medicines.id))
     .innerJoin(users, eq(stockMovements.userId, users.id))
+    .leftJoin(warehouses, eq(stockMovements.warehouseId, warehouses.id))
+    .leftJoin(medicineBatches, eq(stockMovements.batchId, medicineBatches.id))
+    .leftJoin(suppliers, eq(stockMovements.supplierId, suppliers.id))
     .where(finalCondition)
     .limit(limit)
     .offset(offset)
@@ -72,12 +104,12 @@ export async function getStockMovementsAction(
 
   // 3. Get total count for pagination
   const [totalCount] = await db
-    .select({ count: count() })
+    .select({ value: count() })
     .from(stockMovements)
     .innerJoin(medicines, eq(stockMovements.medicineId, medicines.id))
     .where(finalCondition)
 
-  const total = Number(totalCount?.count ?? 0)
+  const total = Number(totalCount?.value ?? 0)
   const totalPages = Math.ceil(total / limit)
 
   return {
@@ -111,90 +143,142 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
     }
   }
 
-  const { medicineId, type, quantity: inputQty, priceAtTransaction, reference, note } = validatedFields.data
-
-  if ((type === "in" || type === "out") && inputQty <= 0) {
-    return {
-      errors: { quantity: ["Jumlah harus lebih dari 0 untuk transaksi masuk/keluar"] },
-      message: "Gagal memproses stok. Mohon periksa input Anda.",
-    }
-  }
+  const { 
+    medicineId, 
+    warehouseId,
+    batchNumber,
+    expiryDate,
+    batchId: providedBatchId,
+    type, 
+    quantity: inputQty, 
+    priceAtTransaction, 
+    reference, 
+    note 
+  } = validatedFields.data
 
   try {
     const result = await db.transaction(async (tx) => {
-      // 1. Ambil data obat dengan Row Level Locking (FOR UPDATE)
-      // Ini mencegah race condition jika ada update simultan
-      const [medicine] = await tx
-        .select()
-        .from(medicines)
-        .where(and(
-          eq(medicines.id, medicineId), 
-          eq(medicines.organizationId, organizationId)
-        ))
-        .for("update") // Lock baris ini sampai transaksi selesai
+      // 1. Resolve Batch ID
+      let finalBatchId = providedBatchId || null
 
-      if (!medicine) {
-        throw new Error("Obat tidak ditemukan")
+      if (type === "in" && batchNumber) {
+        // Find or create batch
+        const [existingBatch] = await tx
+          .select()
+          .from(medicineBatches)
+          .where(and(
+            eq(medicineBatches.medicineId, medicineId),
+            eq(medicineBatches.batchNumber, batchNumber),
+            eq(medicineBatches.organizationId, organizationId)
+          ))
+        
+        if (existingBatch) {
+          finalBatchId = existingBatch.id
+        } else if (expiryDate) {
+          const [newBatch] = await tx
+            .insert(medicineBatches)
+            .values({
+              organizationId,
+              medicineId,
+              batchNumber,
+              expiryDate: new Date(expiryDate),
+            })
+            .returning({ id: medicineBatches.id })
+          
+          if (newBatch) {
+            finalBatchId = newBatch.id
+          }
+        }
       }
 
-      const currentStock = Number(medicine.stock)
-      let newStock = currentStock
-      let deltaQty = 0 // Selisih mutasi untuk audit trail
+      // 2. Fetch current stock item with locking
+      const [stockItem] = await tx
+        .select()
+        .from(stockItems)
+        .where(and(
+          eq(stockItems.medicineId, medicineId),
+          eq(stockItems.warehouseId, warehouseId),
+          providedBatchId ? eq(stockItems.batchId, providedBatchId) : sql`${stockItems.batchId} IS NULL`,
+          eq(stockItems.organizationId, organizationId)
+        ))
+        .for("update")
 
-      // 2. Hitung stok baru dan delta (selisih)
+      const currentQty = Number(stockItem?.quantity ?? 0)
+      let newQty = currentQty
+      let deltaQty = 0
+
       if (type === "in") {
         deltaQty = inputQty
-        newStock = currentStock + deltaQty
+        newQty = currentQty + deltaQty
       } else if (type === "out") {
-        if (currentStock < inputQty) {
-          throw new Error(`Stok tidak mencukupi. Sisa stok: ${currentStock}`)
+        if (currentQty < inputQty) {
+          throw new Error(`Stok di gudang/batch ini tidak mencukupi. Sisa: ${currentQty}`)
         }
-        deltaQty = -inputQty // Nilai negatif untuk pengeluaran
-        newStock = currentStock + deltaQty
+        deltaQty = -inputQty
+        newQty = currentQty + deltaQty
       } else if (type === "adjustment") {
-        // Pada adjustment, inputQty adalah angka STOK NYATA yang ditemukan
-        newStock = inputQty
-        deltaQty = newStock - currentStock // Bisa positif atau negatif
+        newQty = inputQty
+        deltaQty = newQty - currentQty
       }
 
-      // 3. Update stok di tabel medicines
+      // 3. Update stock_items
+      if (stockItem) {
+        await tx
+          .update(stockItems)
+          .set({ quantity: newQty.toString(), updatedAt: new Date() })
+          .where(eq(stockItems.id, stockItem.id))
+      } else {
+        await tx
+          .insert(stockItems)
+          .values({
+            organizationId,
+            warehouseId,
+            medicineId,
+            batchId: finalBatchId,
+            quantity: newQty.toString(),
+          })
+      }
+
+      // 4. Update legacy stock cache in medicines (Sum of all stock_items for this medicine)
+      const [totalStockResult] = await tx
+        .select({ total: sql<string>`sum(${stockItems.quantity})` })
+        .from(stockItems)
+        .where(and(
+          eq(stockItems.medicineId, medicineId),
+          eq(stockItems.organizationId, organizationId)
+        ))
+      
+      const totalStock = totalStockResult?.total ?? "0"
+
       await tx
         .update(medicines)
-        .set({ stock: newStock.toString(), updatedAt: new Date() })
+        .set({ stock: totalStock, updatedAt: new Date() })
         .where(eq(medicines.id, medicineId))
 
-      // 4. Catat sejarah di stock_movements
-      // quantity disimpan sebagai delta (perubahan), bukan nilai input mentah
+      // 5. Record movement
       await tx.insert(stockMovements).values({
         organizationId,
         medicineId,
+        warehouseId,
+        batchId: finalBatchId,
         userId,
         type,
-        quantity: deltaQty.toString(), 
-        priceAtTransaction: priceAtTransaction || (type === "in" ? medicine.purchasePrice : medicine.price),
-        resultingStock: newStock.toString(),
+        quantity: deltaQty.toString(),
+        priceAtTransaction: priceAtTransaction || "0",
+        resultingStock: totalStock,
         reference,
-        note: type === "adjustment" 
-          ? `[Opname] Stok lama: ${currentStock}, Stok baru: ${newStock}. ${note || ""}`
-          : note,
+        note,
       })
 
-      return { success: true, type, deltaQty, newStock }
+      return { success: true, type, totalStock }
     })
 
-    // Revalidate setelah transaksi sukses
     revalidatePath("/dashboard/medicines")
     revalidatePath("/dashboard/inventory")
-    revalidatePath(`/dashboard/inventory/${result.type}`)
+    revalidatePath(`/dashboard/inventory/${type}`)
     
-    const messageLabel = {
-      in: "Stok masuk berhasil dicatat",
-      out: "Stok keluar berhasil dicatat",
-      adjustment: "Penyesuaian stok (opname) berhasil"
-    }[result.type]
-
     return { 
-      message: messageLabel, 
+      message: "Transaksi stok berhasil dicatat", 
       success: true 
     }
   } catch (error: unknown) {

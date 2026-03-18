@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@workspace/ui/components/breadcrumb"
+import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
   DialogContent,
@@ -16,8 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import { Label } from "@workspace/ui/components/label"
-import { Separator } from "@workspace/ui/components/separator"
 import {
   Sidebar,
   SidebarContent,
@@ -28,46 +27,64 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@workspace/ui/components/sidebar"
-import { BellIcon, PaintbrushIcon, SlidersHorizontalIcon } from "lucide-react"
+import { Separator } from "@workspace/ui/components/separator"
+import { Building2Icon, UsersIcon, PrinterIcon, ShieldCheckIcon } from "lucide-react"
 
-export function AppSettingsDialog({ trigger }: { trigger: React.ReactNode }) {
-  const [open, setOpen] = React.useState(false)
-  const [tab, setTab] = React.useState<"umum" | "tampilan" | "notifikasi">("umum")
+export function AppSettingsDialog({
+  trigger,
+  defaultOpen = false,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  trigger?: React.ReactNode
+  defaultOpen?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}) {
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
+  const open = controlledOpen ?? uncontrolledOpen
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (controlledOpen === undefined) {
+      setUncontrolledOpen(nextOpen)
+    }
+    onOpenChange?.(nextOpen)
+  }
+  const [tab, setTab] = React.useState<"general" | "users" | "receipt">("general")
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent className="overflow-hidden p-0 md:max-h-[90dvh] md:max-w-[980px]">
-        <DialogTitle className="sr-only">Pengaturan</DialogTitle>
+        <DialogTitle className="sr-only">Pengaturan Sistem</DialogTitle>
         <DialogDescription className="sr-only">
-          Atur preferensi aplikasi.
+          Konfigurasi profil apotek, manajemen user, dan sistem aplikasi.
         </DialogDescription>
         <SidebarProvider className="h-[78dvh] min-h-[36rem] items-stretch">
-          <Sidebar collapsible="none" className="hidden md:flex">
+          <Sidebar collapsible="none" className="hidden md:flex border-r-0">
             <SidebarContent>
               <div className="space-y-1 px-3 py-3">
-                <p className="text-sm font-medium">Pengaturan</p>
-                <p className="text-xs text-muted-foreground">Atur preferensi aplikasi.</p>
+                <p className="text-sm font-medium">Pengaturan Sistem</p>
+                <p className="text-xs text-muted-foreground">Kelola konfigurasi apotek Anda.</p>
               </div>
               <SidebarGroup>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton isActive={tab === "umum"} onClick={() => setTab("umum")}>
-                        <SlidersHorizontalIcon />
-                        <span>Umum</span>
+                      <SidebarMenuButton isActive={tab === "general"} onClick={() => setTab("general")}>
+                        <Building2Icon />
+                        <span>Profil Apotek</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                      <SidebarMenuButton isActive={tab === "tampilan"} onClick={() => setTab("tampilan")}>
-                        <PaintbrushIcon />
-                        <span>Tampilan</span>
+                      <SidebarMenuButton isActive={tab === "users"} onClick={() => setTab("users")}>
+                        <UsersIcon />
+                        <span>Manajemen User</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                      <SidebarMenuButton isActive={tab === "notifikasi"} onClick={() => setTab("notifikasi")}>
-                        <BellIcon />
-                        <span>Notifikasi</span>
+                      <SidebarMenuButton isActive={tab === "receipt"} onClick={() => setTab("receipt")}>
+                        <PrinterIcon />
+                        <span>Konfigurasi Struk</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -77,61 +94,30 @@ export function AppSettingsDialog({ trigger }: { trigger: React.ReactNode }) {
           </Sidebar>
           <Separator orientation="vertical" className="hidden self-stretch md:block" />
           <main className="flex h-full flex-1 flex-col overflow-hidden">
-            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b">
               <div className="flex items-center gap-2 px-4">
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="#">Pengaturan</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>
-                      {tab === "umum" ? "Umum" : tab === "tampilan" ? "Tampilan" : "Notifikasi"}
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>Pengaturan</BreadcrumbPage>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>
+                        {tab === "general" ? "Profil Apotek" : tab === "users" ? "Manajemen User" : "Konfigurasi Struk"}
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto p-4 pt-0">
-              {tab === "umum" && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-md border p-3">
-                    <div className="space-y-1">
-                      <Label htmlFor="compact">Mode Ringkas</Label>
-                      <p className="text-xs text-muted-foreground">Gunakan tampilan lebih padat di dashboard.</p>
-                    </div>
-                    <input id="compact" type="checkbox" className="size-4 accent-primary" />
-                  </div>
-                </div>
-              )}
-
-              {tab === "tampilan" && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-md border p-3">
-                    <div className="space-y-1">
-                      <Label htmlFor="dense-table">Tabel Rapat</Label>
-                      <p className="text-xs text-muted-foreground">Kurangi jarak antar baris tabel.</p>
-                    </div>
-                    <input id="dense-table" type="checkbox" className="size-4 accent-primary" />
-                  </div>
-                </div>
-              )}
-
-              {tab === "notifikasi" && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-md border p-3">
-                    <div className="space-y-1">
-                      <Label htmlFor="notif">Notifikasi Transaksi</Label>
-                      <p className="text-xs text-muted-foreground">Tampilkan notifikasi saat transaksi selesai.</p>
-                    </div>
-                    <input id="notif" type="checkbox" className="size-4 accent-primary" />
-                  </div>
-                </div>
-              )}
+            <div className="flex-1 overflow-y-auto p-6">
+              {/* Konten akan diisi form masing-masing nanti */}
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                <ShieldCheckIcon className="size-12 mb-4 opacity-20" />
+                <p>Form {tab} sedang dalam pengembangan.</p>
+              </div>
             </div>
-
           </main>
         </SidebarProvider>
       </DialogContent>
