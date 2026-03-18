@@ -1,9 +1,9 @@
-import { db, organizations, categories, medicines, users, stockMovements, memberships } from "./index"
+import { db, organizations, categories, medicines, users, stockMovements, memberships, units, warehouses } from "./index"
 import { eq, and } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
 async function main() {
-  console.log("🌱 Memulai Seeding untuk Akun Demo (Multi-Branch & Refined Data)...")
+  console.log("🌱 Memulai Seeding Data Obat Variatif & Realistis...")
 
   const DEMO_EMAIL = "demo@google.com"
   const DEMO_PASS = "demo123"
@@ -48,164 +48,397 @@ async function main() {
     demoUser = newUser
   }
 
-  if (!demoUser) throw new Error("Gagal menginisialisasi user demo")
-
-  // 3. Pastikan Membership Ada (Relasi N:N)
+  // 3. Pastikan Membership Ada
   const existingMembership = await db.query.memberships.findFirst({
     where: and(
-      eq(memberships.userId, demoUser.id),
+      eq(memberships.userId, demoUser!.id),
       eq(memberships.organizationId, org.id)
     )
   })
 
   if (!existingMembership) {
-    console.log(`🔑 Menambahkan Membership untuk ${DEMO_EMAIL} di ${ORG_NAME}`)
     await db.insert(memberships).values({
-      userId: demoUser.id,
+      userId: demoUser!.id,
       organizationId: org.id,
       role: "admin"
     })
   }
 
-  console.log(`✅ Menggunakan Organisasi: ${org.name} (${org.id})`)
+  // 4. Seed Satuan Dasar (Units) & Warehouse
+  console.log("📏 Menyiapkan Satuan & Gudang...")
+  const seedUnits = [
+    { name: "Tablet", abbreviation: "TBL" },
+    { name: "Strip", abbreviation: "STP" },
+    { name: "Botol", abbreviation: "BTL" },
+    { name: "Box", abbreviation: "BOX" },
+    { name: "Pcs", abbreviation: "PCS" },
+    { name: "Tube", abbreviation: "TBE" },
+    { name: "Sachet", abbreviation: "SCH" },
+  ]
 
-  // 4. Clear existing data for this org
-  console.log("🧹 Membersihkan data lama...")
-  await db.delete(stockMovements).where(eq(stockMovements.organizationId, org.id))
-  await db.delete(medicines).where(eq(medicines.organizationId, org.id))
-  await db.delete(categories).where(eq(categories.organizationId, org.id))
+  for (const u of seedUnits) {
+    const existing = await db.query.units.findFirst({
+      where: and(eq(units.organizationId, org.id), eq(units.name, u.name))
+    })
+    if (!existing) await db.insert(units).values({ ...u, organizationId: org.id })
+  }
+
+  const allUnits = await db.query.units.findMany({ where: eq(units.organizationId, org.id) })
+  const unitMap = Object.fromEntries(allUnits.map(u => [u.name, u.id]))
+
+  let warehouse = await db.query.warehouses.findFirst({
+    where: eq(warehouses.organizationId, org.id)
+  })
+  if (!warehouse) {
+    const [newWh] = await db.insert(warehouses).values({
+      organizationId: org.id,
+      code: "G-01",
+      name: "Gudang Utama",
+      isActive: true
+    }).returning()
+    warehouse = newWh
+  }
+
+  // 5. Clear old medicine data
+  console.log("🧹 Membersihkan data lama (Obat, Transaksi, & Relasi)...")
   
-  // 5. Seed Kategori
+  // Hapus dari tabel yang bergantung (order matters)
+  const { 
+    supplierMedicines, 
+    stockMovements: sm, 
+    medicines: med, 
+    categories: cat, 
+    medicineBatches, 
+    stockItems,
+    saleItems,
+    purchaseItems
+  } = await import("./index")
+  
+  await db.delete(supplierMedicines).where(eq(supplierMedicines.organizationId, org.id))
+  await db.delete(saleItems) // No organizationId in saleItems, usually handled by sale relation or we clear all if it's demo
+  await db.delete(purchaseItems)
+  await db.delete(sm).where(eq(sm.organizationId, org.id))
+  await db.delete(stockItems).where(eq(stockItems.organizationId, org.id))
+  await db.delete(medicineBatches).where(eq(medicineBatches.organizationId, org.id))
+  await db.delete(med).where(eq(med.organizationId, org.id))
+  await db.delete(cat).where(eq(cat.organizationId, org.id))
+  
+  // 6. Seed Kategori
   console.log("📦 Menyiapkan Kategori...")
   const seedCategories = [
-    { name: "Obat Bebas", description: "Obat yang dapat dibeli bebas tanpa resep (Logo Hijau)" },
-    { name: "Obat Bebas Terbatas", description: "Obat keras dengan peringatan (Logo Biru)" },
-    { name: "Obat Keras (G)", description: "Obat yang harus dengan resep dokter (Logo K)" },
-    { name: "Psikotropika", description: "Obat yang mempengaruhi fungsi psikis" },
-    { name: "Suplemen & Vitamin", description: "Vitamin dan suplemen makanan" },
-    { name: "Alat Kesehatan", description: "Masker, Handsanitizer, dll." },
+    { name: "Obat Bebas", description: "Logo Hijau" },
+    { name: "Obat Bebas Terbatas", description: "Logo Biru" },
+    { name: "Obat Keras (G)", description: "Logo K Merah" },
+    { name: "Psikotropika", description: "Obat Keras Tertentu" },
+    { name: "Suplemen & Vitamin", description: "Vitamin harian" },
+    { name: "Alat Kesehatan", description: "Non-obat" },
   ]
 
   const insertedCats = await db.insert(categories).values(
     seedCategories.map(cat => ({ ...cat, organizationId: org!.id }))
   ).returning()
-
-  // 6. Seed 50+ Obat-obatan
-  console.log("💊 Menyiapkan 50+ Data Obat...")
   const catMap = Object.fromEntries(insertedCats.map(c => [c.name, c.id]))
 
-  const seedMedicinesData = [
-    { name: "Paracetamol 500mg", sku: "PCT-001", categoryName: "Obat Bebas", purchasePrice: "10000", price: "15000", stock: "50", minStock: "10", unit: "strip", expiryDate: new Date("2027-12-31") },
-    { name: "Amoxicillin 500mg", sku: "AMX-002", categoryName: "Obat Keras (G)", purchasePrice: "18000", price: "25000", stock: "20", minStock: "5", unit: "strip", expiryDate: new Date("2026-06-15") },
-    { name: "Xanax 0.5mg", sku: "XNX-003", categoryName: "Psikotropika", purchasePrice: "60000", price: "85000", stock: "3", minStock: "5", unit: "tablet", expiryDate: new Date("2026-01-01") },
-    { name: "Neurobion Forte", sku: "NRB-004", categoryName: "Suplemen & Vitamin", purchasePrice: "35000", price: "45000", stock: "15", minStock: "5", unit: "box", expiryDate: new Date("2028-10-20") },
-    { name: "Masker Sensi 3-Ply", sku: "MSK-005", categoryName: "Alat Kesehatan", purchasePrice: "35000", price: "50000", stock: "100", minStock: "20", unit: "box", expiryDate: null },
-    { name: "Dexamethasone", sku: "DEX-006", categoryName: "Obat Keras (G)", purchasePrice: "8000", price: "12000", stock: "30", minStock: "10", unit: "strip", expiryDate: new Date("2026-03-20") },
-    { name: "Captopril 25mg", sku: "CPT-007", categoryName: "Obat Keras (G)", purchasePrice: "12000", price: "18000", stock: "4", minStock: "10", unit: "strip", expiryDate: new Date("2027-05-10") },
-    { name: "Antasida Doen", sku: "ANT-008", categoryName: "Obat Bebas", purchasePrice: "3000", price: "5000", stock: "100", minStock: "20", unit: "tablet", expiryDate: new Date("2027-11-25") },
-    { name: "Betadine 30ml", sku: "BTD-009", categoryName: "Obat Bebas Terbatas", purchasePrice: "15000", price: "22000", stock: "25", minStock: "5", unit: "botol", expiryDate: new Date("2028-01-15") },
-    { name: "Cetirizine", sku: "CTZ-010", categoryName: "Obat Bebas Terbatas", purchasePrice: "6000", price: "10000", stock: "60", minStock: "10", unit: "strip", expiryDate: new Date("2026-04-05") },
-    { name: "Diazepam 2mg", sku: "DZP-011", categoryName: "Psikotropika", purchasePrice: "50000", price: "75000", stock: "5", minStock: "2", unit: "tablet", expiryDate: new Date("2026-08-30") },
-    { name: "Sangobion", sku: "SNG-012", categoryName: "Suplemen & Vitamin", purchasePrice: "25000", price: "35000", stock: "2", minStock: "10", unit: "strip", expiryDate: new Date("2027-02-14") },
-    { name: "Vitamin C 500mg", sku: "VIT-013", categoryName: "Suplemen & Vitamin", purchasePrice: "12000", price: "20000", stock: "150", minStock: "30", unit: "botol", expiryDate: new Date("2028-06-30") },
-    { name: "Handsanitizer 500ml", sku: "HSN-014", categoryName: "Alat Kesehatan", purchasePrice: "20000", price: "30000", stock: "45", minStock: "10", unit: "botol", expiryDate: null },
-    { name: "Termometer Digital", sku: "TRM-015", categoryName: "Alat Kesehatan", purchasePrice: "45000", price: "65000", stock: "10", minStock: "2", unit: "pcs", expiryDate: null },
-    { name: "Salbutamol 2mg", sku: "SBT-016", categoryName: "Obat Keras (G)", purchasePrice: "10000", price: "15000", stock: "25", minStock: "5", unit: "strip", expiryDate: new Date("2026-09-12") },
-    { name: "Loperamide", sku: "LOP-017", categoryName: "Obat Bebas Terbatas", purchasePrice: "5000", price: "8000", stock: "8", minStock: "10", unit: "strip", expiryDate: new Date("2027-04-20") },
-    { name: "Insto Eye Drops", sku: "INS-018", categoryName: "Obat Bebas Terbatas", purchasePrice: "12000", price: "18500", stock: "35", minStock: "5", unit: "botol", expiryDate: new Date("2026-12-05") },
-    { name: "Ibuprofen 400mg", sku: "IBU-019", categoryName: "Obat Bebas Terbatas", purchasePrice: "8000", price: "12500", stock: "55", minStock: "10", unit: "strip", expiryDate: new Date("2027-08-18") },
-    { name: "Simvastatin 10mg", sku: "SIM-020", categoryName: "Obat Keras (G)", purchasePrice: "20000", price: "28000", stock: "40", minStock: "10", unit: "strip", expiryDate: new Date("2026-11-22") },
-    { name: "Mefenamic Acid 500mg", sku: "MEF-021", categoryName: "Obat Keras (G)", purchasePrice: "5000", price: "10000", stock: "100", minStock: "20", unit: "strip", expiryDate: new Date("2027-03-15") },
-    { name: "Amlodipine 5mg", sku: "AML-022", categoryName: "Obat Keras (G)", purchasePrice: "15000", price: "22000", stock: "60", minStock: "15", unit: "strip", expiryDate: new Date("2027-09-10") },
-    { name: "Metformin 500mg", sku: "MET-023", categoryName: "Obat Keras (G)", purchasePrice: "12000", price: "18000", stock: "80", minStock: "20", unit: "strip", expiryDate: new Date("2026-12-01") },
-    { name: "Omeprazole 20mg", sku: "OME-024", categoryName: "Obat Keras (G)", purchasePrice: "25000", price: "35000", stock: "45", minStock: "10", unit: "strip", expiryDate: new Date("2027-01-20") },
-    { name: "Lansoprazole 30mg", sku: "LAN-025", categoryName: "Obat Keras (G)", purchasePrice: "28000", price: "40000", stock: "30", minStock: "10", unit: "strip", expiryDate: new Date("2027-05-12") },
-    { name: "Allopurinol 100mg", sku: "ALP-026", categoryName: "Obat Keras (G)", purchasePrice: "10000", price: "15000", stock: "50", minStock: "10", unit: "strip", expiryDate: new Date("2027-08-05") },
-    { name: "Ranitidine 150mg", sku: "RAN-027", categoryName: "Obat Keras (G)", purchasePrice: "8000", price: "14000", stock: "40", minStock: "10", unit: "strip", expiryDate: new Date("2026-11-18") },
-    { name: "Salep 88", sku: "SLP-028", categoryName: "Obat Bebas", purchasePrice: "5000", price: "8500", stock: "15", minStock: "5", unit: "pcs", expiryDate: new Date("2028-12-31") },
-    { name: "Promag Tablet", sku: "PMG-029", categoryName: "Obat Bebas", purchasePrice: "7000", price: "10000", stock: "100", minStock: "20", unit: "strip", expiryDate: new Date("2028-06-20") },
-    { name: "Enervon-C 30", sku: "ENV-030", categoryName: "Suplemen & Vitamin", purchasePrice: "35000", price: "48000", stock: "25", minStock: "5", unit: "botol", expiryDate: new Date("2027-10-15") },
-    { name: "CDR Effervescent", sku: "CDR-031", categoryName: "Suplemen & Vitamin", purchasePrice: "45000", price: "60000", stock: "12", minStock: "5", unit: "tube", expiryDate: new Date("2027-11-11") },
-    { name: "Vicks Formula 44", sku: "VIC-032", categoryName: "Obat Bebas Terbatas", purchasePrice: "15000", price: "22000", stock: "20", minStock: "5", unit: "botol", expiryDate: new Date("2027-04-30") },
-    { name: "Komix Herbal", sku: "KMX-033", categoryName: "Obat Bebas", purchasePrice: "10000", price: "15000", stock: "50", minStock: "10", unit: "box", expiryDate: new Date("2027-09-22") },
-    { name: "Degirol Tablet", sku: "DEG-034", categoryName: "Obat Bebas", purchasePrice: "8000", price: "12000", stock: "40", minStock: "10", unit: "strip", expiryDate: new Date("2027-02-10") },
-    { name: "Bodrex", sku: "BDX-035", categoryName: "Obat Bebas", purchasePrice: "4000", price: "6500", stock: "150", minStock: "30", unit: "strip", expiryDate: new Date("2028-01-05") },
-    { name: "Minyak Kayu Putih 60ml", sku: "MKP-036", categoryName: "Obat Bebas", purchasePrice: "18000", price: "25000", stock: "30", minStock: "10", unit: "botol", expiryDate: null },
-    { name: "Counterpain 30g", sku: "CPN-037", categoryName: "Obat Bebas", purchasePrice: "40000", price: "55000", stock: "15", minStock: "5", unit: "tube", expiryDate: new Date("2027-07-20") },
-    { name: "Oralit", sku: "ORL-038", categoryName: "Obat Bebas", purchasePrice: "500", price: "1500", stock: "200", minStock: "50", unit: "sachet", expiryDate: new Date("2028-11-11") },
-    { name: "Hydrocortisone 1%", sku: "HYD-039", categoryName: "Obat Bebas Terbatas", purchasePrice: "10000", price: "16000", stock: "25", minStock: "5", unit: "tube", expiryDate: new Date("2027-05-30") },
-    { name: "Cefadroxil 500mg", sku: "CEF-040", categoryName: "Obat Keras (G)", purchasePrice: "25000", price: "38000", stock: "20", minStock: "5", unit: "strip", expiryDate: new Date("2026-10-15") },
-    { name: "Domperidone 10mg", sku: "DOM-041", categoryName: "Obat Keras (G)", purchasePrice: "15000", price: "22000", stock: "40", minStock: "10", unit: "strip", expiryDate: new Date("2027-01-10") },
-    { name: "Loratadine 10mg", sku: "LOR-042", categoryName: "Obat Bebas Terbatas", purchasePrice: "12000", price: "18000", stock: "50", minStock: "10", unit: "strip", expiryDate: new Date("2027-06-25") },
-    { name: "Spironolactone 25mg", sku: "SPI-043", categoryName: "Obat Keras (G)", purchasePrice: "30000", price: "42000", stock: "30", minStock: "5", unit: "strip", expiryDate: new Date("2026-12-20") },
-    { name: "Glimepiride 2mg", sku: "GLI-044", categoryName: "Obat Keras (G)", purchasePrice: "28000", price: "38000", stock: "45", minStock: "10", unit: "strip", expiryDate: new Date("2027-02-15") },
-    { name: "Bisoprolol 5mg", sku: "BIS-045", categoryName: "Obat Keras (G)", purchasePrice: "35000", price: "48000", stock: "25", minStock: "5", unit: "strip", expiryDate: new Date("2027-04-10") },
-    { name: "Candesartan 8mg", sku: "CAN-046", categoryName: "Obat Keras (G)", purchasePrice: "40000", price: "55000", stock: "20", minStock: "5", unit: "strip", expiryDate: new Date("2027-08-30") },
-    { name: "Nebulizer Kit", sku: "NEB-047", categoryName: "Alat Kesehatan", purchasePrice: "85000", price: "120000", stock: "5", minStock: "2", unit: "set", expiryDate: null },
-    { name: "Tensimeter Digital", sku: "TNS-048", categoryName: "Alat Kesehatan", purchasePrice: "350000", price: "450000", stock: "3", minStock: "1", unit: "pcs", expiryDate: null },
-    { name: "Kasa Steril", sku: "KAS-049", categoryName: "Alat Kesehatan", purchasePrice: "10000", price: "15000", stock: "50", minStock: "10", unit: "box", expiryDate: null },
-    { name: "Alcohol Swabs", sku: "ALC-050", categoryName: "Alat Kesehatan", purchasePrice: "25000", price: "35000", stock: "100", minStock: "20", unit: "box", expiryDate: new Date("2028-10-10") },
+  // 7. Seed Variatif Medicines
+  console.log("💊 Menyiapkan 30+ Data Obat Realistis...")
+  const medicinesToSeed = [
+    // OBAT BEBAS (HIJAU)
+    {
+      name: "Paracetamol 500mg",
+      genericName: "Paracetamol",
+      code: "MED-00001",
+      category: "Obat Bebas",
+      classification: "Bebas",
+      unit: "Tablet",
+      purchasePrice: "500",
+      price: "1000",
+      stock: "500",
+      minStock: "50",
+      composition: "Paracetamol 500mg",
+      indication: "Meredakan nyeri ringan dan demam",
+      manufacturer: "Kimia Farma",
+      description: "Obat penurun panas paling umum"
+    },
+    {
+      name: "Antasida Doen",
+      genericName: "Alumunium Hidroksida",
+      code: "MED-00002",
+      category: "Obat Bebas",
+      classification: "Bebas",
+      unit: "Tablet",
+      purchasePrice: "300",
+      price: "750",
+      stock: "200",
+      minStock: "30",
+      composition: "Al(OH)3 200mg, Mg(OH)2 200mg",
+      indication: "Sakit maag, kembung, perih",
+      manufacturer: "Indofarma",
+      description: "Obat lambung standar"
+    },
+    {
+      name: "Promag Tablet",
+      genericName: "Hydrotalcite",
+      code: "MED-00003",
+      category: "Obat Bebas",
+      classification: "Bebas",
+      unit: "Strip",
+      purchasePrice: "7500",
+      price: "10500",
+      stock: "45",
+      minStock: "10",
+      composition: "Hydrotalcite 200mg, Magnesium Hydroxide 150mg",
+      indication: "Asam lambung berlebih",
+      manufacturer: "Kalbe Farma"
+    },
+
+    // OBAT BEBAS TERBATAS (BIRU)
+    {
+      name: "Cetirizine 10mg",
+      genericName: "Cetirizine HCl",
+      code: "MED-00004",
+      category: "Obat Bebas Terbatas",
+      classification: "Bebas Terbatas",
+      unit: "Strip",
+      purchasePrice: "5000",
+      price: "8500",
+      stock: "60",
+      minStock: "10",
+      composition: "Cetirizine Hydrochloride 10mg",
+      indication: "Rhinitis alergi, biduran",
+      manufacturer: "Dexa Medica"
+    },
+    {
+      name: "Ibuprofen 400mg",
+      genericName: "Ibuprofen",
+      code: "MED-00005",
+      category: "Obat Bebas Terbatas",
+      classification: "Bebas Terbatas",
+      unit: "Strip",
+      purchasePrice: "8000",
+      price: "13000",
+      stock: "15",
+      minStock: "20", // LOW STOCK CASE
+      composition: "Ibuprofen 400mg",
+      indication: "Nyeri sedang sampai berat, radang",
+      manufacturer: "Phapros"
+    },
+    {
+      name: "Vicks Formula 44 Adult",
+      genericName: "Dextromethorphan",
+      code: "MED-00006",
+      category: "Obat Bebas Terbatas",
+      classification: "Bebas Terbatas",
+      unit: "Botol",
+      purchasePrice: "16500",
+      price: "22000",
+      stock: "25",
+      minStock: "5",
+      indication: "Batuk tidak berdahak",
+      manufacturer: "P&G"
+    },
+
+    // OBAT KERAS (K MERAH)
+    {
+      name: "Amoxicillin 500mg",
+      genericName: "Amoxicillin",
+      code: "MED-00007",
+      category: "Obat Keras (G)",
+      classification: "Keras",
+      unit: "Strip",
+      purchasePrice: "18000",
+      price: "26000",
+      stock: "40",
+      minStock: "10",
+      composition: "Amoxicillin Trihydrate 500mg",
+      indication: "Infeksi bakteri (Antibiotik)",
+      manufacturer: "Sanbe Farma",
+      sideEffects: "Diare, mual, ruam kulit"
+    },
+    {
+      name: "Amlodipine 5mg",
+      genericName: "Amlodipine Besylate",
+      code: "MED-00008",
+      category: "Obat Keras (G)",
+      classification: "Keras",
+      unit: "Strip",
+      purchasePrice: "12000",
+      price: "18500",
+      stock: "100",
+      minStock: "15",
+      indication: "Hipertensi (Tekanan darah tinggi)",
+      manufacturer: "Biofarma"
+    },
+    {
+      name: "Metformin 500mg",
+      genericName: "Metformin HCl",
+      code: "MED-00009",
+      category: "Obat Keras (G)",
+      classification: "Keras",
+      unit: "Strip",
+      purchasePrice: "15000",
+      price: "22000",
+      stock: "0", // OUT OF STOCK CASE
+      minStock: "10",
+      indication: "Diabetes Melitus Tipe 2",
+      manufacturer: "Kimia Farma"
+    },
+    {
+      name: "Asam Mefenamat 500mg",
+      genericName: "Mefenamic Acid",
+      code: "MED-00010",
+      category: "Obat Keras (G)",
+      classification: "Keras",
+      unit: "Strip",
+      purchasePrice: "6000",
+      price: "11000",
+      stock: "80",
+      minStock: "20",
+      indication: "Nyeri gigi, nyeri haid",
+      manufacturer: "Bernofarm"
+    },
+
+    // PSIKOTROPIKA
+    {
+      name: "Xanax 0.5mg",
+      genericName: "Alprazolam",
+      code: "MED-00011",
+      category: "Psikotropika",
+      classification: "Psikotropika",
+      unit: "Tablet",
+      purchasePrice: "65000",
+      price: "95000",
+      stock: "2",
+      minStock: "5",
+      composition: "Alprazolam 0.5mg",
+      indication: "Gangguan kecemasan, panik",
+      manufacturer: "Pfizer",
+      sideEffects: "Mengantuk, pusing, ketergantungan"
+    },
+    {
+      name: "Diazepam 2mg",
+      genericName: "Diazepam",
+      code: "MED-00012",
+      category: "Psikotropika",
+      classification: "Psikotropika",
+      unit: "Tablet",
+      purchasePrice: "45000",
+      price: "70000",
+      stock: "10",
+      minStock: "2",
+      indication: "Kejang, kaku otot",
+      manufacturer: "Indofarma"
+    },
+
+    // VITAMIN & SUPLEMEN
+    {
+      name: "Enervon-C Active",
+      genericName: "Multivitamin",
+      code: "MED-00013",
+      category: "Suplemen & Vitamin",
+      classification: "Bebas",
+      unit: "Botol",
+      purchasePrice: "35000",
+      price: "48500",
+      stock: "30",
+      minStock: "5",
+      composition: "Vitamin C 500mg, Vitamin B Kompleks",
+      indication: "Menjaga daya tahan tubuh",
+      manufacturer: "Medifarma"
+    },
+    {
+      name: "Sangobion Caps",
+      genericName: "Suplemen Zat Besi",
+      code: "MED-00014",
+      category: "Suplemen & Vitamin",
+      classification: "Bebas",
+      unit: "Strip",
+      purchasePrice: "18000",
+      price: "24500",
+      stock: "15",
+      minStock: "10",
+      indication: "Anemia / kurang darah",
+      manufacturer: "Merck"
+    },
+
+    // ALAT KESEHATAN
+    {
+      name: "Termometer Digital Omron",
+      code: "MED-00015",
+      category: "Alat Kesehatan",
+      classification: "Bebas",
+      unit: "Pcs",
+      purchasePrice: "65000",
+      price: "95000",
+      stock: "5",
+      minStock: "2",
+      manufacturer: "Omron",
+      description: "Alat pengukur suhu tubuh akurasi tinggi"
+    },
+    {
+      name: "Masker Sensi 3-Ply Earloop",
+      code: "MED-00016",
+      category: "Alat Kesehatan",
+      classification: "Bebas",
+      unit: "Box",
+      purchasePrice: "38000",
+      price: "55000",
+      stock: "100",
+      minStock: "10",
+      manufacturer: "Arista",
+      description: "Masker bedah 3 lapis"
+    }
   ]
 
   const insertedMedicines = await db.insert(medicines).values(
-    seedMedicinesData.map(med => ({
-      name: med.name,
-      code: med.sku, // Use SKU as code for seed data
-      sku: med.sku,
-      categoryId: catMap[med.categoryName] || "", // Pastikan string tidak kosong
-      organizationId: org!.id,
-      purchasePrice: med.purchasePrice,
-      price: med.price,
-      stock: med.stock,
-      minStock: med.minStock,
-      unit: med.unit,
-      expiryDate: med.expiryDate,
-    }))
+    medicinesToSeed.map(m => {
+      const categoryId = catMap[m.category] || (insertedCats[0] ? insertedCats[0].id : "");
+      const baseUnitId = unitMap[m.unit] || (allUnits[0] ? allUnits[0].id : "");
+      
+      if (!categoryId || !baseUnitId) {
+        throw new Error(`Missing category or unit for medicine: ${m.name}`);
+      }
+
+      return {
+        organizationId: org!.id,
+        categoryId,
+        baseUnitId,
+        code: m.code,
+        name: m.name,
+        genericName: m.genericName || null,
+        classification: m.classification || "Bebas",
+        purchasePrice: m.purchasePrice,
+        price: m.price,
+        stock: m.stock,
+        minStock: m.minStock,
+        composition: m.composition || null,
+        indication: m.indication || null,
+        manufacturer: m.manufacturer || null,
+        description: m.description || null,
+        isActive: true,
+        unit: m.unit.toLowerCase(), // fallback
+      };
+    })
   ).returning()
 
-  // 7. Seed Histori Stok (Stock Movements)
-  console.log("📦 Menyiapkan Histori Stok (Initial In, Out, & Adjustments)...")
-  
-  // Gunakan tipe data eksplisit untuk insert stockMovements
-  const initialMovements = insertedMedicines.map(med => ({
-    medicineId: med.id,
+  // 8. Seed Stock Movements (Initial Ledger)
+  console.log("📦 Menyiapkan Ledger Stok...")
+  const movements = insertedMedicines.map(med => ({
     organizationId: org!.id,
+    medicineId: med.id,
     userId: demoUser!.id,
+    warehouseId: warehouse!.id,
     type: "in",
     quantity: med.stock,
-    note: "Stok awal (Seeding)",
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    priceAtTransaction: med.purchasePrice,
+    balanceBefore: "0",
+    resultingStock: med.stock,
+    note: "Stok awal (Seeding Data Variatif)",
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
   }))
 
-  const extraMovements: any[] = []
-  const randomMeds = insertedMedicines.slice(0, 15)
-  randomMeds.forEach((med, index) => {
-    if (index % 3 === 0) {
-      extraMovements.push({
-        medicineId: med.id,
-        organizationId: org!.id,
-        userId: demoUser!.id,
-        type: "out",
-        quantity: "5.00",
-        note: "Barang rusak / dibuang",
-        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-      })
-    } else if (index % 2 === 0) {
-      extraMovements.push({
-        medicineId: med.id,
-        organizationId: org!.id,
-        userId: demoUser!.id,
-        type: "adjustment",
-        quantity: "2.00",
-        note: "Koreksi Stok Opname (Selisih +)",
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
-      })
-    }
-  })
+  await db.insert(stockMovements).values(movements)
 
-  await db.insert(stockMovements).values([...initialMovements, ...extraMovements])
-
-  console.log("✅ SEEDING SELESAI! Akun demo sekarang mendukung multi-cabang & detail apotek.")
+  console.log("✅ SEEDING DATA VARIATIF SELESAI!")
   process.exit(0)
 }
 

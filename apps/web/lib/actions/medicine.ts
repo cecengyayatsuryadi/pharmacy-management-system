@@ -13,7 +13,7 @@ const medicineSchema = z.object({
   genericName: z.string().optional().nullable(),
   categoryId: z.string().uuid({ message: "Kategori tidak valid" }),
   baseUnitId: z.string().uuid({ message: "Satuan tidak valid" }),
-  classification: z.string().optional().nullable(),
+  classification: z.string().min(1, { message: "Golongan obat harus diisi" }).default("Bebas"),
   code: z.string().optional(),
   sku: z.string().optional().nullable(),
   purchasePrice: z.string().min(1, { message: "Harga beli harus diisi" }),
@@ -143,8 +143,9 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
     }
 
     await db.insert(medicines).values({
-      ...validatedFields.data,
       organizationId,
+      ...validatedFields.data,
+      classification: validatedFields.data.classification || "Bebas",
       code: finalCode,
       isActive: validatedFields.data.isActive === "true",
       sku: validatedFields.data.sku || null,
@@ -193,6 +194,7 @@ export async function updateMedicineAction(
       .set({
         ...restOfData,
         ...(code ? { code } : {}),
+        classification: restOfData.classification || "Bebas",
         isActive: validatedFields.data.isActive === "true",
         sku: validatedFields.data.sku || null,
         unit: validatedFields.data.unit || "pcs",

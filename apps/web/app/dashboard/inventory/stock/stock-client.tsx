@@ -59,7 +59,7 @@ interface StockItem {
     id: string
     name: string
     sku: string | null
-    unit: string
+    unit: string | null
   }
   warehouse: {
     id: string
