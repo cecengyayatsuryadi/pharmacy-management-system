@@ -79,7 +79,7 @@ describe('getSalesReportAction', () => {
   })
 
   it('should throw an error if user is not authenticated', async () => {
-    vi.mocked(auth).mockResolvedValue(null)
+    (vi.mocked(auth) as any).mockResolvedValue(null)
 
     const filter = { startDate: new Date(), endDate: new Date() }
 
@@ -87,7 +87,7 @@ describe('getSalesReportAction', () => {
   })
 
   it('should throw an error if user has no organizationId', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { role: 'admin' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { role: 'admin' } } as any)
 
     const filter = { startDate: new Date(), endDate: new Date() }
 
@@ -95,7 +95,7 @@ describe('getSalesReportAction', () => {
   })
 
   it('should throw an error if user role is not admin', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1', role: 'staff' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1', role: 'staff' } } as any)
 
     const filter = { startDate: new Date(), endDate: new Date() }
 
@@ -103,7 +103,7 @@ describe('getSalesReportAction', () => {
   })
 
   it('should successfully fetch report data if user is an admin with an organizationId', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1', role: 'admin' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1', role: 'admin' } } as any)
 
     const filter = { startDate: new Date(), endDate: new Date() }
     const result = await getSalesReportAction(filter)

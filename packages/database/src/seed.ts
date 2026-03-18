@@ -150,6 +150,7 @@ async function main() {
   const insertedMedicines = await db.insert(medicines).values(
     seedMedicinesData.map(med => ({
       name: med.name,
+      code: med.sku, // Use SKU as code for seed data
       sku: med.sku,
       categoryId: catMap[med.categoryName] || "", // Pastikan string tidak kosong
       organizationId: org!.id,

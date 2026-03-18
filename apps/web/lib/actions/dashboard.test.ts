@@ -61,12 +61,12 @@ describe("getDashboardStats", () => {
   })
 
   it("should throw Unauthorized when organizationId is missing", async () => {
-    vi.mocked(auth).mockResolvedValue(null)
+    (vi.mocked(auth) as any).mockResolvedValue(null)
     await expect(getDashboardStats()).rejects.toThrow("Unauthorized")
   })
 
   it("should return zero-safe stats when sales/stocks/categories are empty", async () => {
-    vi.mocked(auth).mockResolvedValue({
+    (vi.mocked(auth) as any).mockResolvedValue({
       user: { organizationId: "org-1" },
     } as any)
 

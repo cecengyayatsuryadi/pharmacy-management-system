@@ -148,22 +148,39 @@ export const medicines = pgTable("medicines", {
     .notNull()
     .references(() => categories.id),
   baseUnitId: uuid("base_unit_id").references(() => units.id), // Satuan terkecil (misal: tablet)
+  code: varchar("code", { length: 50 }).notNull(), // Auto-generate (e.g., MED-00001)
   name: varchar("name", { length: 255 }).notNull(),
-  sku: varchar("sku", { length: 100 }),
+  genericName: varchar("generic_name", { length: 255 }), // Nama Generik
+  sku: varchar("sku", { length: 100 }), // Barcode / SKU tambahan
+  classification: varchar("classification", { length: 100 }), // Golongan (Bebas, Keras, Psikotropika, dll)
   purchasePrice: numeric("purchase_price", { precision: 12, scale: 2 }).notNull().default("0"), // Harga Beli
   price: numeric("price", { precision: 12, scale: 2 }).notNull().default("0"), // Harga Jual
-  stock: numeric("stock", { precision: 12, scale: 2 }).notNull().default("0"), // Legacy/Cache
-  minStock: numeric("min_stock", { precision: 12, scale: 2 }).notNull().default("0"), // Stok Minimum Alert
-  unit: varchar("unit", { length: 50 }).notNull().default("pcs"), // tablet, botol, dll (Legacy)
-  expiryDate: timestamp("expiry_date"), // Legacy (Batch tracking preferred)
+  stock: numeric("stock", { precision: 12, scale: 2 }).notNull().default("0"), // Real-time stock cache
+  minStock: numeric("min_stock", { precision: 12, scale: 2 }).notNull().default("0"), // Reorder point
+  maxStock: numeric("max_stock", { precision: 12, scale: 2 }).notNull().default("0"), // Max capacity
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  
+  // Clinical / Pharmaceutical Details
+  composition: text("composition"), // Komposisi bahan aktif
+  indication: text("indication"), // Indikasi / Kegunaan
+  contraindication: text("contraindication"), // Kontraindikasi
+  sideEffects: text("side_effects"), // Efek Samping
+  manufacturer: varchar("manufacturer", { length: 255 }), // Pabrik pembuat
+  distributor: varchar("distributor", { length: 255 }), // Pemasok utama (opsional)
+  image: text("image"), // URL Foto produk
+
+  unit: varchar("unit", { length: 50 }).notNull().default("pcs"), // Legacy
+  expiryDate: timestamp("expiry_date"), // Legacy
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
 }, (table) => ({
-  // SKU unik hanya dalam satu organisasi
+  // SKU/Code unik hanya dalam satu organisasi
   skuOrgIndex: uniqueIndex("sku_org_idx").on(table.organizationId, table.sku),
+  codeOrgIndex: uniqueIndex("medicine_code_org_idx").on(table.organizationId, table.code),
 }))
 
 export const medicinesRelations = relations(medicines, ({ one, many }) => ({

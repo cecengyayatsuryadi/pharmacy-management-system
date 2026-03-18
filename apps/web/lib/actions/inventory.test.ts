@@ -55,10 +55,10 @@ vi.mock('drizzle-orm', () => ({
 
 describe('createStockMovementAction', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
 
     // Default auth mock setup
-    vi.mocked(auth).mockResolvedValue({
+    (vi.mocked(auth) as any).mockResolvedValue({
       user: {
         id: 'user-1',
         organizationId: 'org-1'
@@ -67,7 +67,7 @@ describe('createStockMovementAction', () => {
   })
 
   it('should return Unauthorized if no user is in session', async () => {
-    vi.mocked(auth).mockResolvedValue(null)
+    (vi.mocked(auth) as any).mockResolvedValue(null)
     const formData = new FormData()
     const result = await createStockMovementAction({}, formData)
     expect(result).toEqual({ message: 'Unauthorized' })

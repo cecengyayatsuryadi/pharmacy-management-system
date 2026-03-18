@@ -120,6 +120,7 @@ interface InventoryClientProps {
   defaultType: "in" | "out" | "adjustment"
   title: string
   submitAction?: (prevState: any, formData: FormData) => Promise<any>
+  showPurchaseColumns?: boolean
 }
 
 function SubmitButton({ label }: { label: string }) {
@@ -131,18 +132,18 @@ function SubmitButton({ label }: { label: string }) {
   )
 }
 
-export function InventoryClient({ 
-  medicines, 
-  suppliers = [], 
+export function InventoryClient({
+  medicines,
+  suppliers = [],
   warehouses = [],
-  primarySupplierByMedicine = {}, 
-  initialMovements, 
-  metadata, 
-  defaultType, 
+  primarySupplierByMedicine = {},
+  initialMovements,
+  metadata,
+  defaultType,
   title,
   submitAction,
-}: InventoryClientProps) {
-  const searchParams = useSearchParams()
+  showPurchaseColumns = false,
+}: InventoryClientProps) {  const searchParams = useSearchParams()
   const router = useRouter()
   const currentPage = Number(searchParams.get("page")) || 1
   const [mounted, setMounted] = React.useState(false)

@@ -6,12 +6,13 @@ import { MedicineClient } from "./medicine-client"
 import { redirect } from "next/navigation"
 
 export default async function MedicinesPage(props: {
-  searchParams: Promise<{ page?: string; search?: string; categoryId?: string }>
+  searchParams: Promise<{ page?: string; search?: string; categoryId?: string; status?: string }>
 }) {
   const searchParams = await props.searchParams
   const page = Number(searchParams.page) || 1
   const search = searchParams.search || ""
   const categoryId = searchParams.categoryId
+  const status = searchParams.status || ""
   
   const session = await auth()
   if (!session?.user?.organizationId) {
@@ -19,7 +20,7 @@ export default async function MedicinesPage(props: {
   }
 
   const [medicineData, categoryData, unitData] = await Promise.all([
-    getMedicines(page, 10, search, categoryId),
+    getMedicines(page, 10, search, categoryId, status),
     getCategories(),
     getUnitsAction(1, 100) // Ambil banyak untuk dropdown
   ])

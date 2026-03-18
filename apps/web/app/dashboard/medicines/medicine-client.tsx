@@ -1,11 +1,24 @@
 "use client"
 
 import * as React from "react"
-import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
-import { PlusIcon, PencilIcon, TrashIcon, MoreHorizontalIcon, AlertTriangleIcon } from "lucide-react"
+import { 
+  PlusIcon, 
+  PencilIcon, 
+  TrashIcon, 
+  MoreHorizontalIcon, 
+  SearchIcon, 
+  XIcon,
+  DownloadIcon,
+  UploadIcon,
+  EyeIcon,
+  FileTextIcon,
+  ActivityIcon,
+  StethoscopeIcon
+} from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
-import { format, isPast, isWithinInterval, addDays } from "date-fns"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
 
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -21,15 +34,6 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@workspace/ui/components/dialog"
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -44,9 +48,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Badge } from "@workspace/ui/components/badge"
+import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Pagination,
   PaginationContent,
@@ -56,14 +69,21 @@ import {
   PaginationPrevious,
 } from "@workspace/ui/components/pagination"
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@workspace/ui/components/tabs"
+import {
   createMedicineAction,
   updateMedicineAction,
   deleteMedicineAction,
 } from "@/lib/actions/medicine"
+import { MedicineStockBadge } from "@/components/medicine-stock-badge"
 import type { Medicine, Category, Unit } from "@workspace/database"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
-import { SearchIcon, XIcon } from "lucide-react"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 
 interface MedicineClientProps {
   initialData: (Medicine & { category: Category, baseUnit: Unit | null })[]
@@ -80,7 +100,7 @@ interface MedicineClientProps {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus()
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending} className="w-full md:w-auto">
       {pending ? "Mohon tunggu..." : label}
     </Button>
   )
@@ -92,9 +112,10 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
   const currentPage = Number(searchParams.get("page")) || 1
   const [searchValue, setSearchValue] = React.useState(searchParams.get("search") || "")
 
-  const [isAddOpen, setIsAddOpen] = React.useState(false)
-  const [isEditOpen, setIsEditOpen] = React.useState(false)
-  const [selectedMedicine, setSelectedMedicine] = React.useState<(Medicine & { category: Category }) | null>(
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false)
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false)
+  const [mode, setMode] = React.useState<"create" | "edit">("create")
+  const [selectedMedicine, setSelectedMedicine] = React.useState<(Medicine & { category: Category, baseUnit: Unit | null }) | null>(
     null
   )
 
@@ -105,16 +126,16 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
     } else {
       params.delete("search")
     }
-    params.set("page", "1") // Reset to page 1 on search
+    params.set("page", "1")
     router.push(`?${params.toString()}`)
   }, 500)
 
-  const handleCategoryFilter = (id: string) => {
+  const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (id && id !== "all") {
-      params.set("categoryId", id)
+    if (value && value !== "all") {
+      params.set(key, value)
     } else {
-      params.delete("categoryId")
+      params.delete(key)
     }
     params.set("page", "1")
     router.push(`?${params.toString()}`)
@@ -134,24 +155,19 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
     router.push(`?${params.toString()}`)
   }
 
-  async function handleCreate(formData: FormData) {
-    const result = await createMedicineAction(null, formData)
-    if (result.success) {
-      toast.success(result.message)
-      setIsAddOpen(false)
-    } else {
-      toast.error(result.message)
+  async function handleSubmit(formData: FormData) {
+    let result
+    if (mode === "create") {
+      result = await createMedicineAction(null, formData)
+    } else if (selectedMedicine) {
+      result = await updateMedicineAction(selectedMedicine.id, null, formData)
     }
-  }
 
-  async function handleUpdate(formData: FormData) {
-    if (!selectedMedicine) return
-    const result = await updateMedicineAction(selectedMedicine.id, null, formData)
-    if (result.success) {
+    if (result?.success) {
       toast.success(result.message)
-      setIsEditOpen(false)
+      setIsSheetOpen(false)
     } else {
-      toast.error(result.message)
+      toast.error(result?.message || "Terjadi kesalahan")
     }
   }
 
@@ -166,21 +182,21 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
     }
   }
 
-  const getExpiryStatus = (date: Date | null) => {
-    if (!date) return null
-    const expiryDate = new Date(date)
-    if (isPast(expiryDate)) {
-      return <Badge variant="destructive">Kadaluarsa</Badge>
-    }
-    if (isWithinInterval(expiryDate, { start: new Date(), end: addDays(new Date(), 90) })) {
-      return (
-        <Badge variant="outline" className="text-orange-500 border-orange-500">
-          <AlertTriangleIcon className="mr-1 size-3" />
-          Hampir Kadaluarsa
-        </Badge>
-      )
-    }
-    return null
+  const openCreate = () => {
+    setMode("create")
+    setSelectedMedicine(null)
+    setIsSheetOpen(true)
+  }
+
+  const openEdit = (medicine: any) => {
+    setMode("edit")
+    setSelectedMedicine(medicine)
+    setIsSheetOpen(true)
+  }
+
+  const openDetail = (medicine: any) => {
+    setSelectedMedicine(medicine)
+    setIsDetailOpen(true)
   }
 
   return (
@@ -189,97 +205,31 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Data Obat</h2>
           <p className="text-muted-foreground">
-            Kelola stok dan informasi obat-obatan di apotek Anda.
+            Kelola katalog obat, informasi medis, dan stok minimum apotek.
           </p>
         </div>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusIcon data-icon="inline-start" />
-              Tambah Obat
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <form action={handleCreate}>
-              <DialogHeader>
-                <DialogTitle>Tambah Obat Baru</DialogTitle>
-                <DialogDescription>
-                  Lengkapi informasi detail obat untuk inventori.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Nama Obat</Label>
-                  <Input id="name" name="name" placeholder="Contoh: Paracetamol 500mg" required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="categoryId">Kategori</Label>
-                  <Select name="categoryId" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih Kategori" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="sku">SKU / Kode Obat</Label>
-                  <Input id="sku" name="sku" placeholder="Contoh: PCT-001" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="unit">Satuan</Label>
-                  <Select name="baseUnitId" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih Satuan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {units.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.name} ({u.abbreviation})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="purchasePrice">Harga Beli (Rp)</Label>
-                  <Input id="purchasePrice" name="purchasePrice" type="number" placeholder="0" required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="price">Harga Jual (Rp)</Label>
-                  <Input id="price" name="price" type="number" placeholder="0" required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="stock">Stok Awal</Label>
-                  <Input id="stock" name="stock" type="number" placeholder="0" required />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="minStock">Stok Minimum</Label>
-                  <Input id="minStock" name="minStock" type="number" placeholder="5" required />
-                </div>
-                <div className="grid gap-2 md:col-span-2">
-                  <Label htmlFor="expiryDate">Tanggal Kadaluarsa</Label>
-                  <Input id="expiryDate" name="expiryDate" type="date" />
-                </div>
-              </div>
-              <DialogFooter>
-                <SubmitButton label="Simpan Data Obat" />
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="hidden md:flex">
+            <DownloadIcon className="mr-2 size-4" />
+            Export
+          </Button>
+          <Button variant="outline" className="hidden md:flex">
+            <UploadIcon className="mr-2 size-4" />
+            Import
+          </Button>
+          <Button onClick={openCreate}>
+            <PlusIcon className="mr-2 size-4" />
+            Tambah Obat
+          </Button>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center">
+      {/* Filter Bar */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="relative flex-1">
           <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Cari nama obat atau SKU..."
+            placeholder="Cari nama, generik, atau kode obat..."
             className="pl-9 pr-10"
             value={searchValue}
             onChange={(e) => {
@@ -298,41 +248,57 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
             </Button>
           )}
         </div>
-        <Select
-          defaultValue={searchParams.get("categoryId") || "all"}
-          onValueChange={handleCategoryFilter}
-        >
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Filter Kategori" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Kategori</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.id}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            defaultValue={searchParams.get("categoryId") || "all"}
+            onValueChange={(v) => handleFilterChange("categoryId", v)}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Kategori" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Kategori</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            defaultValue={searchParams.get("status") || "all"}
+            onValueChange={(v) => handleFilterChange("status", v)}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="active">Aktif</SelectItem>
+              <SelectItem value="inactive">Non-aktif</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Nama Obat</TableHead>
-                <TableHead>Kategori</TableHead>
-                <TableHead>Stok</TableHead>
-                <TableHead>Harga</TableHead>
-                <TableHead>Kadaluarsa</TableHead>
-                <TableHead className="w-[100px]">Aksi</TableHead>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-[120px]">Kode</TableHead>
+                <TableHead>Nama Obat / Generik</TableHead>
+                <TableHead>Kategori / Golongan</TableHead>
+                <TableHead className="text-right">Harga Jual</TableHead>
+                <TableHead className="text-center">Stok</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="w-[80px] text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {initialData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                     {searchValue || searchParams.get("categoryId") 
                       ? "Tidak ada obat yang sesuai dengan pencarian." 
                       : "Belum ada data obat."}
@@ -341,63 +307,66 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
               ) : (
                 initialData.map((medicine) => (
                   <TableRow key={medicine.id}>
+                    <TableCell className="font-mono text-[11px] font-semibold text-primary">
+                      {medicine.code}
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium">{medicine.name}</span>
-                        <span className="text-xs text-muted-foreground">{medicine.sku || "-"}</span>
+                        <span className="font-semibold text-sm">{medicine.name}</span>
+                        <span className="text-[10px] text-muted-foreground italic">
+                          {medicine.genericName || "-"}
+                        </span>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{medicine.category.name}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span>{medicine.stock} {medicine.baseUnit?.abbreviation || medicine.unit}</span>
-                        {Number(medicine.stock) <= Number(medicine.minStock) && (
-                          <Badge variant="outline" className="w-fit text-red-500 border-red-500 bg-red-50">
-                            Stok Rendah
-                          </Badge>
-                        )}
+                        <span className="text-xs font-medium">{medicine.category.name}</span>
+                        <Badge variant="outline" className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold text-muted-foreground border-muted-foreground/30">
+                          {medicine.classification || "Bebas"}
+                        </Badge>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right font-mono text-[13px] font-bold">
                       Rp {Number(medicine.price).toLocaleString('id-ID')}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm">
-                          {medicine.expiryDate 
-                            ? format(new Date(medicine.expiryDate), "dd MMM yyyy") 
-                            : "-"}
+                    <TableCell className="text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-sm font-bold tabular-nums">
+                          {medicine.stock} <span className="text-[10px] font-normal text-muted-foreground uppercase">{medicine.baseUnit?.abbreviation || medicine.unit}</span>
                         </span>
-                        {getExpiryStatus(medicine.expiryDate)}
+                        <MedicineStockBadge stock={medicine.stock} minStock={medicine.minStock} className="h-4 text-[9px] px-1.5" />
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={medicine.isActive ? "success" : "secondary"} className="h-5 text-[10px]">
+                        {medicine.isActive ? "Aktif" : "Non-aktif"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" className="size-8">
                             <MoreHorizontalIcon className="size-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                          <DropdownMenuLabel>Opsi Data</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedMedicine(medicine)
-                              setIsEditOpen(true)
-                            }}
-                          >
-                            <PencilIcon className="mr-2 size-4" />
-                            Edit
+                          <DropdownMenuItem onClick={() => openDetail(medicine)}>
+                            <EyeIcon className="mr-2 size-4" />
+                            Detail Lengkap
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEdit(medicine)}>
+                            <PencilIcon className="mr-2 size-4" />
+                            Edit Data
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => handleDelete(medicine.id)}
                           >
                             <TrashIcon className="mr-2 size-4" />
-                            Hapus
+                            Hapus Permanen
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -450,122 +419,274 @@ export function MedicineClient({ initialData, categories, units, metadata }: Med
         </Pagination>
       )}
 
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-2xl">
-          <form action={handleUpdate}>
-            <DialogHeader>
-              <DialogTitle>Edit Data Obat</DialogTitle>
-              <DialogDescription>
-                Perbarui informasi stok atau harga obat.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-name">Nama Obat</Label>
-                <Input
-                  id="edit-name"
-                  name="name"
-                  defaultValue={selectedMedicine?.name}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-categoryId">Kategori</Label>
-                <Select name="categoryId" defaultValue={selectedMedicine?.categoryId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih Kategori" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-sku">SKU / Kode Obat</Label>
-                <Input
-                  id="edit-sku"
-                  name="sku"
-                  defaultValue={selectedMedicine?.sku || ""}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-unit">Satuan</Label>
-                <Select name="baseUnitId" defaultValue={selectedMedicine?.baseUnitId || undefined}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih Satuan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {units.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        {u.name} ({u.abbreviation})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-purchasePrice">Harga Beli (Rp)</Label>
-                <Input
-                  id="edit-purchasePrice"
-                  name="purchasePrice"
-                  type="number"
-                  defaultValue={selectedMedicine?.purchasePrice}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-price">Harga Jual (Rp)</Label>
-                <Input
-                  id="edit-price"
-                  name="price"
-                  type="number"
-                  defaultValue={selectedMedicine?.price}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-stock">Stok</Label>
-                <Input
-                  id="edit-stock"
-                  name="stock"
-                  type="number"
-                  defaultValue={selectedMedicine?.stock}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-minStock">Stok Minimum</Label>
-                <Input
-                  id="edit-minStock"
-                  name="minStock"
-                  type="number"
-                  defaultValue={selectedMedicine?.minStock}
-                  required
-                />
-              </div>
-              <div className="grid gap-2 md:col-span-2">
-                <Label htmlFor="edit-expiryDate">Tanggal Kadaluarsa</Label>
-                <Input
-                  id="edit-expiryDate"
-                  name="expiryDate"
-                  type="date"
-                  defaultValue={selectedMedicine?.expiryDate 
-                    ? format(new Date(selectedMedicine.expiryDate), "yyyy-MM-dd") 
-                    : ""}
-                />
-              </div>
-
-            </div>
-            <DialogFooter>
-              <SubmitButton label="Simpan Perubahan" />
-            </DialogFooter>
+      {/* SHEET: CREATE/EDIT FORM */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent className="w-full sm:max-w-2xl p-0">
+          <form action={handleSubmit} className="flex flex-col h-full">
+            <SheetHeader className="p-6 border-b">
+              <SheetTitle>{mode === "create" ? "Tambah Obat Baru" : "Edit Data Obat"}</SheetTitle>
+              <SheetDescription>
+                Pastikan informasi medis dan logistik obat akurat untuk sistem inventori.
+              </SheetDescription>
+            </SheetHeader>
+            
+            <ScrollArea className="flex-1 p-6">
+              <Tabs defaultValue="basic" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="basic">Info Dasar</TabsTrigger>
+                  <TabsTrigger value="medical">Info Medis</TabsTrigger>
+                  <TabsTrigger value="logistics">Harga & Stok</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="basic" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Nama Obat <span className="text-destructive">*</span></Label>
+                    <Input id="name" name="name" defaultValue={selectedMedicine?.name} placeholder="Contoh: Paracetamol 500mg" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="genericName">Nama Generik</Label>
+                    <Input id="genericName" name="genericName" defaultValue={selectedMedicine?.genericName || ""} placeholder="Contoh: Paracetamol" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="categoryId">Kategori <span className="text-destructive">*</span></Label>
+                      <Select name="categoryId" defaultValue={selectedMedicine?.categoryId} required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Kategori" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="classification">Golongan Obat</Label>
+                      <Select name="classification" defaultValue={selectedMedicine?.classification || "Bebas"}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Golongan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Bebas">Bebas</SelectItem>
+                          <SelectItem value="Bebas Terbatas">Bebas Terbatas</SelectItem>
+                          <SelectItem value="Keras">Keras (G)</SelectItem>
+                          <SelectItem value="Psikotropika">Psikotropika</SelectItem>
+                          <SelectItem value="Narkotika">Narkotika</SelectItem>
+                          <SelectItem value="Herbal/Jamu">Herbal / Jamu</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="code">Kode Obat (Internal)</Label>
+                      <Input id="code" name="code" defaultValue={selectedMedicine?.code || ""} placeholder="MED-XXXXX (Otomatis)" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="sku">SKU / Barcode</Label>
+                      <Input id="sku" name="sku" defaultValue={selectedMedicine?.sku || ""} placeholder="Tempel barcode di sini" />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Deskripsi Singkat</Label>
+                    <Textarea id="description" name="description" defaultValue={selectedMedicine?.description || ""} placeholder="Keterangan tambahan..." className="h-20" />
+                  </div>
+                  <div className="flex items-center gap-2 pt-2">
+                    <input type="checkbox" id="isActive" name="isActive" defaultChecked={selectedMedicine?.isActive ?? true} value="true" className="size-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                    <Label htmlFor="isActive" className="cursor-pointer">Status Aktif (Tampilkan di POS & Laporan)</Label>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="medical" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="composition">Komposisi</Label>
+                    <Textarea id="composition" name="composition" defaultValue={selectedMedicine?.composition || ""} placeholder="Kandungan bahan aktif..." className="h-24" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="indication">Indikasi</Label>
+                    <Textarea id="indication" name="indication" defaultValue={selectedMedicine?.indication || ""} placeholder="Kegunaan obat..." className="h-20" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="contraindication">Kontraindikasi</Label>
+                    <Textarea id="contraindication" name="contraindication" defaultValue={selectedMedicine?.contraindication || ""} placeholder="Kondisi yang dilarang..." className="h-20" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="sideEffects">Efek Samping</Label>
+                    <Textarea id="sideEffects" name="sideEffects" defaultValue={selectedMedicine?.sideEffects || ""} placeholder="Efek samping yang mungkin muncul..." className="h-20" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="manufacturer">Produsen (Pabrik)</Label>
+                      <Input id="manufacturer" name="manufacturer" defaultValue={selectedMedicine?.manufacturer || ""} placeholder="Contoh: Kimia Farma" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="distributor">Distributor Utama</Label>
+                      <Input id="distributor" name="distributor" defaultValue={selectedMedicine?.distributor || ""} placeholder="Contoh: PBF X" />
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="logistics" className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 border p-4 rounded-lg bg-muted/30">
+                    <div className="grid gap-2">
+                      <Label htmlFor="baseUnitId">Satuan Terkecil <span className="text-destructive">*</span></Label>
+                      <Select name="baseUnitId" defaultValue={selectedMedicine?.baseUnitId || undefined} required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Satuan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {units.map((u) => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.name} ({u.abbreviation})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="stock">Stok Awal Saat Ini</Label>
+                      <Input id="stock" name="stock" type="number" defaultValue={selectedMedicine?.stock || "0"} required />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="purchasePrice">Harga Beli Dasar (Rp) <span className="text-destructive">*</span></Label>
+                      <Input id="purchasePrice" name="purchasePrice" type="number" defaultValue={selectedMedicine?.purchasePrice || "0"} required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="price">Harga Jual (Rp) <span className="text-destructive">*</span></Label>
+                      <Input id="price" name="price" type="number" defaultValue={selectedMedicine?.price || "0"} required />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="minStock">Batas Stok Minimum</Label>
+                      <Input id="minStock" name="minStock" type="number" defaultValue={selectedMedicine?.minStock || "10"} required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="maxStock">Kapasitas Maksimum</Label>
+                      <Input id="maxStock" name="maxStock" type="number" defaultValue={selectedMedicine?.maxStock || "1000"} required />
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </ScrollArea>
+            
+            <SheetFooter className="p-6 border-t flex flex-row items-center justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setIsSheetOpen(false)}>Batal</Button>
+              <SubmitButton label={mode === "create" ? "Tambah Data Obat" : "Simpan Perubahan"} />
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
+
+      {/* DETAIL SHEET: READ-ONLY */}
+      <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <SheetContent className="w-full sm:max-w-2xl p-0">
+          <div className="flex flex-col h-full">
+            <SheetHeader className="p-6 border-b bg-muted/20">
+              <div className="flex items-center gap-3 mb-2">
+                <Badge className="font-mono text-[10px]">{selectedMedicine?.code}</Badge>
+                <Badge variant={selectedMedicine?.isActive ? "success" : "secondary"} className="h-5 text-[10px]">
+                  {selectedMedicine?.isActive ? "Aktif" : "Non-aktif"}
+                </Badge>
+              </div>
+              <SheetTitle className="text-2xl">{selectedMedicine?.name}</SheetTitle>
+              <p className="text-sm italic text-muted-foreground">{selectedMedicine?.genericName || "Nama generik tidak tersedia"}</p>
+            </SheetHeader>
+            
+            <ScrollArea className="flex-1 p-6">
+              <div className="space-y-8">
+                {/* Section 1: Ringkasan Harga & Stok */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border bg-emerald-50/30">
+                    <p className="text-[10px] uppercase font-bold text-emerald-600 mb-1">Stok Saat Ini</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-black text-emerald-700">{selectedMedicine?.stock}</span>
+                      <span className="text-xs font-bold text-emerald-600 uppercase">{selectedMedicine?.baseUnit?.abbreviation || selectedMedicine?.unit}</span>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl border bg-primary/5">
+                    <p className="text-[10px] uppercase font-bold text-primary mb-1">Harga Jual</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl font-black text-primary">Rp {Number(selectedMedicine?.price).toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Info Medis */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 border-b pb-2">
+                    <StethoscopeIcon className="size-4 text-primary" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Informasi Medis</h3>
+                  </div>
+                  <div className="grid gap-6">
+                    <div>
+                      <Label className="text-[10px] uppercase text-muted-foreground">Komposisi</Label>
+                      <p className="text-sm mt-1 leading-relaxed">{selectedMedicine?.composition || "-"}</p>
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase text-muted-foreground">Indikasi / Kegunaan</Label>
+                      <p className="text-sm mt-1 leading-relaxed">{selectedMedicine?.indication || "-"}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-[10px] uppercase text-muted-foreground">Produsen</Label>
+                        <p className="text-sm mt-1 font-semibold">{selectedMedicine?.manufacturer || "-"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-[10px] uppercase text-muted-foreground">Golongan</Label>
+                        <p className="text-sm mt-1 font-semibold">{selectedMedicine?.classification || "-"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Detail Lainnya */}
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center gap-2 border-b pb-2">
+                    <FileTextIcon className="size-4 text-primary" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">Logistik & Deskripsi</h3>
+                  </div>
+                  <div className="grid gap-4 text-sm">
+                    <div className="flex justify-between py-1 border-b border-dashed">
+                      <span className="text-muted-foreground">Kategori</span>
+                      <span className="font-medium">{selectedMedicine?.category.name}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-dashed">
+                      <span className="text-muted-foreground">Satuan Dasar</span>
+                      <span className="font-medium uppercase">{selectedMedicine?.baseUnit?.name} ({selectedMedicine?.baseUnit?.abbreviation})</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-dashed">
+                      <span className="text-muted-foreground">Min. Stock / Reorder Point</span>
+                      <span className="font-medium tabular-nums text-orange-600">{selectedMedicine?.minStock}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-dashed">
+                      <span className="text-muted-foreground">Max. Stock Capacity</span>
+                      <span className="font-medium tabular-nums">{selectedMedicine?.maxStock}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-dashed">
+                      <span className="text-muted-foreground">Barcode / SKU</span>
+                      <span className="font-mono text-xs">{selectedMedicine?.sku || "-"}</span>
+                    </div>
+                    <div className="pt-2">
+                      <Label className="text-[10px] uppercase text-muted-foreground">Deskripsi Keterangan</Label>
+                      <p className="mt-1 text-muted-foreground">{selectedMedicine?.description || "Tidak ada deskripsi"}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+            
+            <SheetFooter className="p-6 border-t">
+              <Button className="w-full" onClick={() => setIsDetailOpen(false)}>Tutup Detail</Button>
+            </SheetFooter>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

@@ -65,13 +65,13 @@ describe('Category Actions', () => {
 
   describe('getCategories', () => {
     it('should throw Unauthorized error if no organizationId is in session', async () => {
-      vi.mocked(auth).mockResolvedValue(null)
+      (vi.mocked(auth) as any).mockResolvedValue(null)
 
       await expect(getCategories()).rejects.toThrow('Unauthorized')
     })
 
     it('should return categories and metadata successfully', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockData = [{ id: '1', name: 'Cat 1' }]
       vi.mocked(db.query.categories.findMany).mockResolvedValue(mockData as any)
@@ -98,7 +98,7 @@ describe('Category Actions', () => {
     })
 
     it('should handle errors and return default empty result', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       vi.mocked(db.query.categories.findMany).mockRejectedValue(new Error('Database error'))
 
@@ -113,7 +113,7 @@ describe('Category Actions', () => {
 
   describe('createCategoryAction', () => {
     it('should return Unauthorized if no organizationId is in session', async () => {
-      vi.mocked(auth).mockResolvedValue(null)
+      (vi.mocked(auth) as any).mockResolvedValue(null)
 
       const formData = new FormData()
       const result = await createCategoryAction({}, formData)
@@ -122,7 +122,7 @@ describe('Category Actions', () => {
     })
 
     it('should return errors if validation fails', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const formData = new FormData()
       formData.append('name', 'a') // Too short
@@ -136,7 +136,7 @@ describe('Category Actions', () => {
     })
 
     it('should successfully create category', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockInsert = { values: vi.fn().mockResolvedValue({}) }
       vi.mocked(db.insert).mockReturnValue(mockInsert as any)
@@ -152,7 +152,7 @@ describe('Category Actions', () => {
     })
 
     it('should handle system errors during creation', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockInsert = { values: vi.fn().mockRejectedValue(new Error('DB Error')) }
       vi.mocked(db.insert).mockReturnValue(mockInsert as any)
@@ -168,7 +168,7 @@ describe('Category Actions', () => {
 
   describe('updateCategoryAction', () => {
     it('should return Unauthorized if no organizationId is in session', async () => {
-      vi.mocked(auth).mockResolvedValue(null)
+      (vi.mocked(auth) as any).mockResolvedValue(null)
 
       const formData = new FormData()
       const result = await updateCategoryAction('cat-1', {}, formData)
@@ -177,7 +177,7 @@ describe('Category Actions', () => {
     })
 
     it('should return errors if validation fails', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const formData = new FormData()
       formData.append('name', 'a') // Too short
@@ -191,7 +191,7 @@ describe('Category Actions', () => {
     })
 
     it('should return message if category not found or access denied', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockUpdate = {
         set: vi.fn().mockReturnThis(),
@@ -209,7 +209,7 @@ describe('Category Actions', () => {
     })
 
     it('should successfully update category', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockUpdate = {
         set: vi.fn().mockReturnThis(),
@@ -229,7 +229,7 @@ describe('Category Actions', () => {
     })
 
     it('should handle system errors during update', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockUpdate = {
         set: vi.fn().mockReturnThis(),
@@ -249,7 +249,7 @@ describe('Category Actions', () => {
 
   describe('deleteCategoryAction', () => {
     it('should return Unauthorized if no organizationId is in session', async () => {
-      vi.mocked(auth).mockResolvedValue(null)
+      (vi.mocked(auth) as any).mockResolvedValue(null)
 
       const result = await deleteCategoryAction('cat-1')
 
@@ -257,7 +257,7 @@ describe('Category Actions', () => {
     })
 
     it('should return message if category not found or access denied', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockDelete = {
         where: vi.fn().mockReturnThis(),
@@ -271,7 +271,7 @@ describe('Category Actions', () => {
     })
 
     it('should successfully delete category', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockDelete = {
         where: vi.fn().mockReturnThis(),
@@ -287,7 +287,7 @@ describe('Category Actions', () => {
     })
 
     it('should handle system errors during deletion', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
       const mockDelete = {
         where: vi.fn().mockReturnThis(),

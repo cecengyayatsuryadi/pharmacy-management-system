@@ -84,7 +84,7 @@ describe("signupAction", () => {
   })
 
   it("should create organization/user and sign in on successful signup", async () => {
-    vi.mocked(db.query.users.findFirst).mockResolvedValue(null)
+    vi.mocked(db.query.users.findFirst).mockResolvedValue(undefined)
     vi.mocked(bcrypt.hash).mockResolvedValue("hashed-password" as never)
 
     const mockTx = {
@@ -129,7 +129,7 @@ describe("signupAction", () => {
   })
 
   it("should return database connection message when ECONNREFUSED happens", async () => {
-    vi.mocked(db.query.users.findFirst).mockResolvedValue(null)
+    vi.mocked(db.query.users.findFirst).mockResolvedValue(undefined)
     vi.mocked(bcrypt.hash).mockResolvedValue("hashed-password" as never)
     vi.mocked(db.transaction).mockRejectedValue({ code: "ECONNREFUSED" } as any)
 

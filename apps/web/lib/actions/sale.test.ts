@@ -74,8 +74,8 @@ vi.mock('drizzle-orm', () => ({
 
 describe('createSaleAction', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(auth).mockResolvedValue({
+    vi.clearAllMocks();
+    (vi.mocked(auth) as any).mockResolvedValue({
       user: { id: 'user-1', organizationId: 'org-1' },
       expires: '9999-12-31T23:59:59.999Z'
     })

@@ -10,18 +10,31 @@ import { getErrorMessage } from "@/lib/utils/error"
 
 const medicineSchema = z.object({
   name: z.string().min(2, { message: "Nama obat minimal 2 karakter" }),
+  genericName: z.string().optional().nullable(),
   categoryId: z.string().uuid({ message: "Kategori tidak valid" }),
   baseUnitId: z.string().uuid({ message: "Satuan tidak valid" }),
+  classification: z.string().optional().nullable(),
+  code: z.string().optional(),
   sku: z.string().optional().nullable(),
   purchasePrice: z.string().min(1, { message: "Harga beli harus diisi" }),
   price: z.string().min(1, { message: "Harga jual harus diisi" }),
   stock: z.string().min(1, { message: "Stok harus diisi" }),
   minStock: z.string().min(1, { message: "Stok minimum harus diisi" }),
+  maxStock: z.string().min(1, { message: "Stok maksimum harus diisi" }),
+  description: z.string().optional().nullable(),
+  isActive: z.string().optional().default("true"),
+  composition: z.string().optional().nullable(),
+  indication: z.string().optional().nullable(),
+  contraindication: z.string().optional().nullable(),
+  sideEffects: z.string().optional().nullable(),
+  manufacturer: z.string().optional().nullable(),
+  distributor: z.string().optional().nullable(),
+  image: z.string().optional().nullable(),
   unit: z.string().optional().nullable(), // Legacy
   expiryDate: z.string().optional().nullable(),
 })
 
-export async function getMedicines(page = 1, limit = 10, search = "", categoryId = "") {
+export async function getMedicines(page = 1, limit = 10, search = "", categoryId = "", status = "") {
   const session = await auth()
   const organizationId = session?.user?.organizationId
 
@@ -36,12 +49,20 @@ export async function getMedicines(page = 1, limit = 10, search = "", categoryId
   if (search) {
     filters.push(or(
       ilike(medicines.name, `%${search}%`),
-      ilike(medicines.sku, `%${search}%`)
+      ilike(medicines.genericName, `%${search}%`),
+      ilike(medicines.sku, `%${search}%`),
+      ilike(medicines.code, `%${search}%`)
     ))
   }
   
   if (categoryId && categoryId !== "all") {
     filters.push(eq(medicines.categoryId, categoryId))
+  }
+
+  if (status === "active") {
+    filters.push(eq(medicines.isActive, true))
+  } else if (status === "inactive") {
+    filters.push(eq(medicines.isActive, false))
   }
 
   const whereClause = and(...filters)
@@ -88,23 +109,6 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
     return { message: "Unauthorized" }
   }
 
-  const plan = await getOrganizationPlan(organizationId)
-
-  if (plan === "gratis") {
-    const countResult = await db
-      .select({ value: count() })
-      .from(medicines)
-      .where(eq(medicines.organizationId, organizationId))
-
-    const currentCount = countResult[0]?.value ?? 0
-
-    if (currentCount >= 100) {
-      return {
-        message: "Limit tercapai. Paket Gratis maksimal 100 item obat. Silakan upgrade ke Pro!",
-      }
-    }
-  }
-
   const validatedFields = medicineSchema.safeParse(
     Object.fromEntries(formData.entries())
   )
@@ -117,9 +121,32 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
   }
 
   try {
+    // Plan limit check
+    const plan = await getOrganizationPlan(organizationId)
+    const countResult = await db
+      .select({ value: count() })
+      .from(medicines)
+      .where(eq(medicines.organizationId, organizationId))
+    const currentCount = countResult[0]?.value ?? 0
+
+    if (plan === "gratis" && currentCount >= 100) {
+      return {
+        message: "Limit tercapai. Paket Gratis maksimal 100 item obat. Silakan upgrade ke Pro!",
+      }
+    }
+
+    // Auto-generate Code if not provided
+    let finalCode = validatedFields.data.code
+    if (!finalCode) {
+      const nextNum = currentCount + 1
+      finalCode = `MED-${nextNum.toString().padStart(5, '0')}`
+    }
+
     await db.insert(medicines).values({
       ...validatedFields.data,
       organizationId,
+      code: finalCode,
+      isActive: validatedFields.data.isActive === "true",
       sku: validatedFields.data.sku || null,
       unit: validatedFields.data.unit || "pcs",
       expiryDate: validatedFields.data.expiryDate 
@@ -159,10 +186,14 @@ export async function updateMedicineAction(
   }
 
   try {
+    const { code, ...restOfData } = validatedFields.data;
+    
     const [updated] = await db
       .update(medicines)
       .set({
-        ...validatedFields.data,
+        ...restOfData,
+        ...(code ? { code } : {}),
+        isActive: validatedFields.data.isActive === "true",
         sku: validatedFields.data.sku || null,
         unit: validatedFields.data.unit || "pcs",
         expiryDate: validatedFields.data.expiryDate 

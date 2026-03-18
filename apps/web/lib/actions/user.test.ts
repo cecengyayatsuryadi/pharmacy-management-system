@@ -40,7 +40,7 @@ describe('updateProfileAction', () => {
   })
 
   it('should return Unauthorized if no user is in session', async () => {
-    vi.mocked(auth).mockResolvedValue(null)
+    (vi.mocked(auth) as any).mockResolvedValue(null)
 
     const formData = new FormData()
     const result = await updateProfileAction({}, formData)
@@ -49,7 +49,7 @@ describe('updateProfileAction', () => {
   })
 
   it('should return errors if validation fails (name too short)', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { id: 'user-1' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { id: 'user-1' } } as any)
 
     const formData = new FormData()
     formData.append('name', 'a')
@@ -65,7 +65,7 @@ describe('updateProfileAction', () => {
   })
 
   it('should return errors if validation fails (name missing)', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { id: 'user-1' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { id: 'user-1' } } as any)
 
     const formData = new FormData()
 
@@ -80,7 +80,7 @@ describe('updateProfileAction', () => {
   })
 
   it('should not update database when validation fails (empty name)', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { id: 'user-1' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { id: 'user-1' } } as any)
 
     const formData = new FormData()
     formData.append('name', '')
@@ -99,7 +99,7 @@ describe('updateProfileAction', () => {
   })
 
   it('should successfully update profile with valid data', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { id: 'user-1' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { id: 'user-1' } } as any)
 
     const formData = new FormData()
     formData.append('name', 'John Doe')
@@ -116,7 +116,7 @@ describe('updateProfileAction', () => {
   })
 
   it('should return generic error message when profile update fails', async () => {
-    vi.mocked(auth).mockResolvedValue({ user: { id: 'user-1' } } as any)
+    (vi.mocked(auth) as any).mockResolvedValue({ user: { id: 'user-1' } } as any)
     vi.mocked(db.update).mockReturnValueOnce({
       set: vi.fn(() => ({
         where: vi.fn().mockRejectedValue(new Error('DB connection timeout: internal detail')),
