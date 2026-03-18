@@ -38,6 +38,14 @@ async function recordMovement(tx: any, data: any) {
   })
 }
 
+/**
+ * Records a stock movement (entry, exit, or adjustment) for a medicine.
+ * This action handles batch creation for incoming stock and stock balance updates.
+ * 
+ * @param prevState - The previous state from useActionState.
+ * @param formData - The form data containing medicineId, warehouseId, type, quantity, and batch details.
+ * @returns An object containing a message and optional validation errors.
+ */
 export async function createStockMovementAction(prevState: any, formData: FormData) {
   const session = await auth()
   const organizationId = session?.user?.organizationId

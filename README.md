@@ -1,101 +1,85 @@
-# Pharmacy Management System (Apotek)
+# Apotek Management System (Pharmacy SaaS)
 
-Monorepo aplikasi manajemen apotek berbasis Next.js, dengan fitur utama:
-- autentikasi multi-tenant (organization)
-- manajemen obat & kategori
-- inventori (stok masuk/keluar/opname)
-- POS (kasir)
-- laporan penjualan dan analitik dasar
+A comprehensive, multi-tenant pharmacy management system designed for modern pharmacy operations. It handles everything from medicine master data and multi-level unit conversions to inventory tracking, point-of-sale transactions, and procurement workflows. Built with a SaaS-first architecture, it ensures strict data isolation between organizations while providing a polished, efficiency-focused user experience.
 
-## Tech Stack
-- Next.js 16 + React 19 (`apps/web`)
-- Turborepo workspace
-- PostgreSQL + Drizzle ORM (`packages/database`)
-- Tailwind CSS v4 + shadcn/ui (`packages/ui`)
-- Auth.js / NextAuth v5 beta
+## Documentation
+Detailed documentation is available in the `docs/` directory:
+- [Architecture Guide](./docs/ARCHITECTURE.md) - Deep dive into system design and data flow.
+- [API Documentation](./docs/API_DOCUMENTATION.md) - Reference for Server Actions (API layer).
+- [Operational Runbook](./docs/RUNBOOK.md) - Maintenance, backups, and troubleshooting.
 
-## Struktur Repo
-- `apps/web` -> aplikasi web utama
-- `packages/database` -> schema Drizzle, koneksi DB, script db/seed
-- `packages/ui` -> shared UI components
-- `docs` -> dokumentasi proyek (roadmap, checkpoint, arsitektur, audit)
-
-## Dokumentasi
-- `docs/DOCUMENTATION_INDEX.md` -> peta dokumentasi
-- `docs/ROADMAP.md` -> rencana fase pengembangan
-- `docs/CHECKPOINT.md` -> status teknis terkini
-- `docs/ARCHITECTURE.md` -> prinsip arsitektur
-- `docs/RELEASE_AUDIT_CHECKLIST.md` -> checklist release
-- `docs/REPO_REVIEW.md` -> temuan teknis aktif
+## Key Features
+- **Multi-Tenant Authentication:** Strict organization-level data isolation using Auth.js v5.
+- **Advanced Medicine Master Data:** Tracking of pharmaceutical fields, generic names, manufacturers, and status.
+- **Smart Inventory (3 Pillars):**
+  - **Ledger:** Absolute tracking of stock balances before and after every movement.
+  - **Segmentation:** Physical, Reserved (POS queue), and Quarantine (expired/damaged) stock separation.
+  - **Conversion:** Automated unit splitting (e.g., Box → Strip → Tablet).
+- **Point of Sale (POS):** Efficient, keyboard-navigable checkout interface with real-time stock validation.
+- **Procurement Module:** Formal procurement workflow (PO → Invoice → Stock In).
+- **Reporting & Analytics:** Real-time dashboard and sales reports.
 
 ## Prerequisites
-- Node.js >= 20
-- npm >= 11
-- Docker + Docker Compose
+- **Node.js:** v20 or higher
+- **npm:** v11 or higher
+- **Docker:** For local PostgreSQL database
+- **Turbo:** Monorepo management (included in devDependencies)
 
-## Quick Start
+## Installation
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd apotek
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+3. **Setup Database:**
+   ```bash
+   docker compose up -d
+   ```
 
-### 1. Install dependencies
-```bash
-npm install
-```
+## Configuration
+Create a `.env` file in the root directory.
 
-### 2. Jalankan PostgreSQL lokal (Docker)
-```bash
-docker compose up -d
-```
+| Variable | Description | Example Value |
+|----------|-------------|---------------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:password@localhost:5433/apotek` |
+| `AUTH_SECRET` | Secret key for Auth.js | `generate-a-random-string-here` |
 
-Service DB default:
-- host: `localhost`
-- port: `5433`
-- db: `apotek`
-- user: `postgres`
-- password: `password`
+## How to Run Locally
+1. **Push Database Schema:**
+   ```bash
+   npm run db:push --workspace=@workspace/database
+   ```
+2. **Seed Initial Data (Optional but recommended):**
+   ```bash
+   npm run db:seed --workspace=@workspace/database
+   ```
+3. **Start Development Server:**
+   ```bash
+   npm run dev
+   ```
+   Access the application at `http://localhost:3000`.
 
-### 3. Set environment variable
-Buat file `.env` di root repo:
+## How to Run Tests
+- **Unit Tests (Vitest):** `npm run test`
+- **E2E Tests (Playwright):** `npx playwright test`
+- **Type Checking:** `npm run typecheck`
 
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5433/apotek
-AUTH_SECRET=replace-with-random-secret
-```
+## Deployment
+This project is optimized for deployment on **Vercel**. 
+1. Connect your repository to Vercel.
+2. Set the root directory to the project root.
+3. Configure environment variables in the Vercel dashboard.
+4. The build command is `npm run build` and the output directory is managed by Next.js.
 
-> `AUTH_SECRET` wajib untuk Auth.js.
+## Contributing
+1. Create a feature branch from `master`: `git checkout -b feat/your-feature`.
+2. Follow the **Pro-Git Protocol**: use conventional commits and atomic changes.
+3. Ensure all tests pass and `tsc --noEmit` returns no errors.
+4. Submit a Pull Request for review.
 
-### 4. Push schema database
-```bash
-npm run db:push --workspace=@workspace/database
-```
-
-### 5. (Opsional) Seed data demo
-```bash
-npm run db:seed --workspace=@workspace/database
-```
-
-Akun demo seed:
-- email: `demo@google.com`
-- password: `demo123`
-
-### 6. Jalankan aplikasi
-```bash
-npm run dev
-```
-
-Akses web: `http://localhost:3000`
-
-## Script Penting
-Di root repo:
-- `npm run dev` -> jalankan seluruh workspace dev via Turbo
-- `npm run build` -> build semua workspace
-- `npm run lint` -> lint semua workspace
-- `npm run typecheck` -> typecheck semua workspace
-
-Di package database:
-- `npm run db:generate --workspace=@workspace/database`
-- `npm run db:push --workspace=@workspace/database`
-- `npm run db:studio --workspace=@workspace/database`
-- `npm run db:seed --workspace=@workspace/database`
-
-## Catatan
-- Plan organisasi tersimpan di tabel `organizations.plan` (`gratis` / `pro`).
-- Untuk perubahan paket yang harus langsung tercermin, beberapa area sudah membaca plan live dari DB.
+## License
+Private / Proprietary.
