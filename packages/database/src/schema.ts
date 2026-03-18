@@ -436,6 +436,7 @@ export const stockMovements = pgTable("stock_movements", {
   type: varchar("type", { length: 50 }).notNull(), // 'in', 'out', 'adjustment', 'transfer_in', 'transfer_out'
   quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
   priceAtTransaction: numeric("price_at_transaction", { precision: 12, scale: 2 }).notNull().default("0"),
+  balanceBefore: numeric("balance_before", { precision: 12, scale: 2 }).notNull().default("0"),
   resultingStock: numeric("resulting_stock", { precision: 12, scale: 2 }).notNull().default("0"),
   reference: varchar("reference", { length: 255 }), // No. Faktur / No. Resep
   note: text("note"),

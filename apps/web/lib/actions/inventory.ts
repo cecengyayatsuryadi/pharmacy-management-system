@@ -59,6 +59,7 @@ export async function getStockMovementsAction(
       id: stockMovements.id,
       type: stockMovements.type,
       quantity: stockMovements.quantity,
+      balanceBefore: stockMovements.balanceBefore,
       resultingStock: stockMovements.resultingStock,
       reference: stockMovements.reference,
       note: stockMovements.note,
@@ -157,12 +158,11 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
   } = validatedFields.data
 
   try {
-    const result = await db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       // 1. Resolve Batch ID
       let finalBatchId = providedBatchId || null
 
       if (type === "in" && batchNumber) {
-        // Find or create batch
         const [existingBatch] = await tx
           .select()
           .from(medicineBatches)
@@ -198,7 +198,7 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
         .where(and(
           eq(stockItems.medicineId, medicineId),
           eq(stockItems.warehouseId, warehouseId),
-          providedBatchId ? eq(stockItems.batchId, providedBatchId) : sql`${stockItems.batchId} IS NULL`,
+          finalBatchId ? eq(stockItems.batchId, finalBatchId) : sql`${stockItems.batchId} IS NULL`,
           eq(stockItems.organizationId, organizationId)
         ))
         .for("update")
@@ -221,7 +221,7 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
         deltaQty = newQty - currentQty
       }
 
-      // 3. Update stock_items
+      // 3. Update or Insert stock_items
       if (stockItem) {
         await tx
           .update(stockItems)
@@ -239,7 +239,7 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
           })
       }
 
-      // 4. Update legacy stock cache in medicines (Sum of all stock_items for this medicine)
+      // 4. Update Global Stock Cache in medicines table
       const [totalStockResult] = await tx
         .select({ total: sql<string>`sum(${stockItems.quantity})` })
         .from(stockItems)
@@ -248,14 +248,14 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
           eq(stockItems.organizationId, organizationId)
         ))
       
-      const totalStock = totalStockResult?.total ?? "0"
+      const globalTotalStock = totalStockResult?.total ?? "0"
 
       await tx
         .update(medicines)
-        .set({ stock: totalStock, updatedAt: new Date() })
+        .set({ stock: globalTotalStock, updatedAt: new Date() })
         .where(eq(medicines.id, medicineId))
 
-      // 5. Record movement
+      // 5. Record movement with LEDGER LOGIC (Before and After)
       await tx.insert(stockMovements).values({
         organizationId,
         medicineId,
@@ -265,17 +265,16 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
         type,
         quantity: deltaQty.toString(),
         priceAtTransaction: priceAtTransaction || "0",
-        resultingStock: totalStock,
+        balanceBefore: currentQty.toString(), // Saldo per gudang sebelum mutasi
+        resultingStock: newQty.toString(),    // Saldo per gudang sesudah mutasi
         reference,
         note,
       })
-
-      return { success: true, type, totalStock }
     })
 
     revalidatePath("/dashboard/medicines")
-    revalidatePath("/dashboard/inventory")
-    revalidatePath(`/dashboard/inventory/${type}`)
+    revalidatePath("/dashboard/inventory/stock")
+    revalidatePath(`/dashboard/inventory/stock/${type}`)
     
     return { 
       message: "Transaksi stok berhasil dicatat", 

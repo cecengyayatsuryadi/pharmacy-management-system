@@ -15,7 +15,8 @@ import {
   ArrowDownCircle, 
   RefreshCcw,
   SearchIcon,
-  XIcon
+  XIcon,
+  ArrowRightIcon
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
@@ -70,12 +71,11 @@ type InventoryMovementRow = {
   id: string
   type: string
   quantity: string
+  balanceBefore: string
   resultingStock: string
   reference: string | null
   note: string | null
   createdAt: Date
-  purchaseNumber?: string | null
-  invoiceNumber?: string | null
   medicine: {
     id: string
     name: string
@@ -120,7 +120,6 @@ interface InventoryClientProps {
   defaultType: "in" | "out" | "adjustment"
   title: string
   submitAction?: (prevState: any, formData: FormData) => Promise<any>
-  showPurchaseColumns?: boolean
 }
 
 function SubmitButton({ label }: { label: string }) {
@@ -142,7 +141,6 @@ export function InventoryClient({
   defaultType, 
   title,
   submitAction,
-  showPurchaseColumns = false
 }: InventoryClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -193,7 +191,7 @@ export function InventoryClient({
     } else {
       params.delete("search")
     }
-    params.set("page", "1") // Reset to page 1 on search
+    params.set("page", "1") 
     router.push(`?${params.toString()}`)
   }, 500)
 
@@ -203,32 +201,22 @@ export function InventoryClient({
     router.push(`?${params.toString()}`)
   }
 
-  const clearSearch = () => {
-    setSearchValue("")
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete("search")
-    params.set("page", "1")
-    router.push(`?${params.toString()}`)
-  }
-
   if (!mounted) return null
 
   return (
     <div className="flex flex-col gap-4">
-      {/* HEADER AREA */}
       <div>
         <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-        <p className="text-muted-foreground">
-          Kelola dan pantau riwayat mutasi stok apotek Anda.
+        <p className="text-muted-foreground text-sm">
+          Log mutasi stok per gudang dan per batch (Historical Ledger).
         </p>
       </div>
 
-      {/* SEARCH & ACTION AREA (SEJAJAR) */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="relative flex-1">
           <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Cari riwayat obat atau referensi..."
+            placeholder="Cari riwayat obat..."
             className="pl-9 pr-10"
             value={searchValue}
             onChange={(e) => {
@@ -236,21 +224,11 @@ export function InventoryClient({
               debouncedSearch(e.target.value)
             }}
           />
-          {searchValue && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
-              onClick={clearSearch}
-            >
-              <XIcon className="size-3" />
-            </Button>
-          )}
         </div>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button size="sm">
               <PlusIcon data-icon="inline-start" />
               Catat {title}
             </Button>
@@ -274,7 +252,6 @@ export function InventoryClient({
                       <Button
                         variant="outline"
                         role="combobox"
-                        aria-expanded={isComboOpen}
                         className="w-full justify-between font-normal"
                       >
                         <span className="truncate">
@@ -336,28 +313,6 @@ export function InventoryClient({
                 </div>
               </div>
 
-              {suppliers.length > 0 && defaultType === "in" && (
-                <div className="grid gap-2">
-                  <Label htmlFor="supplierId">Pilih Supplier</Label>
-                  <Select 
-                    name="supplierId" 
-                    defaultValue={selectedMedicineId ? primarySupplierByMedicine[selectedMedicineId] : undefined}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih Supplier" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {suppliers.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {s.name} ({s.code})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
               {defaultType === "in" ? (
                 <div className="grid grid-cols-2 gap-4 border p-3 rounded-lg bg-muted/20">
                   <div className="grid gap-2">
@@ -409,15 +364,7 @@ export function InventoryClient({
 
               <div className="grid gap-2">
                 <Label htmlFor="note">Keterangan / Alasan</Label>
-                <Input 
-                  id="note" 
-                  name="note" 
-                  placeholder={
-                    defaultType === "in" ? "Misal: Stok datang dari PBF" :
-                    defaultType === "out" ? "Misal: Obat rusak/kadaluwarsa" :
-                    "Misal: Selisih perhitungan stok rutin"
-                  } 
-                />
+                <Input id="note" name="note" placeholder="Alasan mutasi..." />
               </div>
 
               <DialogFooter className="mt-4">
@@ -429,88 +376,65 @@ export function InventoryClient({
         </Dialog>
       </div>
 
-      {/* TABLE AREA */}
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Tanggal</TableHead>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-[150px]">Tanggal</TableHead>
                 <TableHead>Nama Obat</TableHead>
-                <TableHead>Gudang</TableHead>
-                <TableHead>Batch</TableHead>
-                <TableHead>Keterangan</TableHead>
-                <TableHead className="text-right">Perubahan</TableHead>
-                <TableHead className="text-right">Stok Akhir</TableHead>
+                <TableHead>Gudang / Batch</TableHead>
+                <TableHead className="text-right">Saldo Awal</TableHead>
+                <TableHead className="text-center">Aksi</TableHead>
+                <TableHead className="text-right">Saldo Akhir</TableHead>
                 <TableHead>Oleh</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {initialMovements.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
-                    {searchValue ? "Tidak ada riwayat yang sesuai pencarian." : `Belum ada catatan ${title.toLowerCase()}.`}
+                  <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                    Belum ada catatan mutasi.
                   </TableCell>
                 </TableRow>
               ) : (
                 initialMovements.map((move) => (
                   <TableRow key={move.id}>
-                    <TableCell className="text-xs whitespace-nowrap">
+                    <TableCell className="text-[10px] whitespace-nowrap">
                       {format(new Date(move.createdAt), "dd MMM yyyy, HH:mm", { locale: id })}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium text-sm">{move.medicine.name}</span>
-                        <span className="text-[10px] text-muted-foreground">SKU: {move.medicine.sku || "-"}</span>
+                        <span className="font-semibold text-xs">{move.medicine.name}</span>
+                        <span className="text-[9px] text-muted-foreground">{move.medicine.sku || "-"}</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {move.warehouse?.name || "-"}
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {move.batch?.batchNumber || "-"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-xs">{move.note || "Tanpa keterangan"}</span>
-                        {move.reference && (
-                          <span className="text-[10px] text-primary font-mono">{move.reference}</span>
-                        )}
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-medium">{move.warehouse?.name}</span>
+                        <span className="text-[9px] text-muted-foreground font-mono">{move.batch?.batchNumber || "NO-BATCH"}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right font-bold">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {move.type === "in" && (
-                          <>
-                            <ArrowUpCircle className="h-4 w-4 text-emerald-600" />
-                            <span className="text-emerald-600">+{move.quantity}</span>
-                          </>
-                        )}
-                        {move.type === "out" && (
-                          <>
-                            <ArrowDownCircle className="h-4 w-4 text-red-600" />
-                            <span className="text-red-600">{move.quantity}</span>
-                          </>
-                        )}
-                        {move.type === "adjustment" && (
-                          <>
-                            <RefreshCcw className="h-4 w-4 text-amber-600" />
-                            <span className={cn(
-                              Number(move.quantity) >= 0 ? "text-emerald-600" : "text-red-600"
-                            )}>
-                              {Number(move.quantity) > 0 ? `+${move.quantity}` : move.quantity}
-                            </span>
-                          </>
-                        )}
+                    <TableCell className="text-right font-mono text-[11px] text-muted-foreground">
+                      {move.balanceBefore}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-center">
+                        <div className={cn(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1",
+                          move.type === "in" ? "bg-emerald-100 text-emerald-700" :
+                          move.type === "out" ? "bg-red-100 text-red-700" :
+                          "bg-amber-100 text-amber-700"
+                        )}>
+                          {move.type === "in" ? "+" : ""}{move.quantity}
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right font-mono text-muted-foreground">
+                    <TableCell className="text-right font-mono text-[11px] font-bold text-primary">
                       {move.resultingStock}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-normal text-[10px]">
-                        {move.user.name}
-                      </Badge>
+                    <TableCell className="text-[10px] text-muted-foreground">
+                      {move.user.name}
                     </TableCell>
                   </TableRow>
                 ))
