@@ -10,6 +10,7 @@ import { medicines } from "@workspace/database"
 
 const categorySchema = z.object({
   name: z.string().min(2, { message: "Nama kategori minimal 2 karakter" }),
+  color: z.string().min(4, { message: "Warna tidak valid" }),
   description: z.string().optional(),
 })
 
@@ -25,12 +26,12 @@ export async function getCategories(page = 1, limit = 10, search = "") {
   const whereClause = eq(categories.organizationId, organizationId)
 
   try {
-    // Menggunakan query builder untuk join dan count
     const data = await db
       .select({
         id: categories.id,
         organizationId: categories.organizationId,
         name: categories.name,
+        color: categories.color,
         description: categories.description,
         createdAt: categories.createdAt,
         updatedAt: categories.updatedAt,
@@ -98,6 +99,7 @@ export async function createCategoryAction(prevState: any, formData: FormData) {
   try {
     await db.insert(categories).values({
       name: validatedFields.data.name,
+      color: validatedFields.data.color,
       description: validatedFields.data.description,
       organizationId,
     })
@@ -138,6 +140,7 @@ export async function updateCategoryAction(
       .update(categories)
       .set({
         name: validatedFields.data.name,
+        color: validatedFields.data.color,
         description: validatedFields.data.description,
         updatedAt: new Date(),
       })
@@ -167,7 +170,6 @@ export async function deleteCategoryAction(id: string) {
   }
 
   try {
-    // Cek apakah ada produk yang menggunakan kategori ini
     const products = await db
       .select({ value: count() })
       .from(medicines)
