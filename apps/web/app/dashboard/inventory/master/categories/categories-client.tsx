@@ -8,16 +8,16 @@ import {
   TrashIcon, 
   SearchIcon, 
   XIcon,
-  MoreHorizontalIcon
+  MoreHorizontalIcon,
+  LayersIcon,
+  PaletteIcon,
+  ChevronRightIcon
 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@workspace/ui/components/card"
 import {
   Table,
@@ -62,6 +62,15 @@ import {
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@workspace/ui/components/pagination"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import {
   createCategoryAction,
   updateCategoryAction,
   deleteCategoryAction,
@@ -74,16 +83,23 @@ import {
 import { useSearchParams, useRouter } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
 
+interface Metadata {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
 interface CategoriesClientProps {
-  initialCategories: any
-  initialGroups: any
+  initialCategories: { data: any[], metadata: Metadata }
+  initialGroups: { data: any[], metadata: Metadata }
   activeTab: string
 }
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus()
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending} className="w-full">
       {pending ? "Mohon tunggu..." : label}
     </Button>
   )
@@ -92,7 +108,10 @@ function SubmitButton({ label }: { label: string }) {
 export function CategoriesClient({ initialCategories, initialGroups, activeTab }: CategoriesClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [searchValue, setSearchValue] = React.useState(searchParams.get("search") || "")
+  
+  // Search State
+  const [catSearch, setCatSearch] = React.useState(searchParams.get("catSearch") || "")
+  const [groupSearch, setGroupSearch] = React.useState(searchParams.get("groupSearch") || "")
   
   // State for Sheet (Form)
   const [isSheetOpen, setIsSheetOpen] = React.useState(false)
@@ -104,24 +123,33 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false)
   const [itemToDelete, setItemToDelete] = React.useState<any>(null)
 
-  const debouncedSearch = useDebouncedCallback((value: string) => {
+  // URL Handling
+  const debouncedCatSearch = useDebouncedCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (value) {
-      params.set("search", value)
-    } else {
-      params.delete("search")
-    }
-    params.set("page", "1")
-    router.push(`?${params.toString()}`)
+    if (value) params.set("catSearch", value)
+    else params.delete("catSearch")
+    params.set("catPage", "1")
+    router.push(`?${params.toString()}`, { scroll: false })
   }, 500)
+
+  const debouncedGroupSearch = useDebouncedCallback((value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value) params.set("groupSearch", value)
+    else params.delete("groupSearch")
+    params.set("groupPage", "1")
+    router.push(`?${params.toString()}`, { scroll: false })
+  }, 500)
+
+  const handlePageChange = (key: "catPage" | "groupPage", page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set(key, page.toString())
+    router.push(`?${params.toString()}`, { scroll: false })
+  }
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set("tab", value)
-    params.set("page", "1")
-    params.delete("search") // Clear search when switching tabs
-    setSearchValue("")
-    router.push(`?${params.toString()}`)
+    router.push(`?${params.toString()}`, { scroll: false })
   }
 
   const openCreate = (type: "category" | "group") => {
@@ -185,84 +213,106 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <div className="relative w-full max-w-sm">
-          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={`Cari ${activeTab === "categories" ? "kategori" : "golongan"}...`}
-            className="pl-8"
-            value={searchValue}
-            onChange={(e) => {
-              setSearchValue(e.target.value)
-              debouncedSearch(e.target.value)
-            }}
-          />
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold tracking-tight">Kategori & Golongan</h2>
+          <p className="text-muted-foreground">
+            Kelola klasifikasi dan regulasi obat untuk pengaturan katalog.
+          </p>
         </div>
-        <Button onClick={() => openCreate(activeTab === "categories" ? "category" : "group")}>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Tambah {activeTab === "categories" ? "Kategori" : "Golongan"}
-        </Button>
       </div>
 
-      <Tabs defaultValue={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+      <Tabs defaultValue={activeTab} onValueChange={handleTabChange} className="flex flex-col gap-4">
+        <TabsList className="w-fit">
           <TabsTrigger value="categories">Kategori Obat</TabsTrigger>
           <TabsTrigger value="groups">Golongan Obat</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="categories" className="space-y-4">
+        <TabsContent value="categories" className="m-0 outline-none space-y-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="relative flex-1">
+              <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Cari nama kategori..."
+                className="pl-9 pr-10"
+                value={catSearch}
+                onChange={(e) => {
+                  setCatSearch(e.target.value)
+                  debouncedCatSearch(e.target.value)
+                }}
+              />
+              {catSearch && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
+                  onClick={() => {
+                    setCatSearch("")
+                    debouncedCatSearch("")
+                  }}
+                >
+                  <XIcon className="size-3" />
+                </Button>
+              )}
+            </div>
+            <Button onClick={() => openCreate("category")}>
+              <PlusIcon className="mr-2 size-4" />
+              Tambah Kategori
+            </Button>
+          </div>
+
           <Card>
-            <CardHeader>
-              <CardTitle>Daftar Kategori</CardTitle>
-              <CardDescription>
-                Kelompokkan obat berdasarkan fungsinya (misal: Antibiotik, Vitamin).
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama Kategori</TableHead>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="pl-6">Nama Kategori</TableHead>
                     <TableHead>Deskripsi</TableHead>
                     <TableHead className="text-center">Jumlah Produk</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
+                    <TableHead className="w-[80px] text-center">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {initialCategories.data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="h-24 text-center">
-                        Tidak ada kategori ditemukan.
+                      <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                        Belum ada data kategori.
                       </TableCell>
                     </TableRow>
                   ) : (
                     initialCategories.data.map((item: any) => (
                       <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell className="max-w-[300px] truncate">
+                        <TableCell className="pl-6">
+                          <span className="font-semibold text-sm tracking-tight">{item.name}</span>
+                        </TableCell>
+                        <TableCell className="max-w-[300px] truncate text-xs text-muted-foreground">
                           {item.description || "-"}
                         </TableCell>
-                        <TableCell className="text-center tabular-nums">
-                          <Badge variant="secondary">{item.medicinesCount}</Badge>
+                        <TableCell className="text-center">
+                          <Badge variant="secondary" className="h-5 px-2 text-[10px] font-bold tabular-nums">
+                            {item.medicinesCount} <span className="ml-1 font-normal opacity-70">Obat</span>
+                          </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontalIcon className="h-4 w-4" />
+                              <Button variant="ghost" size="icon" className="size-8">
+                                <MoreHorizontalIcon className="size-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className="w-[160px]">
+                              <DropdownMenuLabel>Opsi Data</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem onClick={() => openEdit("category", item)}>
-                                <PencilIcon className="mr-2 h-4 w-4" /> Edit
+                                <PencilIcon className="mr-2 size-4" /> Edit Kategori
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
-                                className="text-destructive"
+                                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                                 onClick={() => openDelete("category", item)}
                               >
-                                <TrashIcon className="mr-2 h-4 w-4" /> Hapus
+                                <TrashIcon className="mr-2 size-4" /> Hapus Kategori
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -274,70 +324,152 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
               </Table>
             </CardContent>
           </Card>
+
+          {initialCategories.metadata.totalPages > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (initialCategories.metadata.page > 1) handlePageChange("catPage", initialCategories.metadata.page - 1)
+                    }}
+                  />
+                </PaginationItem>
+                {Array.from({ length: initialCategories.metadata.totalPages }).map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      href="#"
+                      isActive={initialCategories.metadata.page === i + 1}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handlePageChange("catPage", i + 1)
+                      }}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (initialCategories.metadata.page < initialCategories.metadata.totalPages)
+                        handlePageChange("catPage", initialCategories.metadata.page + 1)
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </TabsContent>
 
-        <TabsContent value="groups" className="space-y-4">
+        <TabsContent value="groups" className="m-0 outline-none space-y-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="relative flex-1">
+              <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Cari nama golongan..."
+                className="pl-9 pr-10"
+                value={groupSearch}
+                onChange={(e) => {
+                  setGroupSearch(e.target.value)
+                  debouncedGroupSearch(e.target.value)
+                }}
+              />
+              {groupSearch && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
+                  onClick={() => {
+                    setGroupSearch("")
+                    debouncedGroupSearch("")
+                  }}
+                >
+                  <XIcon className="size-3" />
+                </Button>
+              )}
+            </div>
+            <Button onClick={() => openCreate("group")}>
+              <PlusIcon className="mr-2 size-4" />
+              Tambah Golongan
+            </Button>
+          </div>
+
           <Card>
-            <CardHeader>
-              <CardTitle>Daftar Golongan</CardTitle>
-              <CardDescription>
-                Klasifikasi obat sesuai regulasi (misal: Obat Keras, Bebas).
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama Golongan</TableHead>
-                    <TableHead>Warna Badge</TableHead>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="pl-6">Nama Golongan</TableHead>
+                    <TableHead>Indikator</TableHead>
                     <TableHead>Deskripsi</TableHead>
                     <TableHead className="text-center">Jumlah Produk</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
+                    <TableHead className="w-[80px] text-center">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {initialGroups.data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-24 text-center">
-                        Tidak ada golongan ditemukan.
+                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                        Belum ada data golongan.
                       </TableCell>
                     </TableRow>
                   ) : (
                     initialGroups.data.map((item: any) => (
                       <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.name}</TableCell>
+                        <TableCell className="pl-6">
+                          <span className="font-semibold text-sm tracking-tight">{item.name}</span>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
+                            <Badge 
+                              variant="outline" 
+                              className="h-5 px-1.5 text-[9px] uppercase font-bold border-muted-foreground/30"
+                              style={{ 
+                                borderColor: item.color, 
+                                color: item.color,
+                                backgroundColor: `${item.color}10`
+                              }}
+                            >
+                              {item.color}
+                            </Badge>
                             <div 
-                              className="h-4 w-4 rounded-full border" 
+                              className="size-3 rounded-full border shadow-sm" 
                               style={{ backgroundColor: item.color }}
                             />
-                            <code className="text-xs">{item.color}</code>
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-[250px] truncate">
+                        <TableCell className="max-w-[250px] truncate text-xs text-muted-foreground">
                           {item.description || "-"}
                         </TableCell>
-                        <TableCell className="text-center tabular-nums">
-                          <Badge variant="secondary">{item.medicinesCount}</Badge>
+                        <TableCell className="text-center">
+                          <Badge variant="secondary" className="h-5 px-2 text-[10px] font-bold tabular-nums">
+                            {item.medicinesCount} <span className="ml-1 font-normal opacity-70">Obat</span>
+                          </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontalIcon className="h-4 w-4" />
+                              <Button variant="ghost" size="icon" className="size-8">
+                                <MoreHorizontalIcon className="size-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className="w-[160px]">
+                              <DropdownMenuLabel>Opsi Data</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem onClick={() => openEdit("group", item)}>
-                                <PencilIcon className="mr-2 h-4 w-4" /> Edit
+                                <PencilIcon className="mr-2 size-4" /> Edit Golongan
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
-                                className="text-destructive"
+                                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                                 onClick={() => openDelete("group", item)}
                               >
-                                <TrashIcon className="mr-2 h-4 w-4" /> Hapus
+                                <TrashIcon className="mr-2 size-4" /> Hapus Golongan
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -349,72 +481,129 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
               </Table>
             </CardContent>
           </Card>
+
+          {initialGroups.metadata.totalPages > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (initialGroups.metadata.page > 1) handlePageChange("groupPage", initialGroups.metadata.page - 1)
+                    }}
+                  />
+                </PaginationItem>
+                {Array.from({ length: initialGroups.metadata.totalPages }).map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      href="#"
+                      isActive={initialGroups.metadata.page === i + 1}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handlePageChange("groupPage", i + 1)
+                      }}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (initialGroups.metadata.page < initialGroups.metadata.totalPages)
+                        handlePageChange("groupPage", initialGroups.metadata.page + 1)
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </TabsContent>
       </Tabs>
 
       {/* Form Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="sm:max-w-[425px]">
-          <form action={handleSubmit}>
-            <SheetHeader>
-              <SheetTitle>
+        <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+          <form action={handleSubmit} className="flex h-full flex-col">
+            <SheetHeader className="shrink-0 border-b px-6 py-4">
+              <SheetTitle className="text-xl font-bold">
                 {mode === "create" ? "Tambah" : "Edit"}{" "}
                 {targetType === "category" ? "Kategori" : "Golongan"}
               </SheetTitle>
               <SheetDescription>
-                Lengkapi detail informasi di bawah ini.
+                Lengkapi detail informasi di bawah ini untuk pengaturan katalog.
               </SheetDescription>
             </SheetHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Nama {targetType === "category" ? "Kategori" : "Golongan"}</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  defaultValue={selectedItem?.name}
-                  placeholder={targetType === "category" ? "Contoh: Antibiotik" : "Contoh: Obat Keras"}
-                  required
-                />
-              </div>
-              {targetType === "group" && (
-                <div className="grid gap-2">
-                  <Label htmlFor="color">Warna Identifikasi</Label>
-                  <div className="flex gap-2">
+
+            <div className="flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="space-y-6 p-6">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Nama {targetType === "category" ? "Kategori" : "Golongan"}</Label>
                     <Input
-                      id="color"
-                      name="color"
-                      type="color"
-                      defaultValue={selectedItem?.color || "#3b82f6"}
-                      className="h-10 w-12 p-1"
-                    />
-                    <Input
-                      placeholder="#000000"
-                      defaultValue={selectedItem?.color || "#3b82f6"}
-                      onChange={(e) => {
-                        const colorInput = document.getElementById("color") as HTMLInputElement
-                        if (colorInput) colorInput.value = e.target.value
-                      }}
-                      className="flex-1"
+                      id="name"
+                      name="name"
+                      defaultValue={selectedItem?.name}
+                      placeholder={targetType === "category" ? "Contoh: Antibiotik" : "Contoh: Obat Keras"}
+                      required
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Warna ini akan digunakan sebagai penanda visual golongan obat.
-                  </p>
+                  {targetType === "group" && (
+                    <div className="grid gap-3 rounded-xl border bg-muted/20 p-4">
+                      <div className="flex items-center gap-2">
+                        <PaletteIcon className="size-4 text-primary" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Identifikasi Visual</span>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="color">Warna Golongan</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="color"
+                            name="color"
+                            type="color"
+                            defaultValue={selectedItem?.color || "#3b82f6"}
+                            className="h-10 w-12 p-1"
+                          />
+                          <Input
+                            placeholder="#000000"
+                            defaultValue={selectedItem?.color || "#3b82f6"}
+                            onChange={(e) => {
+                              const colorInput = document.getElementById("color") as HTMLInputElement
+                              if (colorInput) colorInput.value = e.target.value
+                            }}
+                            className="flex-1 font-mono"
+                          />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground italic leading-tight">
+                          Warna ini akan digunakan pada badge otomatis di seluruh sistem untuk menandai golongan obat.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Deskripsi (Opsional)</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      defaultValue={selectedItem?.description}
+                      placeholder="Penjelasan singkat mengenai klasifikasi ini..."
+                      className="min-h-[120px] resize-none"
+                    />
+                  </div>
                 </div>
-              )}
-              <div className="grid gap-2">
-                <Label htmlFor="description">Deskripsi (Opsional)</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  defaultValue={selectedItem?.description}
-                  placeholder="Penjelasan singkat..."
-                  rows={4}
-                />
-              </div>
+              </ScrollArea>
             </div>
-            <SheetFooter>
-              <SubmitButton label={mode === "create" ? "Simpan" : "Perbarui"} />
+
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setIsSheetOpen(false)}>
+                Batal
+              </Button>
+              <div className="flex-1">
+                <SubmitButton label={mode === "create" ? `Simpan ${targetType === "category" ? 'Kategori' : 'Golongan'}` : "Simpan Perubahan"} />
+              </div>
             </SheetFooter>
           </form>
         </SheetContent>
@@ -422,25 +611,41 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
 
       {/* Delete Confirmation */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Hapus {targetType === "category" ? "Kategori" : "Golongan"}?</DialogTitle>
-            <DialogDescription>
-              Anda akan menghapus <strong>{itemToDelete?.name}</strong>. 
-              {itemToDelete?.medicinesCount > 0 ? (
-                <div className="mt-2 rounded-md bg-destructive/10 p-3 text-destructive">
-                  <p className="font-semibold">Tindakan Dilarang:</p>
-                  <p>Masih ada <strong>{itemToDelete?.medicinesCount} produk</strong> yang menggunakan ini. Ubah kategori/golongan produk tersebut terlebih dahulu.</p>
-                </div>
-              ) : (
-                <p className="mt-2">Tindakan ini tidak dapat dibatalkan.</p>
-              )}
+            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-destructive/10">
+              <TrashIcon className="size-6 text-destructive" />
+            </div>
+            <DialogTitle className="text-center">Hapus {targetType === "category" ? "Kategori" : "Golongan"}?</DialogTitle>
+            <DialogDescription className="text-center">
+              Anda akan menghapus data <strong>{itemToDelete?.name}</strong>.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Batal</Button>
+          
+          <div className="py-2">
+            {itemToDelete?.medicinesCount > 0 ? (
+              <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-destructive">
+                <div className="flex items-center gap-2 mb-1">
+                  <XIcon className="size-4 font-bold" />
+                  <p className="text-sm font-bold uppercase tracking-tight">Tindakan Dibatasi</p>
+                </div>
+                <p className="text-xs leading-relaxed">
+                  Masih ada <strong>{itemToDelete?.medicinesCount} produk</strong> yang terhubung ke data ini. 
+                  Sistem mencegah penghapusan untuk menjaga integritas riwayat stok. 
+                  Mohon pindahkan produk tersebut ke {targetType === "category" ? 'kategori' : 'golongan'} lain terlebih dahulu.
+                </p>
+              </div>
+            ) : (
+              <p className="text-center text-sm text-muted-foreground">
+                Tindakan ini permanen dan tidak dapat dibatalkan.
+              </p>
+            )}
+          </div>
+
+          <DialogFooter className="sm:justify-center gap-2 mt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setIsDeleteOpen(false)}>Batal</Button>
             {itemToDelete?.medicinesCount === 0 && (
-              <Button variant="destructive" onClick={confirmDelete}>Hapus</Button>
+              <Button variant="destructive" className="flex-1" onClick={confirmDelete}>Hapus Sekarang</Button>
             )}
           </DialogFooter>
         </DialogContent>

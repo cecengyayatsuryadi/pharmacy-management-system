@@ -102,7 +102,7 @@ export async function createCategoryAction(prevState: any, formData: FormData) {
       organizationId,
     })
 
-    revalidatePath("/dashboard/inventory/categories")
+    revalidatePath("/dashboard/inventory/master/categories")
     return { message: "Kategori berhasil dibuat!", success: true }
   } catch (error: unknown) {
     console.error("CREATE_CATEGORY_ERROR:", error)
@@ -150,7 +150,7 @@ export async function updateCategoryAction(
       return { message: "Kategori tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/inventory/categories")
+    revalidatePath("/dashboard/inventory/master/categories")
     return { message: "Kategori berhasil diperbarui!", success: true }
   } catch (error: unknown) {
     console.error("UPDATE_CATEGORY_ERROR:", error)
@@ -191,7 +191,7 @@ export async function deleteCategoryAction(id: string) {
       return { message: "Kategori tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/inventory/categories")
+    revalidatePath("/dashboard/inventory/master/categories")
     return { message: "Kategori berhasil dihapus!", success: true }
   } catch (error: unknown) {
     console.error("DELETE_CATEGORY_ERROR:", error)
