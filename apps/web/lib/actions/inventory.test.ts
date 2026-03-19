@@ -124,7 +124,7 @@ describe('createStockMovementAction', () => {
       expect(mockTx.insert).toHaveBeenCalled()
 
       // Verify revalidation
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/medicines')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/master/medicines')
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/stock')
     })
   })

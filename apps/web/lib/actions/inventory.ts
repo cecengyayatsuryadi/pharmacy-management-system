@@ -200,7 +200,7 @@ export async function createStockMovementAction(prevState: any, formData: FormDa
       })
     })
 
-    revalidatePath("/dashboard/medicines")
+    revalidatePath("/dashboard/inventory/master/medicines")
     revalidatePath("/dashboard/inventory/stock")
     
     return { 

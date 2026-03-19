@@ -72,8 +72,23 @@ The project is a monorepo structured to promote code reuse and strict separation
 ---
 
 ### Top 5 Things to Understand First
-1.  **Organization Scoping:** Every bit of data belongs to an organization. Always verify the `organizationId` in your actions.
-2.  **Server Actions:** This is where 90% of the "real work" happens. Study `apps/web/lib/actions/inventory.ts` as a gold standard.
-3.  **The 3-Pillar Inventory:** Understand the difference between the **Ledger** (history), **Segmentation** (physical vs reserved), and **Conversion** (Satuan).
-4.  **Drizzle Schema:** The file `packages/database/src/schema.ts` is the best way to understand the business domain.
-5.  **Turborepo Workspaces:** Learn how to run commands for specific packages using `--workspace` (e.g., `npm run <command> -w @workspace/database`).
+- **Organization Scoping:** Every bit of data belongs to an organization. Always verify the `organizationId` in your actions.
+- **Server Actions:** This is where 90% of the "real work" happens. Study `apps/web/lib/actions/inventory.ts` as a gold standard.
+- **Git Management (Local):** NEVER commit directly to `master`. Always use `feat/` branches and merge with `--no-ff`.
+- **The 3-Pillar Inventory:** Understand the difference between the **Ledger** (history), **Segmentation** (physical vs reserved), and **Conversion** (Satuan).
+- **Drizzle Schema:** The file `packages/database/src/schema.ts` is the best way to understand the business domain.
+
+---
+
+## 8. PRO-GIT PROTOCOL (LOCAL WORKFLOW)
+To maintain a high-quality codebase and clear history, follow these rules strictly:
+
+1. **Branching:** Start every task from a clean `master` branch.
+   `git checkout -b feat/your-feature-name`
+2. **Atomic Commits:** Commit small, functional changes. Use Conventional Commits (`feat:`, `fix:`, `refactor:`).
+3. **Pre-Merge Review:** Before merging, run `npm run lint` and verify the logic locally.
+4. **Merge Strategy:** Always use `--no-ff` (no-fast-forward) to create a merge commit.
+   `git checkout master && git merge --no-ff feat/your-feature-name`
+5. **Cleanup:** Delete the feature branch locally once merged.
+   `git branch -d feat/your-feature-name`
+

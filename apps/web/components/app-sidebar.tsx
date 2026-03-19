@@ -40,7 +40,7 @@ const featureModules = [
     title: "Inventory", 
     icon: <BoxesIcon className="size-5" />, 
     url: "/dashboard/inventory",
-    matcher: (path: string) => path.startsWith("/dashboard/inventory") || path.startsWith("/dashboard/medicines") || path.startsWith("/dashboard/suppliers")
+    matcher: (path: string) => path.startsWith("/dashboard/inventory") || path.startsWith("/dashboard/suppliers")
   },
   { 
     id: "procurement", 
@@ -89,7 +89,7 @@ const moduleData: Record<string, any> = {
         title: "Master Produk",
         url: "#",
         items: [
-          { title: "Data Obat", url: "/dashboard/medicines" },
+          { title: "Data Obat", url: "/dashboard/inventory/master/medicines" },
           { title: "Kategori & Golongan", url: "/dashboard/inventory/master/categories" },
           { title: "Satuan & Konversi", url: "/dashboard/inventory/master/units" },
           { title: "Barcode Manager", url: "/dashboard/inventory/master/barcodes" },
