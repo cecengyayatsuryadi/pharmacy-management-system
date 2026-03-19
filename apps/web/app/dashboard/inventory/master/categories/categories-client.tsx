@@ -284,10 +284,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                     initialCategories.data.map((item: any) => (
                       <TableRow key={item.id}>
                         <TableCell className="pl-6">
-                          <div className="flex items-center gap-2">
-                            <LayersIcon className="size-4 text-muted-foreground/50" />
-                            <span className="font-semibold text-sm tracking-tight">{item.name}</span>
-                          </div>
+                          <span className="font-semibold text-sm tracking-tight">{item.name}</span>
                         </TableCell>
                         <TableCell className="max-w-[300px] truncate text-xs text-muted-foreground">
                           {item.description || "-"}
