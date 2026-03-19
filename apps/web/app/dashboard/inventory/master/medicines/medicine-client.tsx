@@ -329,7 +329,7 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-semibold text-sm">{medicine.name}</span>
+                        <span className="font-semibold text-sm tracking-tight">{medicine.name}</span>
                         <span className="text-[10px] text-muted-foreground italic">
                           {medicine.genericName || "-"}
                         </span>
@@ -357,15 +357,15 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right font-mono text-[13px] font-bold">
+                    <TableCell className="text-right font-mono text-sm font-semibold">
                       Rp {Number(medicine.price).toLocaleString('id-ID')}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-sm font-bold tabular-nums">
-                          {medicine.stock} <span className="text-[10px] font-normal text-muted-foreground uppercase">{medicine.baseUnit?.abbreviation || medicine.unit}</span>
+                          {medicine.stock} <span className="text-[9px] font-medium text-muted-foreground/70 uppercase">{medicine.baseUnit?.abbreviation || medicine.unit}</span>
                         </span>
-                        <MedicineStockBadge stock={medicine.stock} minStock={medicine.minStock} className="h-4 text-[9px] px-1.5" />
+                        <MedicineStockBadge stock={medicine.stock} minStock={medicine.minStock} className="h-4.5 text-[9px] px-1.5" />
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -794,17 +794,18 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                 <ScrollArea className="h-full">
                   <div className="p-6 pb-12">
                     {/* Section 1: Ringkasan Harga & Stok (Always Visible) */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">                      <div className="p-4 rounded-xl border bg-emerald-50/30">
-                        <p className="text-[10px] uppercase font-bold text-emerald-600 mb-1">Stok Saat Ini</p>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="p-4 rounded-xl border bg-emerald-50/30 dark:bg-emerald-500/10 dark:border-emerald-500/20">
+                        <p className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 mb-1">Stok Saat Ini</p>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black text-emerald-700">{selectedMedicine?.stock}</span>
-                          <span className="text-xs font-bold text-emerald-600 uppercase">{selectedMedicine?.baseUnit?.abbreviation || selectedMedicine?.unit}</span>
+                          <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{selectedMedicine?.stock}</span>
+                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-500 uppercase">{selectedMedicine?.baseUnit?.abbreviation || selectedMedicine?.unit}</span>
                         </div>
                       </div>
-                      <div className="p-4 rounded-xl border bg-primary/5">
-                        <p className="text-[10px] uppercase font-bold text-primary mb-1">Harga Jual</p>
+                      <div className="p-4 rounded-xl border bg-primary/5 dark:bg-primary/10 dark:border-primary/20">
+                        <p className="text-[10px] uppercase font-bold text-primary dark:text-primary mb-1">Harga Jual</p>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-xl font-black text-primary">Rp {Number(selectedMedicine?.price).toLocaleString('id-ID')}</span>
+                          <span className="text-xl font-black text-primary">{Number(selectedMedicine?.price).toLocaleString('id-ID')}</span>
                         </div>
                       </div>
                     </div>
