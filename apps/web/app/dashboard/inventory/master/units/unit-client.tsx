@@ -13,7 +13,9 @@ import {
   MoreHorizontalIcon,
   PencilIcon,
   TrashIcon,
-  XIcon
+  XIcon,
+  BoxIcon,
+  Link2Icon
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -352,7 +354,12 @@ export function UnitClient({
                   ) : (
                     initialUnits.map((unit) => (
                       <TableRow key={unit.id}>
-                        <TableCell className="pl-6 font-medium text-sm">{unit.name}</TableCell>
+                        <TableCell className="pl-6">
+                          <div className="flex items-center gap-2">
+                            <BoxIcon className="size-3 text-muted-foreground/40 shrink-0" />
+                            <span className="font-medium text-sm tracking-tight">{unit.name}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Badge variant="secondary" className="font-mono text-[10px] py-0 px-1.5 uppercase font-bold tracking-wider">
                             {unit.abbreviation}
@@ -489,8 +496,11 @@ export function UnitClient({
                       <TableRow key={conv.id}>
                         <TableCell className="pl-6">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-sm tracking-tight">{conv.medicine?.name}</span>
-                            <span className="text-[10px] text-muted-foreground font-mono">
+                            <div className="flex items-center gap-2">
+                              <Link2Icon className="size-3 text-muted-foreground/30 shrink-0" />
+                              <span className="font-semibold text-sm tracking-tight">{conv.medicine?.name}</span>
+                            </div>
+                            <span className="text-[10px] text-muted-foreground font-mono pl-5">
                               {conv.medicine?.code}
                             </span>
                           </div>
@@ -502,7 +512,8 @@ export function UnitClient({
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-1.5 text-muted-foreground">
-                            <div className="h-px w-4 bg-muted-foreground/30" />
+                            <ScaleIcon className="size-3 text-muted-foreground/30 shrink-0" />
+                            <div className="h-px w-2 bg-muted-foreground/30" />
                             <span className="font-black text-sm text-foreground tabular-nums">
                               {Number(conv.factor)}
                             </span>

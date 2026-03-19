@@ -14,7 +14,11 @@ import {
   EyeIcon,
   FileTextIcon,
   ActivityIcon,
-  StethoscopeIcon
+  StethoscopeIcon,
+  PillIcon,
+  FingerprintIcon,
+  TagIcon,
+  LayersIcon
 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
 import { format } from "date-fns"
@@ -325,33 +329,52 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                 initialData.map((medicine) => (
                   <TableRow key={medicine.id}>
                     <TableCell className="font-mono text-[11px] font-semibold text-primary">
-                      {medicine.code}
+                      <div className="flex items-center gap-1.5">
+                        <FingerprintIcon className="size-3 text-primary/40 shrink-0" />
+                        {medicine.code}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-semibold text-sm tracking-tight">{medicine.name}</span>
-                        <span className="text-[10px] text-muted-foreground italic">
+                        <div className="flex items-center gap-2">
+                          <PillIcon className="size-3 text-muted-foreground/40 shrink-0" />
+                          <span className="font-semibold text-sm tracking-tight">{medicine.name}</span>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground italic pl-5">
                           {medicine.genericName || "-"}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs font-medium">{medicine.category.name}</span>
+                      <div className="flex flex-col gap-1.5">
+                        <Badge 
+                          variant="outline" 
+                          className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold rounded-[4px] gap-1"
+                          style={{ 
+                            borderColor: medicine.category.color, 
+                            color: medicine.category.color,
+                            backgroundColor: `${medicine.category.color}10`
+                          }}
+                        >
+                          <TagIcon className="size-2.5 opacity-70" />
+                          {medicine.category.name}
+                        </Badge>
                         {medicine.group ? (
                           <Badge 
                             variant="outline" 
-                            className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold"
+                            className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold rounded-full gap-1"
                             style={{ 
                               borderColor: medicine.group.color, 
                               color: medicine.group.color,
                               backgroundColor: `${medicine.group.color}10`
                             }}
                           >
+                            <LayersIcon className="size-2.5 opacity-70" />
                             {medicine.group.name}
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold text-muted-foreground border-muted-foreground/30">
+                          <Badge variant="outline" className="w-fit text-[9px] py-0 px-1.5 uppercase font-bold text-muted-foreground border-muted-foreground/30 rounded-full gap-1">
+                            <LayersIcon className="size-2.5 opacity-50" />
                             {medicine.classification || "Bebas"}
                           </Badge>
                         )}

@@ -10,6 +10,7 @@ import {
   XIcon,
   MoreHorizontalIcon,
   LayersIcon,
+  TagIcon,
   PaletteIcon,
   ChevronRightIcon
 } from "lucide-react"
@@ -268,6 +269,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                 <TableHeader>
                   <TableRow className="bg-muted/50">
                     <TableHead className="pl-6">Nama Kategori</TableHead>
+                    <TableHead>Indikator</TableHead>
                     <TableHead>Deskripsi</TableHead>
                     <TableHead className="text-center">Jumlah Produk</TableHead>
                     <TableHead className="w-[80px] text-center">Aksi</TableHead>
@@ -276,7 +278,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                 <TableBody>
                   {initialCategories.data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                         Belum ada data kategori.
                       </TableCell>
                     </TableRow>
@@ -284,7 +286,29 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                     initialCategories.data.map((item: any) => (
                       <TableRow key={item.id}>
                         <TableCell className="pl-6">
-                          <span className="font-semibold text-sm tracking-tight">{item.name}</span>
+                          <div className="flex items-center gap-2">
+                            <TagIcon className="size-3 text-muted-foreground/40 shrink-0" />
+                            <span className="font-semibold text-sm tracking-tight">{item.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant="outline" 
+                              className="h-5 px-1.5 text-[9px] uppercase font-bold border-muted-foreground/30 rounded-[4px]"
+                              style={{ 
+                                borderColor: item.color, 
+                                color: item.color,
+                                backgroundColor: `${item.color}10`
+                              }}
+                            >
+                              {item.color}
+                            </Badge>
+                            <div 
+                              className="size-3 rounded-[4px] border shadow-sm" 
+                              style={{ backgroundColor: item.color }}
+                            />
+                          </div>
                         </TableCell>
                         <TableCell className="max-w-[300px] truncate text-xs text-muted-foreground">
                           {item.description || "-"}
@@ -422,13 +446,16 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                     initialGroups.data.map((item: any) => (
                       <TableRow key={item.id}>
                         <TableCell className="pl-6">
-                          <span className="font-semibold text-sm tracking-tight">{item.name}</span>
+                          <div className="flex items-center gap-2">
+                            <LayersIcon className="size-3 text-muted-foreground/40 shrink-0" />
+                            <span className="font-semibold text-sm tracking-tight">{item.name}</span>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Badge 
                               variant="outline" 
-                              className="h-5 px-1.5 text-[9px] uppercase font-bold border-muted-foreground/30"
+                              className="h-5 px-1.5 text-[9px] uppercase font-bold border-muted-foreground/30 rounded-full"
                               style={{ 
                                 borderColor: item.color, 
                                 color: item.color,
@@ -584,7 +611,28 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                     </div>
                   )}
                   <div className="grid gap-2">
-                    <Label htmlFor="description">Deskripsi (Opsional)</Label>
+                    <Label htmlFor="color">
+                      Warna Indikator <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="flex items-center gap-3">
+                      <Input
+                        id="color"
+                        name="color"
+                        type="color"
+                        className="size-10 p-1"
+                        defaultValue={selectedItem?.color || "#3b82f6"}
+                      />
+                      <Input
+                        id="color-text"
+                        placeholder="#000000"
+                        className="flex-1 font-mono text-xs uppercase"
+                        value={selectedItem?.color || "#3b82f6"}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Deskripsi</Label>
                     <Textarea
                       id="description"
                       name="description"
