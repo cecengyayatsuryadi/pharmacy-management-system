@@ -103,7 +103,7 @@ export async function createMedicineGroupAction(prevState: any, formData: FormDa
       organizationId,
     })
 
-    revalidatePath("/dashboard/inventory/categories")
+    revalidatePath("/dashboard/inventory/master/categories")
     return { message: "Golongan berhasil dibuat!", success: true }
   } catch (error: unknown) {
     console.error("CREATE_MEDICINE_GROUP_ERROR:", error)
@@ -152,7 +152,7 @@ export async function updateMedicineGroupAction(
       return { message: "Golongan tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/inventory/categories")
+    revalidatePath("/dashboard/inventory/master/categories")
     return { message: "Golongan berhasil diperbarui!", success: true }
   } catch (error: unknown) {
     console.error("UPDATE_MEDICINE_GROUP_ERROR:", error)
@@ -193,7 +193,7 @@ export async function deleteMedicineGroupAction(id: string) {
       return { message: "Golongan tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/inventory/categories")
+    revalidatePath("/dashboard/inventory/master/categories")
     return { message: "Golongan berhasil dihapus!", success: true }
   } catch (error: unknown) {
     console.error("DELETE_MEDICINE_GROUP_ERROR:", error)
