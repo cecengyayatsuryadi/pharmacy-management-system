@@ -23,14 +23,14 @@ export function MedicineStockBadge({ stock, minStock, className }: MedicineStock
 
   if (s <= m) {
     return (
-      <Badge variant="outline" className={cn("text-orange-600 border-orange-600 bg-orange-50 font-bold", className)}>
+      <Badge variant="warning" className={cn("font-bold", className)}>
         Menipis
       </Badge>
     )
   }
 
   return (
-    <Badge variant="outline" className={cn("text-emerald-600 border-emerald-600 bg-emerald-50 font-bold", className)}>
+    <Badge variant="success" className={cn("font-bold", className)}>
       Normal
     </Badge>
   )
