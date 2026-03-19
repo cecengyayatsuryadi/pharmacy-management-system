@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getUnitsAction, createUnitAction } from './unit'
+import { getUnitsAction, createUnitAction, updateUnitAction, deleteUnitAction } from './unit'
 import { auth } from '@/auth'
 import { db } from '@workspace/database'
 import { revalidatePath } from 'next/cache'
@@ -152,6 +152,46 @@ describe('Unit Actions', () => {
 
       expect(result).toEqual({ message: 'Satuan berhasil dibuat', success: true })
       expect(db.insert).toHaveBeenCalled()
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/master/units')
+    })
+  })
+
+  describe('updateUnitAction', () => {
+    it('should successfully update unit', async () => {
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+
+      const mockUpdate = {
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue({}),
+        }),
+      }
+      vi.mocked(db.update).mockReturnValue(mockUpdate as any)
+
+      const formData = new FormData()
+      formData.append('name', 'Box Updated')
+      formData.append('abbreviation', 'bx-u')
+
+      const result = await updateUnitAction('unit-1', {}, formData)
+
+      expect(result).toEqual({ message: 'Satuan berhasil diperbarui', success: true })
+      expect(db.update).toHaveBeenCalled()
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/master/units')
+    })
+  })
+
+  describe('deleteUnitAction', () => {
+    it('should successfully delete unit', async () => {
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+
+      const mockDelete = {
+        where: vi.fn().mockResolvedValue({}),
+      }
+      vi.mocked(db.delete).mockReturnValue(mockDelete as any)
+
+      const result = await deleteUnitAction('unit-1')
+
+      expect(result).toEqual({ message: 'Satuan berhasil dihapus', success: true })
+      expect(db.delete).toHaveBeenCalled()
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/master/units')
     })
   })

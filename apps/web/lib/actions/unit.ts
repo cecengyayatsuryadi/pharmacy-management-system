@@ -81,3 +81,57 @@ export async function createUnitAction(_prevState: any, formData: FormData) {
     return { message: getErrorMessage(error) }
   }
 }
+
+export async function updateUnitAction(id: string, _prevState: any, formData: FormData) {
+  const session = await auth()
+  const organizationId = session?.user?.organizationId
+
+  if (!organizationId) {
+    return { message: "Unauthorized" }
+  }
+
+  const validatedFields = unitSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  )
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Gagal memperbarui satuan. Mohon periksa input Anda.",
+    }
+  }
+
+  try {
+    await db
+      .update(units)
+      .set({
+        ...validatedFields.data,
+      })
+      .where(and(eq(units.id, id), eq(units.organizationId, organizationId)))
+
+    revalidatePath("/dashboard/inventory/master/units")
+    return { success: true, message: "Satuan berhasil diperbarui" }
+  } catch (error) {
+    return { message: getErrorMessage(error) }
+  }
+}
+
+export async function deleteUnitAction(id: string) {
+  const session = await auth()
+  const organizationId = session?.user?.organizationId
+
+  if (!organizationId) {
+    return { success: false, message: "Unauthorized" }
+  }
+
+  try {
+    await db
+      .delete(units)
+      .where(and(eq(units.id, id), eq(units.organizationId, organizationId)))
+
+    revalidatePath("/dashboard/inventory/master/units")
+    return { success: true, message: "Satuan berhasil dihapus" }
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) }
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getConversionsAction, createConversionAction } from './conversion'
+import { getConversionsAction, createConversionAction, updateConversionAction, deleteConversionAction } from './conversion'
 import { auth } from '@/auth'
 import { db } from '@workspace/database'
 import { revalidatePath } from 'next/cache'
@@ -152,6 +152,48 @@ describe('Conversion Actions', () => {
 
       expect(result).toEqual({ message: 'Konversi berhasil dibuat', success: true })
       expect(db.insert).toHaveBeenCalled()
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/master/units')
+    })
+  })
+
+  describe('updateConversionAction', () => {
+    it('should successfully update conversion', async () => {
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+
+      const mockUpdate = {
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue({}),
+        }),
+      }
+      vi.mocked(db.update).mockReturnValue(mockUpdate as any)
+
+      const formData = new FormData()
+      formData.append('medicineId', '123e4567-e89b-12d3-a456-426614174000')
+      formData.append('fromUnitId', '123e4567-e89b-12d3-a456-426614174001')
+      formData.append('toUnitId', '123e4567-e89b-12d3-a456-426614174002')
+      formData.append('factor', '20')
+
+      const result = await updateConversionAction('conv-1', {}, formData)
+
+      expect(result).toEqual({ message: 'Konversi berhasil diperbarui', success: true })
+      expect(db.update).toHaveBeenCalled()
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/master/units')
+    })
+  })
+
+  describe('deleteConversionAction', () => {
+    it('should successfully delete conversion', async () => {
+      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+
+      const mockDelete = {
+        where: vi.fn().mockResolvedValue({}),
+      }
+      vi.mocked(db.delete).mockReturnValue(mockDelete as any)
+
+      const result = await deleteConversionAction('conv-1')
+
+      expect(result).toEqual({ message: 'Konversi berhasil dihapus', success: true })
+      expect(db.delete).toHaveBeenCalled()
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/master/units')
     })
   })
