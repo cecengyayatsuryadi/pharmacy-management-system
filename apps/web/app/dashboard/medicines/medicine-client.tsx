@@ -101,7 +101,7 @@ interface MedicineClientProps {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus()
   return (
-    <Button type="submit" disabled={pending} className="w-full md:w-auto">
+    <Button type="submit" disabled={pending} className="w-full">
       {pending ? "Mohon tunggu..." : label}
     </Button>
   )
@@ -380,7 +380,7 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                             <MoreHorizontalIcon className="size-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="min-w-[160px]">
                           <DropdownMenuLabel>Opsi Data</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => openDetail(medicine)}>
@@ -389,15 +389,15 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEdit(medicine)}>
                             <PencilIcon className="mr-2 size-4" />
-                            Edit Data
+                            Edit Data Obat
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            className="text-destructive"
+                            className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                             onClick={() => handleDelete(medicine.id)}
                           >
                             <TrashIcon className="mr-2 size-4" />
-                            Hapus Permanen
+                            Hapus Data
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -453,7 +453,7 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-2xl">
           <form action={handleSubmit} className="flex h-full flex-col">
-            <SheetHeader className="shrink-0 border-b p-6">
+            <SheetHeader className="shrink-0 border-b px-6 py-4">
               <SheetTitle className="text-xl font-bold">
                 {mode === "create" ? "Tambah Obat Baru" : "Edit Data Obat"}
               </SheetTitle>
@@ -653,7 +653,7 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                     </TabsContent>
 
                     <TabsContent value="logistics" className="m-0 space-y-4 outline-none">
-                      <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/30 p-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
                           <Label htmlFor="baseUnitId">
                             Satuan Terkecil <span className="text-destructive">*</span>
@@ -711,8 +711,7 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
                             required
                           />
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      </div>                      <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
                           <Label htmlFor="minStock">Batas Stok Minimum</Label>
                           <Input
@@ -741,12 +740,14 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
             </Tabs>
 
             <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4">
-              <Button type="button" variant="outline" onClick={() => setIsSheetOpen(false)}>
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setIsSheetOpen(false)}>
                 Batal
               </Button>
-              <SubmitButton
-                label={mode === "create" ? "Tambah Data Obat" : "Simpan Perubahan"}
-              />
+              <div className="flex-1">
+                <SubmitButton
+                  label={mode === "create" ? "Tambah Data Obat" : "Simpan Perubahan"}
+                />
+              </div>
             </SheetFooter>
           </form>
         </SheetContent>
@@ -756,101 +757,127 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <SheetContent className="w-full sm:max-w-2xl p-0 flex flex-col gap-0">
           <div className="flex flex-col flex-1 h-full overflow-hidden">
-            <SheetHeader className="p-6 border-b bg-muted/20 shrink-0">
-              <div className="flex items-center gap-3 mb-2">
+            <SheetHeader className="shrink-0 border-b bg-muted/20 px-6 py-4">
+              <div className="mb-1 flex items-center gap-3">
                 <Badge className="font-mono text-[10px]">{selectedMedicine?.code}</Badge>
                 <Badge variant={selectedMedicine?.isActive ? "success" : "secondary"} className="h-5 text-[10px]">
                   {selectedMedicine?.isActive ? "Aktif" : "Non-aktif"}
                 </Badge>
               </div>
-              <SheetTitle className="text-2xl">{selectedMedicine?.name}</SheetTitle>
-              <p className="text-sm italic text-muted-foreground">{selectedMedicine?.genericName || "Nama generik tidak tersedia"}</p>
+              <SheetTitle className="pr-8 text-xl font-bold leading-none tracking-tight sm:text-2xl">
+                {selectedMedicine?.name}
+              </SheetTitle>
+              <p className="mt-1 line-clamp-1 text-sm italic text-muted-foreground">
+                {selectedMedicine?.genericName || "Nama generik tidak tersedia"}
+              </p>
             </SheetHeader>
             
-            <ScrollArea className="flex-1">
-              <div className="p-6 space-y-8">
-                {/* Section 1: Ringkasan Harga & Stok */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border bg-emerald-50/30">
-                    <p className="text-[10px] uppercase font-bold text-emerald-600 mb-1">Stok Saat Ini</p>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-black text-emerald-700">{selectedMedicine?.stock}</span>
-                      <span className="text-xs font-bold text-emerald-600 uppercase">{selectedMedicine?.baseUnit?.abbreviation || selectedMedicine?.unit}</span>
-                    </div>
-                  </div>
-                  <div className="p-4 rounded-xl border bg-primary/5">
-                    <p className="text-[10px] uppercase font-bold text-primary mb-1">Harga Jual</p>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black text-primary">Rp {Number(selectedMedicine?.price).toLocaleString('id-ID')}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 2: Info Medis */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 border-b pb-2">
-                    <StethoscopeIcon className="size-4 text-primary" />
-                    <h3 className="font-bold text-sm uppercase tracking-wider">Informasi Medis</h3>
-                  </div>
-                  <div className="grid gap-6">
-                    <div>
-                      <Label className="text-[10px] uppercase text-muted-foreground">Komposisi</Label>
-                      <p className="text-sm mt-1 leading-relaxed">{selectedMedicine?.composition || "-"}</p>
-                    </div>
-                    <div>
-                      <Label className="text-[10px] uppercase text-muted-foreground">Indikasi / Kegunaan</Label>
-                      <p className="text-sm mt-1 leading-relaxed">{selectedMedicine?.indication || "-"}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-[10px] uppercase text-muted-foreground">Produsen</Label>
-                        <p className="text-sm mt-1 font-semibold">{selectedMedicine?.manufacturer || "-"}</p>
-                      </div>
-                      <div>
-                        <Label className="text-[10px] uppercase text-muted-foreground">Golongan</Label>
-                        <p className="text-sm mt-1 font-semibold">{selectedMedicine?.classification || "-"}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 3: Detail Lainnya */}
-                <div className="space-y-4 pt-4">
-                  <div className="flex items-center gap-2 border-b pb-2">
-                    <FileTextIcon className="size-4 text-primary" />
-                    <h3 className="font-bold text-sm uppercase tracking-wider">Logistik & Deskripsi</h3>
-                  </div>
-                  <div className="grid gap-4 text-sm">
-                    <div className="flex justify-between py-1 border-b border-dashed">
-                      <span className="text-muted-foreground">Kategori</span>
-                      <span className="font-medium">{selectedMedicine?.category.name}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-dashed">
-                      <span className="text-muted-foreground">Satuan Dasar</span>
-                      <span className="font-medium uppercase">{selectedMedicine?.baseUnit?.name} ({selectedMedicine?.baseUnit?.abbreviation})</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-dashed">
-                      <span className="text-muted-foreground">Min. Stock / Reorder Point</span>
-                      <span className="font-medium tabular-nums text-orange-600">{selectedMedicine?.minStock}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-dashed">
-                      <span className="text-muted-foreground">Max. Stock Capacity</span>
-                      <span className="font-medium tabular-nums">{selectedMedicine?.maxStock}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-dashed">
-                      <span className="text-muted-foreground">Barcode / SKU</span>
-                      <span className="font-mono text-xs">{selectedMedicine?.sku || "-"}</span>
-                    </div>
-                    <div className="pt-2">
-                      <Label className="text-[10px] uppercase text-muted-foreground">Deskripsi Keterangan</Label>
-                      <p className="mt-1 text-muted-foreground">{selectedMedicine?.description || "Tidak ada deskripsi"}</p>
-                    </div>
-                  </div>
-                </div>
+            <Tabs defaultValue="medical-info" className="flex flex-1 flex-col overflow-hidden">
+              <div className="shrink-0 border-b bg-muted/20 px-6 py-2">
+                <TabsList className="h-9 w-full justify-start gap-4 bg-transparent p-0">
+                  <TabsTrigger
+                    value="medical-info"
+                    className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                  >
+                    Informasi Medis
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="logistics-info"
+                    className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                  >
+                    Logistik & Deskripsi
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            </ScrollArea>
+
+              <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="p-6 pb-12">
+                    {/* Section 1: Ringkasan Harga & Stok (Always Visible) */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">                      <div className="p-4 rounded-xl border bg-emerald-50/30">
+                        <p className="text-[10px] uppercase font-bold text-emerald-600 mb-1">Stok Saat Ini</p>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-2xl font-black text-emerald-700">{selectedMedicine?.stock}</span>
+                          <span className="text-xs font-bold text-emerald-600 uppercase">{selectedMedicine?.baseUnit?.abbreviation || selectedMedicine?.unit}</span>
+                        </div>
+                      </div>
+                      <div className="p-4 rounded-xl border bg-primary/5">
+                        <p className="text-[10px] uppercase font-bold text-primary mb-1">Harga Jual</p>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl font-black text-primary">Rp {Number(selectedMedicine?.price).toLocaleString('id-ID')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <TabsContent value="medical-info" className="m-0 outline-none space-y-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 border-b pb-2">
+                          <StethoscopeIcon className="size-4 text-primary" />
+                          <h3 className="font-bold text-sm uppercase tracking-wider">Detil Medis</h3>
+                        </div>
+                        <div className="grid gap-6">
+                          <div>
+                            <Label className="text-[10px] uppercase text-muted-foreground">Komposisi</Label>
+                            <p className="text-sm mt-1 leading-relaxed">{selectedMedicine?.composition || "-"}</p>
+                          </div>
+                          <div>
+                            <Label className="text-[10px] uppercase text-muted-foreground">Indikasi / Kegunaan</Label>
+                            <p className="text-sm mt-1 leading-relaxed">{selectedMedicine?.indication || "-"}</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-[10px] uppercase text-muted-foreground">Produsen</Label>
+                              <p className="text-sm mt-1 font-semibold">{selectedMedicine?.manufacturer || "-"}</p>
+                            </div>
+                            <div>
+                              <Label className="text-[10px] uppercase text-muted-foreground">Golongan</Label>
+                              <p className="text-sm mt-1 font-semibold">{selectedMedicine?.classification || "-"}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="logistics-info" className="m-0 outline-none space-y-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 border-b pb-2">
+                          <FileTextIcon className="size-4 text-primary" />
+                          <h3 className="font-bold text-sm uppercase tracking-wider">Detail Logistik</h3>
+                        </div>
+                        <div className="grid gap-4 text-sm">
+                          <div className="flex justify-between py-1 border-b border-dashed">
+                            <span className="text-muted-foreground">Kategori</span>
+                            <span className="font-medium">{selectedMedicine?.category.name}</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-dashed">
+                            <span className="text-muted-foreground">Satuan Dasar</span>
+                            <span className="font-medium uppercase">{selectedMedicine?.baseUnit?.name} ({selectedMedicine?.baseUnit?.abbreviation})</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-dashed">
+                            <span className="text-muted-foreground">Min. Stock / Reorder Point</span>
+                            <span className="font-medium tabular-nums text-orange-600">{selectedMedicine?.minStock}</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-dashed">
+                            <span className="text-muted-foreground">Max. Stock Capacity</span>
+                            <span className="font-medium tabular-nums">{selectedMedicine?.maxStock}</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-dashed">
+                            <span className="text-muted-foreground">Barcode / SKU</span>
+                            <span className="font-mono text-xs">{selectedMedicine?.sku || "-"}</span>
+                          </div>
+                          <div className="pt-2">
+                            <Label className="text-[10px] uppercase text-muted-foreground">Deskripsi Keterangan</Label>
+                            <p className="mt-1 text-muted-foreground">{selectedMedicine?.description || "Tidak ada deskripsi"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </div>
+                </ScrollArea>
+              </div>
+            </Tabs>
             
-            <SheetFooter className="p-6 border-t shrink-0 mt-0">
+            <SheetFooter className="px-6 py-4 border-t shrink-0 mt-0">
               <Button className="w-full" onClick={() => setIsDetailOpen(false)}>Tutup Detail</Button>
             </SheetFooter>
           </div>
