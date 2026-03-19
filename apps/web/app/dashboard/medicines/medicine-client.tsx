@@ -450,164 +450,303 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
         </Pagination>
       )}
 
-      {/* SHEET: CREATE/EDIT FORM */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full sm:max-w-2xl p-0">
-          <form action={handleSubmit} className="flex flex-col h-full">
-            <SheetHeader className="p-6 border-b">
-              <SheetTitle>{mode === "create" ? "Tambah Obat Baru" : "Edit Data Obat"}</SheetTitle>
-              <SheetDescription>
-                Pastikan informasi medis dan logistik obat akurat untuk sistem inventori.
-              </SheetDescription>
+        <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-2xl">
+          <form action={handleSubmit} className="flex h-full flex-col">
+            <SheetHeader className="shrink-0 border-b p-6">
+              <SheetTitle className="text-xl font-bold">
+                {mode === "create" ? "Tambah Obat Baru" : "Edit Data Obat"}
+              </SheetTitle>
             </SheetHeader>
-            
-            <ScrollArea className="flex-1 p-6">
-              <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="basic">Info Dasar</TabsTrigger>
-                  <TabsTrigger value="medical">Info Medis</TabsTrigger>
-                  <TabsTrigger value="logistics">Harga & Stok</TabsTrigger>
+
+            <Tabs defaultValue="basic" className="flex flex-1 flex-col overflow-hidden">
+              <div className="shrink-0 border-b bg-muted/20 px-6 py-2">
+                <TabsList className="h-9 w-full justify-start gap-4 bg-transparent p-0">
+                  <TabsTrigger
+                    value="basic"
+                    className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                  >
+                    Info Dasar
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="medical"
+                    className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                  >
+                    Info Medis
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="logistics"
+                    className="relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                  >
+                    Harga & Stok
+                  </TabsTrigger>
                 </TabsList>
-                
-                <TabsContent value="basic" className="space-y-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Nama Obat <span className="text-destructive">*</span></Label>
-                    <Input id="name" name="name" defaultValue={selectedMedicine?.name} placeholder="Contoh: Paracetamol 500mg" required />
+              </div>
+
+              <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="space-y-6 p-6 pb-12">
+                    <TabsContent value="basic" className="m-0 space-y-4 outline-none">
+                      <div className="grid gap-2">
+                        <Label htmlFor="name">
+                          Nama Obat <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="name"
+                          name="name"
+                          defaultValue={selectedMedicine?.name}
+                          placeholder="Contoh: Paracetamol 500mg"
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="genericName">Nama Generik</Label>
+                        <Input
+                          id="genericName"
+                          name="genericName"
+                          defaultValue={selectedMedicine?.genericName || ""}
+                          placeholder="Contoh: Paracetamol"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="categoryId">
+                            Kategori <span className="text-destructive">*</span>
+                          </Label>
+                          <Select name="categoryId" defaultValue={selectedMedicine?.categoryId} required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Kategori" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="groupId">
+                            Golongan Obat <span className="text-destructive">*</span>
+                          </Label>
+                          <Select name="groupId" defaultValue={selectedMedicine?.groupId || ""} required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Golongan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {medicineGroups.map((g) => (
+                                <SelectItem key={g.id} value={g.id}>
+                                  {g.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="code">Kode Obat (Internal)</Label>
+                          <Input
+                            id="code"
+                            name="code"
+                            defaultValue={selectedMedicine?.code || ""}
+                            placeholder="MED-XXXXX (Otomatis)"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="sku">SKU / Barcode</Label>
+                          <Input
+                            id="sku"
+                            name="sku"
+                            defaultValue={selectedMedicine?.sku || ""}
+                            placeholder="Tempel barcode di sini"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="description">Deskripsi Singkat</Label>
+                        <Textarea
+                          id="description"
+                          name="description"
+                          defaultValue={selectedMedicine?.description || ""}
+                          placeholder="Keterangan tambahan..."
+                          className="h-20"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 pt-2">
+                        <input
+                          type="checkbox"
+                          id="isActive"
+                          name="isActive"
+                          defaultChecked={selectedMedicine?.isActive ?? true}
+                          value="true"
+                          className="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                        <Label htmlFor="isActive" className="cursor-pointer">
+                          Status Aktif (Tampilkan di POS & Laporan)
+                        </Label>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="medical" className="m-0 space-y-4 outline-none">
+                      <div className="grid gap-2">
+                        <Label htmlFor="composition">Komposisi</Label>
+                        <Textarea
+                          id="composition"
+                          name="composition"
+                          defaultValue={selectedMedicine?.composition || ""}
+                          placeholder="Kandungan bahan aktif..."
+                          className="h-24"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="indication">Indikasi</Label>
+                        <Textarea
+                          id="indication"
+                          name="indication"
+                          defaultValue={selectedMedicine?.indication || ""}
+                          placeholder="Kegunaan obat..."
+                          className="h-20"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="contraindication">Kontraindikasi</Label>
+                        <Textarea
+                          id="contraindication"
+                          name="contraindication"
+                          defaultValue={selectedMedicine?.contraindication || ""}
+                          placeholder="Kondisi yang dilarang..."
+                          className="h-20"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="sideEffects">Efek Samping</Label>
+                        <Textarea
+                          id="sideEffects"
+                          name="sideEffects"
+                          defaultValue={selectedMedicine?.sideEffects || ""}
+                          placeholder="Efek samping yang mungkin muncul..."
+                          className="h-20"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="manufacturer">Produsen (Pabrik)</Label>
+                          <Input
+                            id="manufacturer"
+                            name="manufacturer"
+                            defaultValue={selectedMedicine?.manufacturer || ""}
+                            placeholder="Contoh: Kimia Farma"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="distributor">Distributor Utama</Label>
+                          <Input
+                            id="distributor"
+                            name="distributor"
+                            defaultValue={selectedMedicine?.distributor || ""}
+                            placeholder="Contoh: PBF X"
+                          />
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="logistics" className="m-0 space-y-4 outline-none">
+                      <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/30 p-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="baseUnitId">
+                            Satuan Terkecil <span className="text-destructive">*</span>
+                          </Label>
+                          <Select
+                            name="baseUnitId"
+                            defaultValue={selectedMedicine?.baseUnitId || undefined}
+                            required
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih Satuan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {units.map((u) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                  {u.name} ({u.abbreviation})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="stock">Stok Awal Saat Ini</Label>
+                          <Input
+                            id="stock"
+                            name="stock"
+                            type="number"
+                            defaultValue={selectedMedicine?.stock || "0"}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="purchasePrice">
+                            Harga Beli Dasar (Rp) <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            id="purchasePrice"
+                            name="purchasePrice"
+                            type="number"
+                            defaultValue={selectedMedicine?.purchasePrice || "0"}
+                            required
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="price">
+                            Harga Jual (Rp) <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            id="price"
+                            name="price"
+                            type="number"
+                            defaultValue={selectedMedicine?.price || "0"}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="minStock">Batas Stok Minimum</Label>
+                          <Input
+                            id="minStock"
+                            name="minStock"
+                            type="number"
+                            defaultValue={selectedMedicine?.minStock || "10"}
+                            required
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="maxStock">Kapasitas Maksimum</Label>
+                          <Input
+                            id="maxStock"
+                            name="maxStock"
+                            type="number"
+                            defaultValue={selectedMedicine?.maxStock || "1000"}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </TabsContent>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="genericName">Nama Generik</Label>
-                    <Input id="genericName" name="genericName" defaultValue={selectedMedicine?.genericName || ""} placeholder="Contoh: Paracetamol" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="categoryId">Kategori <span className="text-destructive">*</span></Label>
-                      <Select name="categoryId" defaultValue={selectedMedicine?.categoryId} required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih Kategori" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="groupId">Golongan Obat <span className="text-destructive">*</span></Label>
-                      <Select name="groupId" defaultValue={selectedMedicine?.groupId || ""} required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih Golongan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {medicineGroups.map((g) => (
-                            <SelectItem key={g.id} value={g.id}>
-                              {g.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="code">Kode Obat (Internal)</Label>
-                      <Input id="code" name="code" defaultValue={selectedMedicine?.code || ""} placeholder="MED-XXXXX (Otomatis)" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="sku">SKU / Barcode</Label>
-                      <Input id="sku" name="sku" defaultValue={selectedMedicine?.sku || ""} placeholder="Tempel barcode di sini" />
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="description">Deskripsi Singkat</Label>
-                    <Textarea id="description" name="description" defaultValue={selectedMedicine?.description || ""} placeholder="Keterangan tambahan..." className="h-20" />
-                  </div>
-                  <div className="flex items-center gap-2 pt-2">
-                    <input type="checkbox" id="isActive" name="isActive" defaultChecked={selectedMedicine?.isActive ?? true} value="true" className="size-4 rounded border-gray-300 text-primary focus:ring-primary" />
-                    <Label htmlFor="isActive" className="cursor-pointer">Status Aktif (Tampilkan di POS & Laporan)</Label>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="medical" className="space-y-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="composition">Komposisi</Label>
-                    <Textarea id="composition" name="composition" defaultValue={selectedMedicine?.composition || ""} placeholder="Kandungan bahan aktif..." className="h-24" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="indication">Indikasi</Label>
-                    <Textarea id="indication" name="indication" defaultValue={selectedMedicine?.indication || ""} placeholder="Kegunaan obat..." className="h-20" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="contraindication">Kontraindikasi</Label>
-                    <Textarea id="contraindication" name="contraindication" defaultValue={selectedMedicine?.contraindication || ""} placeholder="Kondisi yang dilarang..." className="h-20" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="sideEffects">Efek Samping</Label>
-                    <Textarea id="sideEffects" name="sideEffects" defaultValue={selectedMedicine?.sideEffects || ""} placeholder="Efek samping yang mungkin muncul..." className="h-20" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="manufacturer">Produsen (Pabrik)</Label>
-                      <Input id="manufacturer" name="manufacturer" defaultValue={selectedMedicine?.manufacturer || ""} placeholder="Contoh: Kimia Farma" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="distributor">Distributor Utama</Label>
-                      <Input id="distributor" name="distributor" defaultValue={selectedMedicine?.distributor || ""} placeholder="Contoh: PBF X" />
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="logistics" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 border p-4 rounded-lg bg-muted/30">
-                    <div className="grid gap-2">
-                      <Label htmlFor="baseUnitId">Satuan Terkecil <span className="text-destructive">*</span></Label>
-                      <Select name="baseUnitId" defaultValue={selectedMedicine?.baseUnitId || undefined} required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih Satuan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((u) => (
-                            <SelectItem key={u.id} value={u.id}>
-                              {u.name} ({u.abbreviation})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="stock">Stok Awal Saat Ini</Label>
-                      <Input id="stock" name="stock" type="number" defaultValue={selectedMedicine?.stock || "0"} required />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="purchasePrice">Harga Beli Dasar (Rp) <span className="text-destructive">*</span></Label>
-                      <Input id="purchasePrice" name="purchasePrice" type="number" defaultValue={selectedMedicine?.purchasePrice || "0"} required />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="price">Harga Jual (Rp) <span className="text-destructive">*</span></Label>
-                      <Input id="price" name="price" type="number" defaultValue={selectedMedicine?.price || "0"} required />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="minStock">Batas Stok Minimum</Label>
-                      <Input id="minStock" name="minStock" type="number" defaultValue={selectedMedicine?.minStock || "10"} required />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="maxStock">Kapasitas Maksimum</Label>
-                      <Input id="maxStock" name="maxStock" type="number" defaultValue={selectedMedicine?.maxStock || "1000"} required />
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </ScrollArea>
-            
-            <SheetFooter className="p-6 border-t flex flex-row items-center justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setIsSheetOpen(false)}>Batal</Button>
-              <SubmitButton label={mode === "create" ? "Tambah Data Obat" : "Simpan Perubahan"} />
+                </ScrollArea>
+              </div>
+            </Tabs>
+
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4">
+              <Button type="button" variant="outline" onClick={() => setIsSheetOpen(false)}>
+                Batal
+              </Button>
+              <SubmitButton
+                label={mode === "create" ? "Tambah Data Obat" : "Simpan Perubahan"}
+              />
             </SheetFooter>
           </form>
         </SheetContent>
@@ -615,9 +754,9 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
 
       {/* DETAIL SHEET: READ-ONLY */}
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <SheetContent className="w-full sm:max-w-2xl p-0">
-          <div className="flex flex-col h-full">
-            <SheetHeader className="p-6 border-b bg-muted/20">
+        <SheetContent className="w-full sm:max-w-2xl p-0 flex flex-col gap-0">
+          <div className="flex flex-col flex-1 h-full overflow-hidden">
+            <SheetHeader className="p-6 border-b bg-muted/20 shrink-0">
               <div className="flex items-center gap-3 mb-2">
                 <Badge className="font-mono text-[10px]">{selectedMedicine?.code}</Badge>
                 <Badge variant={selectedMedicine?.isActive ? "success" : "secondary"} className="h-5 text-[10px]">
@@ -628,8 +767,8 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
               <p className="text-sm italic text-muted-foreground">{selectedMedicine?.genericName || "Nama generik tidak tersedia"}</p>
             </SheetHeader>
             
-            <ScrollArea className="flex-1 p-6">
-              <div className="space-y-8">
+            <ScrollArea className="flex-1">
+              <div className="p-6 space-y-8">
                 {/* Section 1: Ringkasan Harga & Stok */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl border bg-emerald-50/30">
@@ -711,7 +850,7 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
               </div>
             </ScrollArea>
             
-            <SheetFooter className="p-6 border-t">
+            <SheetFooter className="p-6 border-t shrink-0 mt-0">
               <Button className="w-full" onClick={() => setIsDetailOpen(false)}>Tutup Detail</Button>
             </SheetFooter>
           </div>
