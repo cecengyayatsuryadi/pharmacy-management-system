@@ -194,7 +194,7 @@ export async function upsertSupplierMedicineAction(_prevState: unknown, formData
     revalidatePath("/dashboard/procurement")
     revalidatePath("/dashboard/procurement/purchases")
     revalidatePath("/dashboard/suppliers")
-    revalidatePath("/dashboard/medicines")
+    revalidatePath("/dashboard/inventory/master/medicines")
 
     return {
       success: true,
@@ -227,7 +227,7 @@ export async function deleteSupplierMedicineAction(id: string) {
     revalidatePath("/dashboard/procurement")
     revalidatePath("/dashboard/procurement/purchases")
     revalidatePath("/dashboard/suppliers")
-    revalidatePath("/dashboard/medicines")
+    revalidatePath("/dashboard/inventory/master/medicines")
 
     return { success: true, message: "Relasi supplier-obat berhasil dihapus" }
   } catch (error: unknown) {

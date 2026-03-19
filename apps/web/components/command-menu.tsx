@@ -90,7 +90,7 @@ export function CommandMenu() {
                   <ShoppingCartIcon className="mr-2 h-4 w-4" />
                   <span>Kasir (POS)</span>
                 </CommandItem>
-                <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/medicines"))}>
+                <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/inventory/master/medicines"))}>
                   <PackageIcon className="mr-2 h-4 w-4" />
                   <span>Data Obat</span>
                 </CommandItem>

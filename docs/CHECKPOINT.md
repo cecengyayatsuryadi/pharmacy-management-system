@@ -1,27 +1,29 @@
 # CHECKPOINT - Apotek Management System
 
 ## Snapshot
-- **Tanggal:** 18 Maret 2026
-- **Status:** Workspace Reset - Recovery Mode (Post Infrastructure Blockers)
-- **Kondisi Workspace:** Bersih (Branch: `master`). Branch fitur `feat/unit-conversion-module` dan `feat/barcode-manager` telah dihapus untuk reset strategi.
+- **Tanggal:** 19 Maret 2026
+- **Status:** Medicines Module UI Refinement - Completed (Local)
+- **Kondisi Workspace:** Bersih (Branch: `master`). Seluruh fitur UI Medicines telah digabungkan via Merge Commit.
 
 ## Milestone Terbaru (Done)
-1. **Navigasi Pro (Dual-Sidebar):** Rail + Panel (Offcanvas) & TopNav migration.
-2. **Advanced Medicine Master Data:** Pharmaceutical fields, auto-code, status tracking.
-3. **Master Kategori & Golongan:** CRUD, dynamic badges, deletion protection.
-4. **Advanced Inventory (3 Pilar):** Ledger (absolute balance), Segmentation (Reserved/Quarantine), Conversion Foundation.
-5. **Build Stability:** Standardized schema, resolved `db.query` relations in master branch.
+1. **Medicines UI Transformation (Sidebar Dialog):**
+   - Mengubah Form Pendaftaran & Detail Obat menjadi **Sidebar Dialog (Sheet)** yang modern.
+   - Implementasi **Layout 3-Pilar UI:** Header (Fixed), Navigation (Tabs), dan Content (ScrollArea).
+   - Optimasi area konten agar *scrollable* dengan footer tetap (*fixed*) di bawah.
+2. **768p Resolution Optimization (1366x768):**
+   - Penyelarasan padding (`px-6 py-4`) di seluruh dialog untuk efisiensi ruang vertikal.
+   - Peningkatan kepadatan layout (`mb-6`, `gap-0`) agar form dapat dioperasikan tanpa *zoom out*.
+   - Perbaikan Dropdown Menu (Popover) agar teks opsi data tidak terpotong (*no-wrap*).
+3. **Professional Local Git Workflow:**
+   - Adopsi penuh alur *Feature Branch -> Atomic Commits -> Merge --no-ff* secara lokal.
+   - Pembersihan riwayat Git dan dokumentasi histori pengembangan fitur yang rapi.
 
 ## ⚠️ PELAJARAN KRITIS (Internal Blockers)
 *Jangan ulangi kesalahan ini di sesi berikutnya:*
 
-1. **Test File Isolation:** Playwright (E2E) dan Vitest (Unit) harus dipisahkan secara ketat. Jangan letakkan file `.test.ts/tsx` di folder yang dipindai Playwright (`apps/web/tests`) karena akan memicu error resolusi modul server-side (`next/server`).
-   - *Solusi:* Gunakan `testMatch` di `playwright.config.ts` untuk hanya memproses `**/*.spec.ts`.
-2. **ESM Module Resolution:** `next-auth` v5 sering gagal me-resolve `next/server` di lingkungan pengujian Node.js murni (Vitest/Playwright collection phase).
-   - *Penyebab:* Node.js ESM tidak mendukung directory import tanpa ekstensi secara default.
-3. **Database & Mocking:** Proyek ini menggunakan **Postgres Docker Lokal**. Mocking layer Drizzle di Vitest seringkali terlalu dangkal dan menyebabkan kegagalan saat integrasi.
-   - *Strategi:* Utamakan ketersediaan data via `npm run db:seed` daripada mock object yang tidak lengkap.
-4. **Next.js Dev Lock:** Jika server gagal start dengan error "Unable to acquire lock", hapus manual file `apps/web/.next/dev/lock`.
+1. **Syntax Consistency (JSX):** Hindari duplikasi tag penutup (seperti `</Tabs>`) saat melakukan refactoring struktur kontainer yang kompleks. Selalu verifikasi struktur pohon komponen setelah modifikasi.
+2. **Component Wrapping:** Pastikan komponen `SubmitButton` (atau komponen sejenis) tidak memiliki pembatasan lebar (`w-auto`) di level global jika ingin digunakan dalam kontainer fleksibel (`flex-1`) di footer.
+3. **UI Real Estate (768p):** Pada resolusi tinggi 768px, setiap padding vertikal (seperti `p-6`) sangat berpengaruh. Utamakan penggunaan padding asimetris (misal: `px-6 py-4`) untuk menjaga keseimbangan visual dan fungsionalitas.
 
 ## Belum Selesai (Next Focus)
 - **Modul Satuan & Konversi:** Perlu implementasi ulang (UI & Logic) dengan strategi tes yang lebih terisolasi.
@@ -29,11 +31,11 @@
 - **Procurement Module:** Alur formal PO -> Invoice -> Stock In.
 
 ## Catatan Senior Dev
-- **Warning:** Database wajib di-seed (`npm run db:seed --workspace=@workspace/database`) sebelum menjalankan tes apa pun yang membutuhkan login.
-- **UI Rule:** Tabel wajib menggunakan `tabular-nums` untuk kolom angka (Harga/Stok).
-- **Pro-Git:** Jangan biarkan file untracked menumpuk di folder `tests/`.
+- **Tabular Nums:** Tabel Medicines sudah menggunakan `tabular-nums`. Pertahankan standar ini untuk seluruh modul finansial/stok.
+- **Sidebar Dialog Pattern:** Gunakan pola layout `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter` untuk seluruh form entitas master di masa depan demi konsistensi UX.
+- **Git Discipline:** Tetap gunakan branch fitur untuk tugas sekecil apa pun guna menjaga integritas branch `master`.
 
 ## Next Session Target
-1. Inisiasi ulang branch `feat/unit-conversion-module` dengan struktur folder tes yang benar.
-2. Pastikan `npm run dev` berjalan lancar tanpa konflik lock file.
-3. Tambahkan unit test untuk setiap Server Action baru secara paralel dengan pengembangan UI.
+1. Evaluasi kesiapan Modul Satuan & Konversi berdasarkan fondasi UI yang baru.
+2. Inisiasi branch fitur untuk modul Procurement atau Barcode Manager.
+3. Pastikan `npm run build` berhasil secara keseluruhan setelah transformasi UI massal.

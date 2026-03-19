@@ -162,7 +162,7 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
         : null,
     })
 
-    revalidatePath("/dashboard/medicines")
+    revalidatePath("/dashboard/inventory/master/medicines")
     return { message: "Data obat berhasil ditambahkan!", success: true }
   } catch (error: unknown) {
     console.error("CREATE_MEDICINE_ERROR:", error)
@@ -220,7 +220,7 @@ export async function updateMedicineAction(
       return { message: "Data tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/medicines")
+    revalidatePath("/dashboard/inventory/master/medicines")
     return { message: "Data obat berhasil diperbarui!", success: true }
   } catch (error: unknown) {
     console.error("UPDATE_MEDICINE_ERROR:", error)
@@ -253,7 +253,7 @@ export async function deleteMedicineAction(id: string) {
       return { message: "Data tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/medicines")
+    revalidatePath("/dashboard/inventory/master/medicines")
     return { message: "Data obat berhasil dihapus!", success: true }
   } catch (error: unknown) {
     console.error("DELETE_MEDICINE_ERROR:", error)

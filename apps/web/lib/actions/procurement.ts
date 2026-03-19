@@ -287,7 +287,7 @@ export async function createPurchaseAction(_prevState: unknown, formData: FormDa
         })
     })
 
-    revalidatePath("/dashboard/medicines")
+    revalidatePath("/dashboard/inventory/master/medicines")
     revalidatePath("/dashboard/inventory")
     revalidatePath("/dashboard/inventory/stock")
     revalidatePath("/dashboard/procurement")
