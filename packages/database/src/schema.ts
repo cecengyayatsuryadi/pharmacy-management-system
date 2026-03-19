@@ -66,6 +66,7 @@ export const categories = pgTable("categories", {
     .notNull()
     .references(() => organizations.id),
   name: varchar("name", { length: 255 }).notNull(),
+  color: varchar("color", { length: 50 }).notNull().default("#3b82f6"),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")

@@ -6,12 +6,12 @@
 - **Kondisi Workspace:** Bersih (Branch: `master`). Seluruh fitur UI, rute, dan perbaikan root telah digabungkan.
 
 ## Milestone Terbaru (Done)
-1. **Inventory Master Refactoring (Units & Conversions):**
-   - Implementasi ulang UI menggunakan pola **Sidebar Dialog** (`Sheet`) yang konsisten dengan standar modul Medicines.
-   - Penambahan fitur CRUD lengkap (Create, Read, Update, Delete) untuk Master Satuan dan Konversi Satuan.
-   - Implementasi **Visual Logic Preview** pada form konversi (1 Box x 10 Strip) menggunakan tema `emerald` untuk kejelasan operasional.
-   - Integrasi **Combobox Async** untuk pencarian produk pada form konversi guna mendukung ribuan data obat.
-   - Cakupan unit test 100% untuk seluruh Server Actions baru (Update/Delete).
+1. **Master Data Core Refactoring (Tuntas):**
+   - Transformasi penuh modul **Medicines, Units, Conversions, Categories, dan Medicine Groups** ke standar Gold Standard.
+   - Implementasi pola UI **Sidebar Dialog (Sheet)** dengan sistem `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter`.
+   - Adopsi **Server-side Pagination & Search** yang terintegrasi dengan URL (`searchParams`) untuk efisiensi data besar.
+   - Peningkatan visual hirarki: Badge netral untuk metadata, indikator warna untuk golongan, dan *debounced search* untuk performa.
+   - Validasi build sistem 100% lulus tanpa *type-error*.
 2. **Route Restructuring:**
    - Memindahkan modul Medicines ke rute hierarkis: `/dashboard/inventory/master/medicines`.
    - Sinkronisasi `revalidatePath` di seluruh Server Actions dan pembaruan navigasi Sidebar/Command Menu.
@@ -32,8 +32,8 @@
 3. **Context Management:** Saat *context window* mulai penuh, segera lakukan "State Compression" via Checkpoint dan mulai sesi baru untuk menjaga akurasi logika.
 
 ## Belum Selesai (Next Focus)
-- **Procurement Module:** Alur formal PO -> Invoice -> Stock In.
-- **Barcode Manager:** Pemulihan fungsionalitas dari histori commit.
+1. **Barcode Manager (Priority):** Pemulihan fungsionalitas manajemen & pencetakan barcode dari histori commit (`6268c8d`).
+2. **Procurement Module:** Alur formal PO -> Invoice -> Stock In.
 
 ## Catatan Senior Dev
 - **Design Pattern:** Pola `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter` resmi menjadi standar emas untuk form entitas di proyek ini.

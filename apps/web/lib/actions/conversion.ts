@@ -27,28 +27,82 @@ export async function getConversionsAction(page: number = 1, limit: number = 10,
   // Define filters
   const baseCondition = eq(unitConversions.organizationId, organizationId)
   
-  // We need to join with medicine to search by name
-  // But for now, let's keep it simple or use a more advanced query if needed
-  // For a senior implementation, we should allow searching by medicine name
-  
-  const data = await db.query.unitConversions.findMany({
-    where: baseCondition,
-    with: {
-      medicine: true,
-      fromUnit: true,
-      toUnit: true,
-    },
-    limit,
-    offset,
-    // Order by medicineId since createdAt doesn't exist on this table
-    orderBy: (unitConversions, { asc }) => [asc(unitConversions.medicineId)],
-  })
+  if (search) {
+    // If search is provided, we need to filter by medicine name using a join.
+    // We get the IDs first to maintain compatibility with findMany 'with' syntax.
+    const searchData = await db
+      .select({ id: unitConversions.id })
+      .from(unitConversions)
+      .innerJoin(medicines, eq(unitConversions.medicineId, medicines.id))
+      .where(
+        and(
+          baseCondition,
+          ilike(medicines.name, `%${search}%`)
+        )
+      )
+      .limit(limit)
+      .offset(offset)
 
-  // Filter by search in memory for now if searching by medicine name is complex in findMany
-  // OR better: use a proper query. Let's stick to the findMany with metadata for now.
-  
-  const totalCount = await db.select({ count: count() }).from(unitConversions).where(baseCondition)
-  const total = totalCount[0]?.count ?? 0
+    const ids = searchData.map(d => d.id)
+    
+    if (ids.length === 0) {
+      return {
+        data: [],
+        metadata: {
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        }
+      }
+    }
+
+    // Fetch full relations for the found IDs
+    const fullData = await db.query.unitConversions.findMany({
+      where: or(...ids.map(id => eq(unitConversions.id, id))),
+      with: {
+        medicine: true,
+        fromUnit: true,
+        toUnit: true,
+      },
+    })
+
+    const totalCountResult = await db
+      .select({ count: count() })
+      .from(unitConversions)
+      .innerJoin(medicines, eq(unitConversions.medicineId, medicines.id))
+      .where(and(baseCondition, ilike(medicines.name, `%${search}%`)))
+
+    const total = totalCountResult[0]?.count ?? 0
+
+    return {
+      data: fullData,
+      metadata: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    }
+  }
+
+  // Default case: No search
+  const [data, totalCountResult] = await Promise.all([
+    db.query.unitConversions.findMany({
+      where: baseCondition,
+      with: {
+        medicine: true,
+        fromUnit: true,
+        toUnit: true,
+      },
+      limit,
+      offset,
+      orderBy: (unitConversions, { asc }) => [asc(unitConversions.medicineId)],
+    }),
+    db.select({ count: count() }).from(unitConversions).where(baseCondition)
+  ])
+
+  const total = totalCountResult[0]?.count ?? 0
 
   return {
     data,

@@ -76,7 +76,7 @@ export async function getMedicines(page = 1, limit = 10, search = "", categoryId
     const data = await db.query.medicines.findMany({
       where: whereClause,
       with: {
-        category: true,
+        category: true, // Color is now part of this relation
         group: true,
         baseUnit: true,
       },
