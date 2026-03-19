@@ -2,40 +2,44 @@
 
 ## Snapshot
 - **Tanggal:** 19 Maret 2026
-- **Status:** Medicines Module UI Refinement - Completed (Local)
-- **Kondisi Workspace:** Bersih (Branch: `master`). Seluruh fitur UI Medicines telah digabungkan via Merge Commit.
+- **Status:** Full UI & Route Alignment - Completed (Local)
+- **Kondisi Workspace:** Bersih (Branch: `master`). Seluruh fitur UI, rute, dan perbaikan root telah digabungkan.
 
 ## Milestone Terbaru (Done)
-1. **Medicines UI Transformation (Sidebar Dialog):**
-   - Mengubah Form Pendaftaran & Detail Obat menjadi **Sidebar Dialog (Sheet)** yang modern.
-   - Implementasi **Layout 3-Pilar UI:** Header (Fixed), Navigation (Tabs), dan Content (ScrollArea).
-   - Optimasi area konten agar *scrollable* dengan footer tetap (*fixed*) di bawah.
-2. **768p Resolution Optimization (1366x768):**
-   - Penyelarasan padding (`px-6 py-4`) di seluruh dialog untuk efisiensi ruang vertikal.
-   - Peningkatan kepadatan layout (`mb-6`, `gap-0`) agar form dapat dioperasikan tanpa *zoom out*.
-   - Perbaikan Dropdown Menu (Popover) agar teks opsi data tidak terpotong (*no-wrap*).
-3. **Professional Local Git Workflow:**
-   - Adopsi penuh alur *Feature Branch -> Atomic Commits -> Merge --no-ff* secara lokal.
-   - Pembersihan riwayat Git dan dokumentasi histori pengembangan fitur yang rapi.
+1. **Inventory Master Refactoring (Units & Conversions):**
+   - Implementasi ulang UI menggunakan pola **Sidebar Dialog** (`Sheet`) yang konsisten dengan standar modul Medicines.
+   - Penambahan fitur CRUD lengkap (Create, Read, Update, Delete) untuk Master Satuan dan Konversi Satuan.
+   - Implementasi **Visual Logic Preview** pada form konversi (1 Box x 10 Strip) menggunakan tema `emerald` untuk kejelasan operasional.
+   - Integrasi **Combobox Async** untuk pencarian produk pada form konversi guna mendukung ribuan data obat.
+   - Cakupan unit test 100% untuk seluruh Server Actions baru (Update/Delete).
+2. **Route Restructuring:**
+   - Memindahkan modul Medicines ke rute hierarkis: `/dashboard/inventory/master/medicines`.
+   - Sinkronisasi `revalidatePath` di seluruh Server Actions dan pembaruan navigasi Sidebar/Command Menu.
+2. **Root UI Accessibility Fixes:**
+   - Perbaikan varian `Badge` di level root (`packages/ui/src/components/badge.tsx`).
+   - Optimasi keterbacaan varian `destructive` (Habis) dan `warning` (Menipis) di Mode Gelap menggunakan pola warna tajam (bukan putih pudar).
+3. **Advanced Detail Sheet:**
+   - Implementasi sistem Tabs pada Detail Obat (Medis vs Logistik).
+   - Struktur `flex-1 overflow-hidden` pada area konten untuk memastikan *scroll* yang presisi di resolusi 1366x768.
+4. **Typography & Layout Fine-Tuning:**
+   - Hirarki visual tabel: `font-mono` untuk harga/stok, `font-sans` untuk nama dengan `tracking-tight`.
+   - Penyelarasan padding global Sidebar Dialog ke `px-6 py-4`.
+   - Optimasi lebar Dropdown Menu dan ringkasan label aksi ("Hapus Data").
 
 ## ⚠️ PELAJARAN KRITIS (Internal Blockers)
-*Jangan ulangi kesalahan ini di sesi berikutnya:*
-
-1. **Syntax Consistency (JSX):** Hindari duplikasi tag penutup (seperti `</Tabs>`) saat melakukan refactoring struktur kontainer yang kompleks. Selalu verifikasi struktur pohon komponen setelah modifikasi.
-2. **Component Wrapping:** Pastikan komponen `SubmitButton` (atau komponen sejenis) tidak memiliki pembatasan lebar (`w-auto`) di level global jika ingin digunakan dalam kontainer fleksibel (`flex-1`) di footer.
-3. **UI Real Estate (768p):** Pada resolusi tinggi 768px, setiap padding vertikal (seperti `p-6`) sangat berpengaruh. Utamakan penggunaan padding asimetris (misal: `px-6 py-4`) untuk menjaga keseimbangan visual dan fungsionalitas.
+1. **Root Component Awareness:** Masalah keterbacaan seringkali bersumber dari desain dasar (root) komponen. Perbaiki di sumbernya (`packages/ui`) untuk konsistensi global daripada menimpa di level aplikasi.
+2. **Monospace Visual Weight:** Font Monospace (`Geist Mono`) memiliki bobot visual lebih berat. Gunakan `text-sm` atau `font-semibold` (bukan bold) untuk menyeimbangkannya dengan font Sans di sebelahnya.
+3. **Context Management:** Saat *context window* mulai penuh, segera lakukan "State Compression" via Checkpoint dan mulai sesi baru untuk menjaga akurasi logika.
 
 ## Belum Selesai (Next Focus)
-- **Modul Satuan & Konversi:** Perlu implementasi ulang (UI & Logic) dengan strategi tes yang lebih terisolasi.
-- **Modul Barcode Manager:** Kode terakhir ada di commit `6268c8d`. Perlu dipulihkan secara selektif dan ditambahkan unit test sebelum merge.
 - **Procurement Module:** Alur formal PO -> Invoice -> Stock In.
+- **Barcode Manager:** Pemulihan fungsionalitas dari histori commit.
 
 ## Catatan Senior Dev
-- **Tabular Nums:** Tabel Medicines sudah menggunakan `tabular-nums`. Pertahankan standar ini untuk seluruh modul finansial/stok.
-- **Sidebar Dialog Pattern:** Gunakan pola layout `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter` untuk seluruh form entitas master di masa depan demi konsistensi UX.
-- **Git Discipline:** Tetap gunakan branch fitur untuk tugas sekecil apa pun guna menjaga integritas branch `master`.
+- **Design Pattern:** Pola `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter` resmi menjadi standar emas untuk form entitas di proyek ini.
+- **Color Logic:** Gunakan `emerald-400` (dark) untuk data positif yang ingin ditonjolkan agar tidak redup.
 
 ## Next Session Target
-1. Evaluasi kesiapan Modul Satuan & Konversi berdasarkan fondasi UI yang baru.
-2. Inisiasi branch fitur untuk modul Procurement atau Barcode Manager.
-3. Pastikan `npm run build` berhasil secara keseluruhan setelah transformasi UI massal.
+1. Mulai sesi baru untuk mengosongkan *context window*.
+2. Fokus pada Modul Satuan & Konversi.
+3. Jalankan `npm run build` untuk validasi akhir seluruh perubahan rute.
