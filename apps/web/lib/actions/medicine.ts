@@ -1,94 +1,123 @@
 "use server"
 
-import { auth } from "@/auth"
 import { getOrganizationPlan } from "@/lib/organization-plan"
 import { db, medicines } from "@workspace/database"
 import { eq, and, count, ilike, or, type SQL } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { getErrorMessage } from "@/lib/utils/error"
+import { getAuthenticatedSession, handleActionError, type ActionResponse } from "@/lib/utils/action-utils"
 
+/**
+ * Validasi schema dengan modern Zod patterns.
+ * Menggunakan coerce untuk menangani input dari FormData.
+ */
 const medicineSchema = z.object({
-  name: z.string().min(2, { message: "Nama obat minimal 2 karakter" }),
-  genericName: z.string().optional().nullable(),
-  categoryId: z.string().uuid({ message: "Kategori tidak valid" }),
-  groupId: z.string().uuid({ message: "Golongan tidak valid" }).optional().nullable(),
-  baseUnitId: z.string().uuid({ message: "Satuan tidak valid" }),
-  classification: z.string().optional().nullable().default("Bebas"),
-  code: z.string().optional(),
-  sku: z.string().optional().nullable(),
-  purchasePrice: z.string().min(1, { message: "Harga beli harus diisi" }),
-  price: z.string().min(1, { message: "Harga jual harus diisi" }),
-  stock: z.string().min(1, { message: "Stok harus diisi" }),
-  minStock: z.string().min(1, { message: "Stok minimum harus diisi" }),
-  maxStock: z.string().min(1, { message: "Stok maksimum harus diisi" }),
-  description: z.string().optional().nullable(),
-  isActive: z.string().optional().default("true"),
-  composition: z.string().optional().nullable(),
-  indication: z.string().optional().nullable(),
-  contraindication: z.string().optional().nullable(),
-  sideEffects: z.string().optional().nullable(),
-  manufacturer: z.string().optional().nullable(),
-  distributor: z.string().optional().nullable(),
-  image: z.string().optional().nullable(),
-  unit: z.string().optional().nullable(), // Legacy
-  expiryDate: z.string().optional().nullable(),
+  name: z.string().min(2, "Nama obat minimal 2 karakter"),
+  genericName: z.string().nullish(),
+  categoryId: z.string().uuid("Kategori tidak valid"),
+  groupId: z.string().uuid("Golongan tidak valid").nullish(),
+  baseUnitId: z.string().uuid("Satuan tidak valid"),
+  classification: z.string().default("Bebas").nullish(),
+  code: z.string().nullish(),
+  sku: z.string().nullish(),
+  purchasePrice: z.coerce.string().min(1, "Harga beli harus diisi"),
+  price: z.coerce.string().min(1, "Harga jual harus diisi"),
+  stock: z.coerce.string().min(1, "Stok harus diisi"),
+  minStock: z.coerce.string().min(1, "Stok minimum harus diisi"),
+  maxStock: z.coerce.string().min(1, "Stok maksimum harus diisi"),
+  description: z.string().nullish(),
+  isActive: z.preprocess((val) => val === "true", z.boolean()).default(true),
+  composition: z.string().nullish(),
+  indication: z.string().nullish(),
+  contraindication: z.string().nullish(),
+  sideEffects: z.string().nullish(),
+  manufacturer: z.string().nullish(),
+  distributor: z.string().nullish(),
+  image: z.string().nullish(),
+  expiryDate: z.preprocess((val) => (val ? new Date(val as string) : null), z.date().nullish()),
+  unit: z.string().default("pcs").nullish(), // Legacy
 })
 
-export async function getMedicines(page = 1, limit = 10, search = "", categoryId = "", status = "", groupId = "") {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
+type MedicineFormValues = z.infer<typeof medicineSchema>
 
-  if (!organizationId) {
-    throw new Error("Unauthorized")
+/**
+ * Helper untuk transformasi data ke format Database.
+ * Menghindari duplikasi logika antara create dan update.
+ */
+function mapToMedicineRecord(data: MedicineFormValues) {
+  return {
+    ...data,
+    groupId: data.groupId || null,
+    classification: data.classification || "Bebas",
+    sku: data.sku || null,
+    unit: data.unit || "pcs",
+    genericName: data.genericName || null,
+    description: data.description || null,
+    composition: data.composition || null,
+    indication: data.indication || null,
+    contraindication: data.contraindication || null,
+    sideEffects: data.sideEffects || null,
+    manufacturer: data.manufacturer || null,
+    distributor: data.distributor || null,
+    image: data.image || null,
   }
+}
 
-  const offset = (page - 1) * limit
-  
-  const filters: (SQL | undefined)[] = [eq(medicines.organizationId, organizationId)]
-  
-  if (search) {
-    filters.push(or(
-      ilike(medicines.name, `%${search}%`),
-      ilike(medicines.genericName, `%${search}%`),
-      ilike(medicines.sku, `%${search}%`),
-      ilike(medicines.code, `%${search}%`)
-    ))
-  }
-  
-  if (categoryId && categoryId !== "all") {
-    filters.push(eq(medicines.categoryId, categoryId))
-  }
+const REVALIDATE_PATH = "/dashboard/inventory/master/medicines"
 
-  if (groupId && groupId !== "all") {
-    filters.push(eq(medicines.groupId, groupId))
-  }
-
-  if (status === "active") {
-    filters.push(eq(medicines.isActive, true))
-  } else if (status === "inactive") {
-    filters.push(eq(medicines.isActive, false))
-  }
-
-  const whereClause = and(...filters)
-
+export async function getMedicines(
+  page = 1, 
+  limit = 10, 
+  search = "", 
+  categoryId = "", 
+  status = "", 
+  groupId = ""
+) {
   try {
-    const data = await db.query.medicines.findMany({
-      where: whereClause,
-      with: {
-        category: true, // Color is now part of this relation
-        group: true,
-        baseUnit: true,
-      },
-      limit,
-      offset,
-      orderBy: (medicines, { desc }) => [desc(medicines.createdAt)],
-    })
+    const { organizationId } = await getAuthenticatedSession()
+    const offset = (page - 1) * limit
+    
+    const filters: (SQL | undefined)[] = [eq(medicines.organizationId, organizationId)]
+    
+    if (search) {
+      filters.push(or(
+        ilike(medicines.name, `%${search}%`),
+        ilike(medicines.genericName, `%${search}%`),
+        ilike(medicines.sku, `%${search}%`),
+        ilike(medicines.code, `%${search}%`)
+      ))
+    }
+    
+    if (categoryId && categoryId !== "all") {
+      filters.push(eq(medicines.categoryId, categoryId))
+    }
 
-    const countResult = await db
-      .select({ value: count() })
-      .from(medicines)
-      .where(whereClause)
+    if (groupId && groupId !== "all") {
+      filters.push(eq(medicines.groupId, groupId))
+    }
+
+    if (status === "active") {
+      filters.push(eq(medicines.isActive, true))
+    } else if (status === "inactive") {
+      filters.push(eq(medicines.isActive, false))
+    }
+
+    const whereClause = and(...filters)
+
+    const [data, countResult] = await Promise.all([
+      db.query.medicines.findMany({
+        where: whereClause,
+        with: {
+          category: true,
+          group: true,
+          baseUnit: true,
+        },
+        limit,
+        offset,
+        orderBy: (m, { desc }) => [desc(m.createdAt)],
+      }),
+      db.select({ value: count() }).from(medicines).where(whereClause)
+    ])
 
     const total = countResult[0]?.value ?? 0
 
@@ -107,36 +136,31 @@ export async function getMedicines(page = 1, limit = 10, search = "", categoryId
   }
 }
 
-export async function createMedicineAction(prevState: any, formData: FormData) {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-
-  if (!organizationId) {
-    return { message: "Unauthorized" }
-  }
-
-  const validatedFields = medicineSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  )
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: "Gagal menambah obat. Mohon periksa input Anda.",
-    }
-  }
-
+export async function createMedicineAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    // Plan limit check
-    const plan = await getOrganizationPlan(organizationId)
-    const countResult = await db
-      .select({ value: count() })
-      .from(medicines)
-      .where(eq(medicines.organizationId, organizationId))
+    const { organizationId } = await getAuthenticatedSession()
+
+    const validatedFields = medicineSchema.safeParse(Object.fromEntries(formData.entries()))
+
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "Gagal menambah obat. Mohon periksa input Anda.",
+      }
+    }
+
+    // Business Logic: Plan Limit Check
+    const [plan, countResult] = await Promise.all([
+      getOrganizationPlan(organizationId),
+      db.select({ value: count() }).from(medicines).where(eq(medicines.organizationId, organizationId))
+    ])
+    
     const currentCount = countResult[0]?.value ?? 0
 
     if (plan === "gratis" && currentCount >= 100) {
       return {
+        success: false,
         message: "Limit tercapai. Paket Gratis maksimal 100 item obat. Silakan upgrade ke Pro!",
       }
     }
@@ -144,119 +168,84 @@ export async function createMedicineAction(prevState: any, formData: FormData) {
     // Auto-generate Code if not provided
     let finalCode = validatedFields.data.code
     if (!finalCode) {
-      const nextNum = currentCount + 1
-      finalCode = `MED-${nextNum.toString().padStart(5, '0')}`
+      finalCode = `MED-${(currentCount + 1).toString().padStart(5, '0')}`
     }
 
     await db.insert(medicines).values({
+      ...mapToMedicineRecord(validatedFields.data),
       organizationId,
-      ...validatedFields.data,
-      groupId: validatedFields.data.groupId || null,
-      classification: validatedFields.data.classification || "Bebas",
       code: finalCode,
-      isActive: validatedFields.data.isActive === "true",
-      sku: validatedFields.data.sku || null,
-      unit: validatedFields.data.unit || "pcs",
-      expiryDate: validatedFields.data.expiryDate 
-        ? new Date(validatedFields.data.expiryDate) 
-        : null,
     })
 
-    revalidatePath("/dashboard/inventory/master/medicines")
-    return { message: "Data obat berhasil ditambahkan!", success: true }
-  } catch (error: unknown) {
-    console.error("CREATE_MEDICINE_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
+    revalidatePath(REVALIDATE_PATH)
+    return { success: true, message: "Data obat berhasil ditambahkan!" }
+  } catch (error) {
+    return handleActionError(error, "CREATE_MEDICINE")
   }
 }
 
-export async function updateMedicineAction(
-  id: string,
-  prevState: any,
-  formData: FormData
-) {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-
-  if (!organizationId) {
-    return { message: "Unauthorized" }
-  }
-
-  const validatedFields = medicineSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  )
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: "Gagal memperbarui data. Mohon periksa input Anda.",
-    }
-  }
-
+export async function updateMedicineAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { code, ...restOfData } = validatedFields.data;
+    const { organizationId } = await getAuthenticatedSession()
+
+    const validatedFields = medicineSchema.safeParse(Object.fromEntries(formData.entries()))
+
+    if (!validatedFields.success) {
+      return {
+        success: false,
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "Gagal memperbarui data. Mohon periksa input Anda.",
+      }
+    }
+
+    const { code, ...restOfData } = validatedFields.data
+    
+    const updateData: any = {
+      ...mapToMedicineRecord(restOfData as MedicineFormValues),
+      updatedAt: new Date(),
+    }
+
+    if (code) {
+      updateData.code = code
+    }
     
     const [updated] = await db
       .update(medicines)
-      .set({
-        ...restOfData,
-        groupId: restOfData.groupId || null,
-        ...(code ? { code } : {}),
-        classification: restOfData.classification || "Bebas",
-        isActive: validatedFields.data.isActive === "true",
-        sku: validatedFields.data.sku || null,
-        unit: validatedFields.data.unit || "pcs",
-        expiryDate: validatedFields.data.expiryDate 
-          ? new Date(validatedFields.data.expiryDate) 
-          : null,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(eq(medicines.id, id), eq(medicines.organizationId, organizationId))
-      )
+      .set(updateData)
+      .where(and(eq(medicines.id, id), eq(medicines.organizationId, organizationId)))
       .returning()
 
     if (!updated) {
-      return { message: "Data tidak ditemukan atau akses ditolak." }
+      return { success: false, message: "Data tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/inventory/master/medicines")
-    return { message: "Data obat berhasil diperbarui!", success: true }
-  } catch (error: unknown) {
-    console.error("UPDATE_MEDICINE_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
+    revalidatePath(REVALIDATE_PATH)
+    return { success: true, message: "Data obat berhasil diperbarui!" }
+  } catch (error) {
+    return handleActionError(error, "UPDATE_MEDICINE")
   }
 }
 
-export async function deleteMedicineAction(id: string) {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-  const role = session?.user?.role
-
-  if (!organizationId) {
-    return { message: "Unauthorized" }
-  }
-
-  if (role !== "admin") {
-    return { message: "Akses ditolak. Hanya Admin yang dapat menghapus data obat." }
-  }
-
+export async function deleteMedicineAction(id: string): Promise<ActionResponse> {
   try {
+    const { organizationId, role } = await getAuthenticatedSession()
+
+    if (role !== "admin") {
+      return { success: false, message: "Akses ditolak. Hanya Admin yang dapat menghapus data obat." }
+    }
+
     const [deleted] = await db
       .delete(medicines)
-      .where(
-        and(eq(medicines.id, id), eq(medicines.organizationId, organizationId))
-      )
+      .where(and(eq(medicines.id, id), eq(medicines.organizationId, organizationId)))
       .returning()
 
     if (!deleted) {
-      return { message: "Data tidak ditemukan atau akses ditolak." }
+      return { success: false, message: "Data tidak ditemukan atau akses ditolak." }
     }
 
-    revalidatePath("/dashboard/inventory/master/medicines")
-    return { message: "Data obat berhasil dihapus!", success: true }
-  } catch (error: unknown) {
-    console.error("DELETE_MEDICINE_ERROR:", error)
-    return { message: `Terjadi kesalahan sistem: ${getErrorMessage(error)}` }
+    revalidatePath(REVALIDATE_PATH)
+    return { success: true, message: "Data obat berhasil dihapus!" }
+  } catch (error) {
+    return handleActionError(error, "DELETE_MEDICINE")
   }
 }
