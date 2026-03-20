@@ -64,20 +64,8 @@ export async function getFormulariesAction(page = 1, limit = 10, search = "", ty
         where: whereClause,
         with: {
           medicine: {
-            columns: {
-              id: true,
-              name: true,
-              genericName: true,
-              code: true,
-            },
             with: {
-              group: {
-                columns: {
-                  id: true,
-                  name: true,
-                  color: true,
-                }
-              }
+              group: true
             }
           },
         },
@@ -233,15 +221,13 @@ export async function getSubstitutionsAction(page = 1, limit = 10, search = "", 
         where: whereClause,
         with: {
           medicine: {
-            columns: { id: true, name: true, code: true },
             with: {
-              group: { columns: { id: true, name: true, color: true } }
+              group: true
             }
           },
           substituteMedicine: {
-            columns: { id: true, name: true, code: true },
             with: {
-              group: { columns: { id: true, name: true, color: true } }
+              group: true
             }
           },
         },

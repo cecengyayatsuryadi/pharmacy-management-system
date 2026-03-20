@@ -288,7 +288,12 @@ export function UnitClient({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold tracking-tight">Satuan & Konversi</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight">Satuan & Konversi</h2>
+            <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-500 bg-emerald-500/5">
+              {activeTab === "units" ? unitMetadata.total : convMetadata.total} Data
+            </Badge>
+          </div>
           <p className="text-muted-foreground">
             Kelola satuan produk (UOM) dan aturan konversi kemasan obat.
           </p>
@@ -347,8 +352,24 @@ export function UnitClient({
                 <TableBody>
                   {initialUnits.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="h-32 text-center text-muted-foreground">
-                        {unitSearch ? "Tidak ada satuan yang sesuai pencarian." : "Belum ada data satuan."}
+                      <TableCell colSpan={3} className="h-48 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <BoxIcon className="size-8 opacity-20" />
+                          <p className="text-sm">
+                            {unitSearch ? "Tidak ada satuan yang sesuai dengan pencarian." : "Belum ada data satuan yang terdaftar."}
+                          </p>
+                          {unitSearch && (
+                            <Button 
+                              variant="link" 
+                              onClick={() => { 
+                                setUnitSearch("")
+                                debouncedSearchUnit("")
+                              }}
+                            >
+                              Bersihkan Pencarian
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -487,8 +508,24 @@ export function UnitClient({
                 <TableBody>
                   {initialConversions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        {convSearch ? "Tidak ada konversi yang sesuai pencarian." : "Belum ada data konversi."}
+                      <TableCell colSpan={5} className="h-48 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <Link2Icon className="size-8 opacity-20" />
+                          <p className="text-sm">
+                            {convSearch ? "Tidak ada konversi yang sesuai dengan pencarian." : "Belum ada data konversi yang terdaftar."}
+                          </p>
+                          {convSearch && (
+                            <Button 
+                              variant="link" 
+                              onClick={() => { 
+                                setConvSearch("")
+                                debouncedSearchConv("")
+                              }}
+                            >
+                              Bersihkan Pencarian
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -604,9 +641,13 @@ export function UnitClient({
       <Sheet open={isUnitSheetOpen} onOpenChange={setIsUnitSheetOpen}>
         <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
           <form action={handleUnitSubmit} className="flex h-full flex-col">
-            <SheetHeader className="shrink-0 border-b px-6 py-4">
-              <SheetTitle className="text-xl font-bold">
-                {unitMode === "create" ? "Tambah Satuan Baru" : "Edit Satuan"}
+            <SheetHeader className="shrink-0 border-b px-6 py-5 bg-muted/5">
+              <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                {unitMode === "create" ? (
+                  <><PlusIcon className="size-5 text-primary" /> Tambah Satuan Baru</>
+                ) : (
+                  <><PencilIcon className="size-5 text-primary" /> Edit Satuan</>
+                )}
               </SheetTitle>
               <SheetDescription>
                 Masukkan nama satuan dan singkatannya untuk katalog produk.
@@ -644,7 +685,7 @@ export function UnitClient({
               </ScrollArea>
             </div>
 
-            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4">
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4 bg-muted/5">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setIsUnitSheetOpen(false)}>
                 Batal
               </Button>
@@ -662,9 +703,13 @@ export function UnitClient({
       <Sheet open={isConvSheetOpen} onOpenChange={setIsConvSheetOpen}>
         <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
           <form action={handleConvSubmit} className="flex h-full flex-col">
-            <SheetHeader className="shrink-0 border-b px-6 py-4">
-              <SheetTitle className="text-xl font-bold">
-                {convMode === "create" ? "Tambah Konversi" : "Edit Konversi"}
+            <SheetHeader className="shrink-0 border-b px-6 py-5 bg-muted/5">
+              <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                {convMode === "create" ? (
+                  <><PlusIcon className="size-5 text-primary" /> Tambah Konversi</>
+                ) : (
+                  <><PencilIcon className="size-5 text-primary" /> Edit Konversi</>
+                )}
               </SheetTitle>
               <SheetDescription>
                 Tentukan relasi rasio antar satuan untuk produk spesifik.
@@ -832,7 +877,7 @@ export function UnitClient({
               </ScrollArea>
             </div>
 
-            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4">
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4 bg-muted/5">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setIsConvSheetOpen(false)}>
                 Batal
               </Button>

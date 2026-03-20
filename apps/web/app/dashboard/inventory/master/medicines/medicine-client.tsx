@@ -207,8 +207,13 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Data Obat</h2>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight">Data Obat</h2>
+            <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-500 bg-emerald-500/5">
+              {metadata.total} Produk
+            </Badge>
+          </div>
           <p className="text-muted-foreground">
             Kelola katalog obat, informasi medis, dan stok minimum apotek.
           </p>
@@ -319,10 +324,30 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
             <TableBody>
               {initialData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                    {searchValue || searchParams.get("categoryId") 
-                      ? "Tidak ada obat yang sesuai dengan pencarian." 
-                      : "Belum ada data obat."}
+                  <TableCell colSpan={7} className="h-48 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <PillIcon className="size-8 opacity-20" />
+                      <p className="text-sm">
+                        {searchValue || searchParams.get("categoryId") 
+                          ? "Tidak ada obat yang sesuai dengan pencarian." 
+                          : "Belum ada data obat yang terdaftar."}
+                      </p>
+                      {(searchValue || searchParams.get("categoryId")) && (
+                        <Button 
+                          variant="link" 
+                          onClick={() => { 
+                            setSearchValue("")
+                            debouncedSearch("")
+                            const params = new URLSearchParams(searchParams.toString())
+                            params.delete("categoryId")
+                            params.delete("groupId")
+                            router.push(`?${params.toString()}`)
+                          }}
+                        >
+                          Bersihkan Pencarian & Filter
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -476,10 +501,19 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-2xl">
           <form action={handleSubmit} className="flex h-full flex-col">
-            <SheetHeader className="shrink-0 border-b px-6 py-4">
-              <SheetTitle className="text-xl font-bold">
-                {mode === "create" ? "Tambah Obat Baru" : "Edit Data Obat"}
+            <SheetHeader className="shrink-0 border-b px-6 py-5 bg-muted/5">
+              <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                {mode === "create" ? (
+                  <><PlusIcon className="size-5 text-primary" /> Tambah Obat Baru</>
+                ) : (
+                  <><PencilIcon className="size-5 text-primary" /> Edit Data Obat</>
+                )}
               </SheetTitle>
+              <SheetDescription>
+                {mode === "create" 
+                  ? "Lengkapi formulir di bawah ini untuk menambahkan data obat baru ke dalam katalog."
+                  : "Ubah informasi obat yang dipilih sesuai kebutuhan."}
+              </SheetDescription>
             </SheetHeader>
 
             <Tabs defaultValue="basic" className="flex flex-1 flex-col overflow-hidden">
@@ -762,7 +796,7 @@ export function MedicineClient({ initialData, categories, medicineGroups, units,
               </div>
             </Tabs>
 
-            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4">
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4 bg-muted/5">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setIsSheetOpen(false)}>
                 Batal
               </Button>

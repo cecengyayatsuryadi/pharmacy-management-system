@@ -51,6 +51,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@workspace/ui/components/sheet"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
@@ -156,12 +157,12 @@ export function FormularyClient({
   }
 
   const handleUpsertFormulary = async (formData: FormData) => {
-    const result = await upsertFormularyAction(formData)
+    const result = await upsertFormularyAction(null, formData)
     if (result.message) {
       toast.success(result.message)
       setIsFormularySheetOpen(false)
     } else {
-      toast.error(result.error || "Terjadi kesalahan")
+      toast.error("Terjadi kesalahan")
     }
   }
 
@@ -169,25 +170,25 @@ export function FormularyClient({
     if (confirm("Hapus data formularium ini?")) {
       const result = await deleteFormularyAction(id)
       if (result.message) toast.success(result.message)
-      else toast.error(result.error)
+      else toast.error("Terjadi kesalahan")
     }
   }
 
   const handleCreateSubstitution = async (formData: FormData) => {
-    const result = await createSubstitutionAction(formData)
+    const result = await createSubstitutionAction(null, formData)
     if (result.message) {
       toast.success(result.message)
       setIsSubstitutionSheetOpen(false)
     } else {
-      toast.error(result.error || "Terjadi kesalahan")
+      toast.error("Terjadi kesalahan")
     }
   }
 
   const handleDeleteSubstitution = async (id: string) => {
     if (confirm("Hapus data substitusi ini?")) {
       const result = await deleteSubstitutionAction(id)
-      if (result.message) toast.success(result.message)
-      else toast.error(result.error)
+      if (result.success) toast.success(result.message)
+      else toast.error(result.message || "Gagal menghapus data")
     }
   }
 
@@ -211,7 +212,12 @@ export function FormularyClient({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold tracking-tight">Formularium & Substitusi</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight">Formularium & Substitusi</h2>
+            <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-500 bg-emerald-500/5">
+              {activeTab === "formulary" ? formularyMetadata.total : substitutionMetadata.total} Data
+            </Badge>
+          </div>
           <p className="text-muted-foreground">
             Kelola daftar obat formularium dan relasi obat pengganti (substitusi).
           </p>
@@ -293,8 +299,24 @@ export function FormularyClient({
                 <TableBody>
                   {initialFormularies.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        {searchValue ? "Tidak ada formularium yang sesuai pencarian." : "Tidak ada data formularium."}
+                      <TableCell colSpan={5} className="h-48 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <PillIcon className="size-8 opacity-20" />
+                          <p className="text-sm">
+                            {searchValue ? "Tidak ada formularium yang sesuai dengan pencarian." : "Belum ada data formularium yang terdaftar."}
+                          </p>
+                          {searchValue && (
+                            <Button 
+                              variant="link" 
+                              onClick={() => { 
+                                setSearchValue("")
+                                debouncedSearch("")
+                              }}
+                            >
+                              Bersihkan Pencarian
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -430,8 +452,24 @@ export function FormularyClient({
                 <TableBody>
                   {initialSubstitutions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        {searchValue ? "Tidak ada substitusi yang sesuai pencarian." : "Belum ada relasi substitusi obat."}
+                      <TableCell colSpan={5} className="h-48 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <RefreshCwIcon className="size-8 opacity-20" />
+                          <p className="text-sm">
+                            {searchValue ? "Tidak ada substitusi yang sesuai dengan pencarian." : "Belum ada relasi substitusi obat yang terdaftar."}
+                          </p>
+                          {searchValue && (
+                            <Button 
+                              variant="link" 
+                              onClick={() => { 
+                                setSearchValue("")
+                                debouncedSearch("")
+                              }}
+                            >
+                              Bersihkan Pencarian
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -565,8 +603,17 @@ export function FormularyClient({
         <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
           <form action={handleUpsertFormulary} className="flex h-full flex-col">
             {selectedFormulary && <input type="hidden" name="id" value={selectedFormulary.id} />}
-            <SheetHeader className="shrink-0 border-b px-6 py-4">
-              <SheetTitle>{mode === "create" ? "Tambah Formularium" : "Edit Formularium"}</SheetTitle>
+            <SheetHeader className="shrink-0 border-b px-6 py-5 bg-muted/5">
+              <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                {mode === "create" ? (
+                  <><PlusIcon className="size-5 text-primary" /> Tambah Formularium</>
+                ) : (
+                  <><PencilIcon className="size-5 text-primary" /> Edit Formularium</>
+                )}
+              </SheetTitle>
+              <SheetDescription>
+                Tentukan tipe formularium untuk obat ini (Fornas, BPJS, dll).
+              </SheetDescription>
             </SheetHeader>
             <ScrollArea className="flex-1 p-6">
               <div className="space-y-4">
@@ -606,7 +653,7 @@ export function FormularyClient({
                 </div>
               </div>
             </ScrollArea>
-            <SheetFooter className="border-t p-6">
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4 bg-muted/5">
               <SubmitButton label={mode === "create" ? "Simpan Data" : "Update Data"} />
             </SheetFooter>
           </form>
@@ -617,8 +664,13 @@ export function FormularyClient({
       <Sheet open={isSubstitutionSheetOpen} onOpenChange={setIsSubstitutionSheetOpen}>
         <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
           <form action={handleCreateSubstitution} className="flex h-full flex-col">
-            <SheetHeader className="shrink-0 border-b px-6 py-4">
-              <SheetTitle>Tambah Obat Substitusi</SheetTitle>
+            <SheetHeader className="shrink-0 border-b px-6 py-5 bg-muted/5">
+              <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                <PlusIcon className="size-5 text-primary" /> Tambah Obat Substitusi
+              </SheetTitle>
+              <SheetDescription>
+                Tentukan obat alternatif jika stok utama sedang kosong.
+              </SheetDescription>
             </SheetHeader>
             <ScrollArea className="flex-1 p-6">
               <div className="space-y-4">
@@ -660,7 +712,7 @@ export function FormularyClient({
                 </div>
               </div>
             </ScrollArea>
-            <SheetFooter className="border-t p-6">
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4 bg-muted/5">
               <SubmitButton label="Tambahkan Relasi" />
             </SheetFooter>
           </form>
