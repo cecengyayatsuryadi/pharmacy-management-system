@@ -279,7 +279,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                   {initialCategories.data.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        Belum ada data kategori.
+                        {catSearch ? "Tidak ada kategori yang sesuai pencarian." : "Belum ada data kategori."}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -314,7 +314,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                           {item.description || "-"}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge variant="secondary" className="h-5 px-2 text-[10px] font-bold tabular-nums">
+                          <Badge variant="secondary" className="h-5 px-2 text-[9px] font-bold tabular-nums">
                             {item.medicinesCount} <span className="ml-1 font-normal opacity-70">Obat</span>
                           </Badge>
                         </TableCell>
@@ -439,7 +439,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                   {initialGroups.data.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        Belum ada data golongan.
+                        {groupSearch ? "Tidak ada golongan yang sesuai pencarian." : "Belum ada data golongan."}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -474,7 +474,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                           {item.description || "-"}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge variant="secondary" className="h-5 px-2 text-[10px] font-bold tabular-nums">
+                          <Badge variant="secondary" className="h-5 px-2 text-[9px] font-bold tabular-nums">
                             {item.medicinesCount} <span className="ml-1 font-normal opacity-70">Obat</span>
                           </Badge>
                         </TableCell>

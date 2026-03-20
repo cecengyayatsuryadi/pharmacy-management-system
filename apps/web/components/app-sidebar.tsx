@@ -93,6 +93,7 @@ const moduleData: Record<string, any> = {
           { title: "Kategori & Golongan", url: "/dashboard/inventory/master/categories" },
           { title: "Satuan & Konversi", url: "/dashboard/inventory/master/units" },
           { title: "Barcode Manager", url: "/dashboard/inventory/master/barcodes" },
+          { title: "Formularium & Substitusi", url: "/dashboard/inventory/master/formulary" },
         ],
       },
       {

@@ -348,7 +348,7 @@ export function UnitClient({
                   {initialUnits.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={3} className="h-32 text-center text-muted-foreground">
-                        Belum ada data satuan.
+                        {unitSearch ? "Tidak ada satuan yang sesuai pencarian." : "Belum ada data satuan."}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -357,7 +357,7 @@ export function UnitClient({
                         <TableCell className="pl-6">
                           <div className="flex items-center gap-2">
                             <BoxIcon className="size-3 text-muted-foreground/40 shrink-0" />
-                            <span className="font-medium text-sm tracking-tight">{unit.name}</span>
+                            <span className="font-semibold text-sm tracking-tight">{unit.name}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -488,7 +488,7 @@ export function UnitClient({
                   {initialConversions.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        Belum ada data konversi.
+                        {convSearch ? "Tidak ada konversi yang sesuai pencarian." : "Belum ada data konversi."}
                       </TableCell>
                     </TableRow>
                   ) : (

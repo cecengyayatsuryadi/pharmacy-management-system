@@ -140,19 +140,22 @@ export function BarcodeClient({ initialRows }: { initialRows: BarcodeRow[] }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Link2Icon className="size-3 text-muted-foreground/30 shrink-0" />
-                        <span className="font-medium text-sm tracking-tight">{row.medicine}</span>
+                        <Link2Icon className="size-3 text-muted-foreground/40 shrink-0" />
+                        <span className="font-semibold text-sm tracking-tight">{row.medicine}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-[10px] font-bold px-1.5 py-0 uppercase tracking-wider text-muted-foreground border-muted-foreground/30 bg-muted/20">
+                      <Badge 
+                        variant="outline" 
+                        className="text-[9px] font-bold px-1.5 py-0 uppercase rounded-[4px] border-muted-foreground/30 bg-muted/5"
+                      >
                         {row.format}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge 
-                        variant={row.status === "Aktif" ? "secondary" : "outline"} 
-                        className={`text-[10px] font-bold px-1.5 py-0 uppercase tracking-wider ${row.status === "Aktif" ? "text-emerald-600 bg-emerald-500/10 border-emerald-500/20" : "text-muted-foreground"}`}
+                        variant={row.status === "Aktif" ? "success" : "secondary"} 
+                        className="h-5 text-[10px]"
                       >
                         {row.status}
                       </Badge>
