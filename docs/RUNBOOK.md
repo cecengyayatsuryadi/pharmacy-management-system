@@ -17,14 +17,30 @@ This document outlines common operational tasks, troubleshooting steps, and data
    - Database migrations are typically handled as part of the CI/CD pipeline.
 
 ### Database Operations
-1. **Apply Migrations:**
+1. **Apply Schema Changes (Push):**
    ```bash
+   # Best for rapid development
    npm run db:push --workspace=@workspace/database
    ```
-2. **Rollback Migration:**
-   - Drizzle migrations are mostly forward-only in this setup. If a rollback is needed, manual SQL intervention may be required in the PostgreSQL instance.
-3. **Seeding Initial Data:**
+2. **Generate and Apply Migrations (Production-safe):**
    ```bash
+   # 1. Generate SQL migration file
+   npm run db:generate --workspace=@workspace/database
+
+   # 2. Review the generated file in packages/database/drizzle/
+
+   # 3. Apply to production
+   # (Depends on deployment pipeline, typically handled by CI)
+   ```
+3. **Optimizing Database Performance:**
+   - If queries on the Medicine list become slow, verify that the following indices are present:
+     - `medicine_org_category_idx`
+     - `medicine_org_active_idx`
+     - `medicine_org_created_idx`
+   - Use `EXPLAIN ANALYZE` in PostgreSQL to verify index usage.
+
+4. **Seeding Initial Data:**
+...
    npm run db:seed --workspace=@workspace/database
    ```
 4. **Wiping the Database (Development Only):**

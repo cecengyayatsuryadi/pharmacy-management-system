@@ -18,32 +18,32 @@ Imagine a diagram with three main layers:
 | `packages/ui` | Shared UI component library based on Tailwind CSS and shadcn/ui. |
 | `packages/eslint-config` | Shared linting rules across all workspaces. |
 | `packages/typescript-config` | Shared TypeScript configurations. |
-
 ## Data Flow Narrative
 1. **Request Entry:** A user performs an action in the browser (e.g., creating a sale).
 2. **Action Trigger:** The React component invokes a **Server Action** (e.g., `createSaleAction`).
-3. **Authentication:** The Server Action calls `auth()` to verify the user's session and retrieve their `organizationId`.
-4. **Validation:** Input data is validated using a **Zod schema**.
-5. **Business Logic:** Logic is executed (e.g., checking stock levels, aggregating items).
-6. **Persistence:** The action performs a **Database Transaction** using Drizzle ORM to ensure data integrity (e.g., updating stock and creating a sale record simultaneously).
-7. **Response:** The Server Action returns a success/error message and triggers `revalidatePath` to update the UI.
+3. **Authentication & Context:** The action uses `getAuthenticatedSession()` (from `action-utils.ts`) to verify the user and organization context.
+4. **Validation:** Input data is validated using a **Zod schema**. We use `z.coerce` for `FormData` compatibility and `z.preprocess` for boolean checkbox handling.
+5. **Business Logic:** Logic is executed (e.g., checking medicine plan limits within a transaction).
+6. **Persistence:** The action performs a **Database Transaction** using Drizzle ORM to ensure data integrity.
+7. **Error Handling:** Errors are caught by `handleActionError()`, which sanitizes database internal details and returns a standardized `ActionResponse`.
+8. **Response:** The UI receives `{ success, message, errors, data }` and updates via `revalidatePath`.
 
 ## Key Design Decisions
-### Multi-Tenancy (Row-Level Isolation)
-- **Why:** To support multiple independent pharmacies on a single platform while ensuring data privacy.
-- **Decision:** Every record is tagged with an `organization_id`. All queries MUST include a filter for this ID.
-- **Implementation:** The `auth()` session provides the `organizationId` which is then passed to all database operations in Server Actions.
+### Standardized Server Actions (`ActionResponse`)
+- **Decision:** All Server Actions return a consistent object.
+- **Why:** Simplifies frontend toast notifications and form error state management. Centralizes error sanitization to prevent internal schema leakage.
 
-### Data Integrity & Stock Accuracy
-- **Why:** Inventory accuracy is critical in pharmacy operations.
-- **Decision:** All stock changes (Sale, Procurement, Adjustment) occur within **Database Transactions** to ensure that both the ledger and current balance remain in sync.
+### Optimized Data Fetching
+- **Decision:** Use specific column selection (`columns: { ... }`) and `exists` subqueries for relational searches.
+- **Why:** Minimizes network payload and database memory usage. Prevents N+1 query patterns common in complex relational searches (e.g., searching formularies by medicine name).
 
-### UI/UX Consistency
-- **Why:** To provide a professional tool that is easy to use in fast-paced retail environments.
-- **Decision:** Using **shadcn/ui** and a **Dual-Sidebar** navigation system for quick access to various modules.
+### Database Performance Layer
+- **Decision:** Added composite and non-unique indices on `organization_id` combined with `category_id`, `is_active`, and `created_at`.
+- **Why:** Ensures that as the system scales to thousands of organizations, list queries remain fast and efficient.
 
 ## Known Limitations
 ### 3-Pillar Inventory System
+...
 - **Decision:** Separate Ledger, Segmentation, and Conversion.
 - **Why:** To provide an "audit-ready" stock history. The ledger ensures we always know *why* a number changed, segmentation handles the complexity of "locked" stock (reserved for pending sales), and conversion handles pharmaceutical packaging complexity.
 

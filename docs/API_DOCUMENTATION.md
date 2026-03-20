@@ -68,32 +68,65 @@ All API calls are authenticated via session-based cookies (Auth.js v5). Requests
 
 ---
 
-## Medicine Actions (`apps/web/lib/actions/medicine.ts`)
-
-### `createMedicineAction`
-- **Description:** Adds a new medicine to the master data.
-- **Request (FormData):**
-  - `name`: string
-  - `genericName`: string
-  - `manufacturer`: string
-  - `categoryId`: UUID
-  - `baseUnitId`: UUID
-  - `description`: string (optional)
-- **Response:**
-  - `message`: string
-  - `errors`: validation errors
+## Standard Response Format (`ActionResponse`)
+All mutation actions return a consistent structure:
+```typescript
+{
+  success: boolean;      // True if action completed successfully
+  message: string;      // User-friendly feedback message
+  errors?: Record<string, string[]>; // Field-level validation errors (if success: false)
+  data?: T;             // Optional return data
+}
+```
 
 ---
 
-## Procurement Actions (`apps/web/lib/actions/procurement.ts`)
+## Medicine Actions (`apps/web/lib/actions/medicine.ts`)
 
-### `createProcurementAction`
-- **Description:** Creates a Purchase Order / Stock-In transaction from a supplier.
-- **Request (FormData):**
-  - `supplierId`: UUID
-  - `invoiceNumber`: string
-  - `items`: array (JSON stringified in FormData)
-  - `note`: string (optional)
-- **Response:**
-  - `message`: string
-  - `errors`: validation errors
+### `getMedicines`
+- **Description:** Retrieves a paginated list of medicines with filtering.
+- **Request Parameters:**
+  - `page`: number (default: 1)
+  - `limit`: number (default: 10)
+  - `search`: string (filters name, generic name, sku, or code)
+  - `categoryId`: UUID (optional)
+  - `groupId`: UUID (optional)
+  - `status`: "active" | "inactive" | ""
+
+### `createMedicineAction`
+- **Description:** Adds a new medicine. Handles plan limit check (100 items for 'gratis' plan).
+- **Request (FormData):** `name`, `categoryId`, `baseUnitId`, `purchasePrice`, `price`, `stock`, `isActive`, etc.
+
+### `updateMedicineAction`
+- **Description:** Updates an existing medicine.
+- **Arguments:** `id: string` (UUID), `formData: FormData`
+
+---
+
+## Category & Group Actions (`apps/web/lib/actions/category.ts`, `medicine-group.ts`)
+
+### `getCategories` / `getMedicineGroups`
+- **Description:** Lists categories or groups with a count of related medicines.
+
+### `deleteCategoryAction` / `deleteMedicineGroupAction`
+- **Description:** Deletes a record ONLY if it is not used by any medicine.
+
+---
+
+## Unit Actions (`apps/web/lib/actions/unit.ts`)
+
+### `getUnitsAction`
+- **Description:** Lists all units available for the organization.
+
+---
+
+## Formulary & Substitution Actions (`apps/web/lib/actions/formulary.ts`)
+
+### `getFormulariesAction`
+- **Description:** Lists medicine formularies. Uses optimized `exists` subquery for medicine name search.
+
+### `upsertFormularyAction`
+- **Description:** Creates or updates a formulary record based on the presence of an `id` in FormData.
+
+### `getSubstitutionsAction`
+- **Description:** Lists alternative medicines for a given medicine.

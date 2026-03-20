@@ -65,6 +65,18 @@ function mapToMedicineRecord(data: MedicineFormValues) {
 
 const REVALIDATE_PATH = "/dashboard/inventory/master/medicines"
 
+/**
+ * Fetches a paginated list of medicines for the authenticated organization.
+ * Optimized with selective column loading and composite indexing.
+ * 
+ * @param page - Current page number (1-based)
+ * @param limit - Number of items per page
+ * @param search - Search query for name, generic name, SKU, or code
+ * @param categoryId - Filter by category UUID
+ * @param status - Filter by active status ("active" | "inactive")
+ * @param groupId - Filter by medicine group UUID
+ * @returns Object containing data array and metadata
+ */
 export async function getMedicines(
   page = 1, 
   limit = 10, 
@@ -175,6 +187,15 @@ export async function getMedicines(
   }
 }
 
+/**
+ * Adds a new medicine record.
+ * Includes a business logic check for organization plan limits.
+ * Uses a database transaction to ensure atomicity.
+ * 
+ * @param _prevState - Previous form state (from useFormState)
+ * @param formData - Raw form data containing medicine details
+ * @returns Standard ActionResponse
+ */
 export async function createMedicineAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -232,6 +253,14 @@ export async function createMedicineAction(_prevState: any, formData: FormData):
   }
 }
 
+/**
+ * Updates an existing medicine record.
+ * 
+ * @param id - UUID of the medicine to update
+ * @param _prevState - Previous form state
+ * @param formData - Raw form data
+ * @returns Standard ActionResponse
+ */
 export async function updateMedicineAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -276,6 +305,13 @@ export async function updateMedicineAction(id: string, _prevState: any, formData
   }
 }
 
+/**
+ * Deletes a medicine record.
+ * Strictly restricted to users with 'admin' role.
+ * 
+ * @param id - UUID of the medicine to delete
+ * @returns Standard ActionResponse
+ */
 export async function deleteMedicineAction(id: string): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()

@@ -11,6 +11,8 @@ Detailed documentation is available in the `docs/` directory:
 ## Key Features
 - **Multi-Tenant Authentication:** Strict organization-level data isolation using Auth.js v5.
 - **Advanced Medicine Master Data:** Tracking of pharmaceutical fields, generic names, manufacturers, and status.
+- **Medicine Groups & Formularies:** Categorize medicines into therapeutic groups and manage Formularium Nasional (Fornas) or hospital-specific lists.
+- **Medicine Substitutions:** Define alternative medicines for out-of-stock items.
 - **Smart Inventory (3 Pillars):**
   - **Ledger:** Absolute tracking of stock balances before and after every movement.
   - **Segmentation:** Physical, Reserved (POS queue), and Quarantine (expired/damaged) stock separation.
@@ -24,6 +26,7 @@ Detailed documentation is available in the `docs/` directory:
 - **npm:** v11 or higher
 - **Docker:** For local PostgreSQL database
 - **Turbo:** Monorepo management (included in devDependencies)
+- **OpenSSL:** Required by Auth.js for secret generation
 
 ## Installation
 1. **Clone the repository:**
@@ -48,23 +51,31 @@ Create a `.env` file in the root directory.
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:password@localhost:5433/apotek` |
 | `AUTH_SECRET` | Secret key for Auth.js | `generate-a-random-string-here` |
 
+> **Tip:** You can generate an `AUTH_SECRET` using `openssl rand -base64 32`.
+
 ## How to Run Locally
 1. **Push Database Schema:**
    ```bash
    npm run db:push --workspace=@workspace/database
    ```
-2. **Seed Initial Data (Optional but recommended):**
+2. **Apply Migrations (Production-like):**
+   ```bash
+   # If you want to test migrations locally
+   npm run db:generate --workspace=@workspace/database
+   ```
+3. **Seed Initial Data (Optional but recommended):**
    ```bash
    npm run db:seed --workspace=@workspace/database
    ```
-3. **Start Development Server:**
+4. **Start Development Server:**
    ```bash
    npm run dev
    ```
    Access the application at `http://localhost:3000`.
 
 ## How to Run Tests
-- **Unit Tests (Vitest):** `npm run test`
+- **Unit Tests (Vitest):** `npm run test` (Runs in workspace)
+- **Individual Action Tests:** `npm run test -- <path-to-test-file>`
 - **E2E Tests (Playwright):** `npx playwright test`
 - **Type Checking:** `npm run typecheck`
 
