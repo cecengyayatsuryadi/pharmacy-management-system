@@ -1,27 +1,30 @@
+import { getMedicines } from "@/lib/actions/medicine"
 import { BarcodeClient } from "./barcode-client"
+import { format } from "date-fns"
 
-// Mock data for now, would typically come from a Server Action
-const initialRows = [
-  {
-    id: "bc-1",
-    barcode: "8999908001001",
-    medicine: "Paracetamol 500mg",
-    format: "EAN-13",
-    status: "Aktif",
-    updatedAt: "2026-03-18",
-  },
-  {
-    id: "bc-2",
-    barcode: "MED-IBUPRO-200-01",
-    medicine: "Ibuprofen 200mg",
-    format: "Code-128",
-    status: "Aktif",
-    updatedAt: "2026-03-17",
-  },
-]
+export default async function BarcodeManagerPage(props: {
+  searchParams: Promise<{ search?: string; page?: string }>
+}) {
+  const searchParams = await props.searchParams
+  const search = searchParams.search || ""
+  const page = Number(searchParams.page) || 1
+  const limit = 10 // Standard limit
 
-export default function BarcodeManagerPage() {
+  const { data, metadata } = await getMedicines(page, limit, search)
+
+  const initialRows = data.map((m) => ({
+    id: m.id,
+    barcode: m.sku || "-",
+    medicine: m.name,
+    format: m.sku?.startsWith("899") ? "EAN-13" : "Custom", // Simple heuristic
+    status: m.isActive ? "Aktif" : "Non-Aktif",
+    updatedAt: m.createdAt ? format(new Date(m.createdAt), "yyyy-MM-dd") : "-",
+  }))
+
   return (
-    <BarcodeClient initialRows={initialRows} />
+    <BarcodeClient 
+      initialRows={initialRows} 
+      metadata={metadata}
+    />
   )
 }

@@ -217,7 +217,12 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold tracking-tight">Kategori & Golongan</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight">Kategori & Golongan</h2>
+            <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-500 bg-emerald-500/5">
+              {activeTab === "categories" ? initialCategories.metadata.total : initialGroups.metadata.total} Data
+            </Badge>
+          </div>
           <p className="text-muted-foreground">
             Kelola klasifikasi dan regulasi obat untuk pengaturan katalog.
           </p>
@@ -278,8 +283,24 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                 <TableBody>
                   {initialCategories.data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        {catSearch ? "Tidak ada kategori yang sesuai pencarian." : "Belum ada data kategori."}
+                      <TableCell colSpan={5} className="h-48 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <TagIcon className="size-8 opacity-20" />
+                          <p className="text-sm">
+                            {catSearch ? "Tidak ada kategori yang sesuai dengan pencarian." : "Belum ada data kategori yang terdaftar."}
+                          </p>
+                          {catSearch && (
+                            <Button 
+                              variant="link" 
+                              onClick={() => { 
+                                setCatSearch("")
+                                debouncedSearchCategory("")
+                              }}
+                            >
+                              Bersihkan Pencarian
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -438,8 +459,24 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                 <TableBody>
                   {initialGroups.data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        {groupSearch ? "Tidak ada golongan yang sesuai pencarian." : "Belum ada data golongan."}
+                      <TableCell colSpan={5} className="h-48 text-center">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <LayersIcon className="size-8 opacity-20" />
+                          <p className="text-sm">
+                            {groupSearch ? "Tidak ada golongan yang sesuai dengan pencarian." : "Belum ada data golongan yang terdaftar."}
+                          </p>
+                          {groupSearch && (
+                            <Button 
+                              variant="link" 
+                              onClick={() => { 
+                                setGroupSearch("")
+                                debouncedSearchGroup("")
+                              }}
+                            >
+                              Bersihkan Pencarian
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -555,10 +592,13 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
           <form action={handleSubmit} className="flex h-full flex-col">
-            <SheetHeader className="shrink-0 border-b px-6 py-4">
-              <SheetTitle className="text-xl font-bold">
-                {mode === "create" ? "Tambah" : "Edit"}{" "}
-                {targetType === "category" ? "Kategori" : "Golongan"}
+            <SheetHeader className="shrink-0 border-b px-6 py-5 bg-muted/5">
+              <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                {mode === "create" ? (
+                  <><PlusIcon className="size-5 text-primary" /> Tambah {targetType === "category" ? "Kategori" : "Golongan"}</>
+                ) : (
+                  <><PencilIcon className="size-5 text-primary" /> Edit {targetType === "category" ? "Kategori" : "Golongan"}</>
+                )}
               </SheetTitle>
               <SheetDescription>
                 Lengkapi detail informasi di bawah ini untuk pengaturan katalog.
@@ -645,7 +685,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
               </ScrollArea>
             </div>
 
-            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4">
+            <SheetFooter className="mt-0 flex shrink-0 flex-row items-center justify-end gap-3 border-t px-6 py-4 bg-muted/5">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setIsSheetOpen(false)}>
                 Batal
               </Button>
