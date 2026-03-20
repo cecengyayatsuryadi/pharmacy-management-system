@@ -105,7 +105,7 @@ export async function upsertFormularyAction(formData: FormData) {
 
     revalidatePath("/dashboard/inventory/master/formulary")
     return { message: id ? "Formularium diperbarui" : "Formularium ditambahkan" }
-  } catch (error) {
+  } catch (_error) {
     return { error: "Gagal menyimpan data formularium" }
   }
 }
@@ -119,7 +119,7 @@ export async function deleteFormularyAction(id: string) {
     await db.delete(medicineFormularies).where(and(eq(medicineFormularies.id, id), eq(medicineFormularies.organizationId, organizationId)))
     revalidatePath("/dashboard/inventory/master/formulary")
     return { message: "Formularium dihapus" }
-  } catch (error) {
+  } catch (_error) {
     return { error: "Gagal menghapus formularium" }
   }
 }
@@ -209,7 +209,7 @@ export async function createSubstitutionAction(formData: FormData) {
     })
     revalidatePath("/dashboard/inventory/master/formulary")
     return { message: "Substitusi ditambahkan" }
-  } catch (error) {
+  } catch (_error) {
     return { error: "Gagal menyimpan data substitusi" }
   }
 }
@@ -223,7 +223,7 @@ export async function deleteSubstitutionAction(id: string) {
     await db.delete(medicineSubstitutions).where(and(eq(medicineSubstitutions.id, id), eq(medicineSubstitutions.organizationId, organizationId)))
     revalidatePath("/dashboard/inventory/master/formulary")
     return { message: "Substitusi dihapus" }
-  } catch (error) {
+  } catch (_error) {
     return { error: "Gagal menghapus substitusi" }
   }
 }

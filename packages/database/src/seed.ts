@@ -1,5 +1,5 @@
-import { db, organizations, categories, medicines, users, stockMovements, memberships, units, warehouses, medicineFormularies, medicineSubstitutions } from "./index"
-import { eq, and, or } from "drizzle-orm"
+import { db, organizations, categories, medicines, users, memberships, units, warehouses, medicineFormularies, medicineSubstitutions } from "./index"
+import { eq, and } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
 async function main() {

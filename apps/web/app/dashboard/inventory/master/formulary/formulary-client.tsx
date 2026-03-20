@@ -9,14 +9,11 @@ import {
   MoreHorizontalIcon, 
   SearchIcon, 
   XIcon,
-  BookOpenIcon,
   RefreshCwIcon,
   PillIcon,
   InfoIcon,
-  FingerprintIcon,
   TagIcon,
   LayersIcon,
-  ArrowLeftRightIcon
 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
 
@@ -127,7 +124,7 @@ export function FormularyClient({
   const [isFormularySheetOpen, setIsFormularySheetOpen] = React.useState(false)
   const [isSubstitutionSheetOpen, setIsSubstitutionSheetOpen] = React.useState(false)
   const [mode, setMode] = React.useState<"create" | "edit">("create")
-  const [selectedFormulary, setSelectedFormulary] = React.useState<any>(null)
+  const [selectedFormulary, setSelectedFormulary] = React.useState<MedicineFormulary | null>(null)
 
   const debouncedSearch = useDebouncedCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -200,7 +197,7 @@ export function FormularyClient({
     setIsFormularySheetOpen(true)
   }
 
-  const openEditFormulary = (f: any) => {
+  const openEditFormulary = (f: MedicineFormulary & { medicine: MedicineWithGroup }) => {
     setMode("edit")
     setSelectedFormulary(f)
     setIsFormularySheetOpen(true)

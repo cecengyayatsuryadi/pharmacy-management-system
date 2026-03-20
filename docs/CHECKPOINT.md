@@ -66,5 +66,4 @@
 
 ## Next Session Target
 1. Mulai sesi baru untuk mengosongkan *context window*.
-2. Fokus pada Modul Satuan & Konversi.
-3. Jalankan `npm run build` untuk validasi akhir seluruh perubahan rute.
+2. Jalankan `npm run build` untuk validasi akhir seluruh perubahan rute.
