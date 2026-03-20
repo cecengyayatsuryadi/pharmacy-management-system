@@ -1,229 +1,260 @@
 "use server"
 
-import { auth } from "@/auth"
 import { db, medicineFormularies, medicineSubstitutions, medicines } from "@workspace/database"
-import { eq, and, count, ilike, or, type SQL, desc } from "drizzle-orm"
+import { eq, and, count, ilike, or, type SQL, desc, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { getAuthenticatedSession, handleActionError, type ActionResponse } from "@/lib/utils/action-utils"
 
 const formularySchema = z.object({
-  medicineId: z.string().uuid({ message: "Obat tidak valid" }),
-  type: z.string().min(1, { message: "Tipe formularium harus diisi" }),
-  status: z.boolean().default(true),
-  note: z.string().optional().nullable(),
+  medicineId: z.string().uuid("Obat tidak valid"),
+  type: z.string().min(1, "Tipe formularium harus diisi"),
+  status: z.preprocess((val) => val === "true" || val === true, z.boolean()).default(true),
+  note: z.string().nullish(),
 })
 
 const substitutionSchema = z.object({
-  medicineId: z.string().uuid({ message: "Obat utama tidak valid" }),
-  substituteMedicineId: z.string().uuid({ message: "Obat pengganti tidak valid" }),
-  note: z.string().optional().nullable(),
+  medicineId: z.string().uuid("Obat utama tidak valid"),
+  substituteMedicineId: z.string().uuid("Obat pengganti tidak valid"),
+  note: z.string().nullish(),
 })
 
-export async function getFormulariesAction(page = 1, limit = 10, search = "", type = "") {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
+const REVALIDATE_PATH = "/dashboard/inventory/master/formulary"
 
-  if (!organizationId) throw new Error("Unauthorized")
+export async function getFormulariesAction(page = 1, limit = 10, search = "", typeFilter = "") {
+  try {
+    const { organizationId } = await getAuthenticatedSession()
+    const offset = (page - 1) * limit
+    const filters: (SQL | undefined)[] = [eq(medicineFormularies.organizationId, organizationId)]
 
-  const offset = (page - 1) * limit
-  const filters: (SQL | undefined)[] = [eq(medicineFormularies.organizationId, organizationId)]
-
-  if (search) {
-    // Cari berdasarkan nama obat
-    const medicineSearch = await db.query.medicines.findMany({
-      where: and(
-        eq(medicines.organizationId, organizationId),
-        ilike(medicines.name, `%${search}%`)
-      ),
-      columns: { id: true }
-    })
-    const medicineIds = medicineSearch.map(m => m.id)
-    if (medicineIds.length > 0) {
-      filters.push(or(...medicineIds.map(id => eq(medicineFormularies.medicineId, id))))
-    } else {
-      // Jika tidak ada obat yang cocok, buat query yang pasti kosong
-      filters.push(eq(medicineFormularies.id, "00000000-0000-0000-0000-000000000000"))
+    if (search) {
+      const medicineSearch = await db.query.medicines.findMany({
+        where: and(
+          eq(medicines.organizationId, organizationId),
+          ilike(medicines.name, `%${search}%`)
+        ),
+        columns: { id: true }
+      })
+      const medicineIds = medicineSearch.map(m => m.id)
+      if (medicineIds.length > 0) {
+        filters.push(inArray(medicineFormularies.medicineId, medicineIds))
+      } else {
+        // Return empty if search term doesn't match any medicine
+        return { data: [], metadata: { total: 0, page, limit, totalPages: 0 } }
+      }
     }
-  }
 
-  if (type && type !== "all") {
-    filters.push(eq(medicineFormularies.type, type))
-  }
+    if (typeFilter && typeFilter !== "all") {
+      filters.push(eq(medicineFormularies.type, typeFilter))
+    }
 
-  const whereClause = and(...filters)
+    const whereClause = and(...filters)
 
-  const data = await db.query.medicineFormularies.findMany({
-    where: whereClause,
-    with: {
-      medicine: {
+    const [data, countResult] = await Promise.all([
+      db.query.medicineFormularies.findMany({
+        where: whereClause,
         with: {
-          group: true
-        }
-      },
-    },
-    limit,
-    offset,
-    orderBy: [desc(medicineFormularies.createdAt)],
-  })
+          medicine: {
+            with: {
+              group: true
+            }
+          },
+        },
+        limit,
+        offset,
+        orderBy: [desc(medicineFormularies.createdAt)],
+      }),
+      db.select({ value: count() }).from(medicineFormularies).where(whereClause)
+    ])
 
-  const countResult = await db.select({ value: count() }).from(medicineFormularies).where(whereClause)
-  const total = countResult[0]?.value ?? 0
+    const total = countResult[0]?.value ?? 0
 
-  return { data, metadata: { total, page, limit } }
+    return { 
+      data, 
+      metadata: { 
+        total, 
+        page, 
+        limit,
+        totalPages: Math.ceil(total / limit)
+      } 
+    }
+  } catch (error) {
+    console.error("GET_FORMULARIES_ERROR:", error)
+    return { data: [], metadata: { total: 0, page: 1, limit: 10, totalPages: 0 } }
+  }
 }
 
-export async function upsertFormularyAction(formData: FormData) {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-  if (!organizationId) return { error: "Unauthorized" }
-
-  const rawData = {
-    medicineId: formData.get("medicineId"),
-    type: formData.get("type"),
-    status: formData.get("status") === "true",
-    note: formData.get("note"),
-  }
-
-  const validatedData = formularySchema.safeParse(rawData)
-  if (!validatedData.success) {
-    return { errors: validatedData.error.flatten().fieldErrors }
-  }
-
-  const id = formData.get("id") as string | null
-
+export async function upsertFormularyAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
+    const { organizationId } = await getAuthenticatedSession()
+
+    const validatedFields = formularySchema.safeParse(Object.fromEntries(formData.entries()))
+    if (!validatedFields.success) {
+      return { 
+        success: false,
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "Gagal menyimpan formularium. Mohon periksa input Anda."
+      }
+    }
+
+    const id = formData.get("id") as string | null
+
     if (id) {
-      await db.update(medicineFormularies)
-        .set({ ...validatedData.data, updatedAt: new Date() })
+      const [updated] = await db.update(medicineFormularies)
+        .set({ ...validatedFields.data, updatedAt: new Date() })
         .where(and(eq(medicineFormularies.id, id), eq(medicineFormularies.organizationId, organizationId)))
+        .returning()
+      
+      if (!updated) {
+        return { success: false, message: "Data tidak ditemukan atau akses ditolak." }
+      }
     } else {
       await db.insert(medicineFormularies).values({
-        ...validatedData.data,
+        ...validatedFields.data,
         organizationId,
       })
     }
 
-    revalidatePath("/dashboard/inventory/master/formulary")
-    return { message: id ? "Formularium diperbarui" : "Formularium ditambahkan" }
-  } catch (_error) {
-    return { error: "Gagal menyimpan data formularium" }
+    revalidatePath(REVALIDATE_PATH)
+    return { success: true, message: id ? "Formularium berhasil diperbarui" : "Formularium berhasil ditambahkan" }
+  } catch (error) {
+    return handleActionError(error, "UPSERT_FORMULARY")
   }
 }
 
-export async function deleteFormularyAction(id: string) {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-  if (!organizationId) return { error: "Unauthorized" }
-
+export async function deleteFormularyAction(id: string): Promise<ActionResponse> {
   try {
-    await db.delete(medicineFormularies).where(and(eq(medicineFormularies.id, id), eq(medicineFormularies.organizationId, organizationId)))
-    revalidatePath("/dashboard/inventory/master/formulary")
-    return { message: "Formularium dihapus" }
-  } catch (_error) {
-    return { error: "Gagal menghapus formularium" }
+    const { organizationId } = await getAuthenticatedSession()
+
+    const [deleted] = await db.delete(medicineFormularies)
+      .where(and(eq(medicineFormularies.id, id), eq(medicineFormularies.organizationId, organizationId)))
+      .returning()
+
+    if (!deleted) {
+      return { success: false, message: "Data tidak ditemukan atau akses ditolak." }
+    }
+
+    revalidatePath(REVALIDATE_PATH)
+    return { success: true, message: "Formularium berhasil dihapus" }
+  } catch (error) {
+    return handleActionError(error, "DELETE_FORMULARY")
   }
 }
 
 export async function getSubstitutionsAction(page = 1, limit = 10, search = "", medicineId = "") {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-  if (!organizationId) throw new Error("Unauthorized")
+  try {
+    const { organizationId } = await getAuthenticatedSession()
+    const offset = (page - 1) * limit
+    const filters: (SQL | undefined)[] = [eq(medicineSubstitutions.organizationId, organizationId)]
 
-  const offset = (page - 1) * limit
-  const filters: (SQL | undefined)[] = [eq(medicineSubstitutions.organizationId, organizationId)]
-
-  if (search) {
-    const medicineSearch = await db.query.medicines.findMany({
-      where: and(
-        eq(medicines.organizationId, organizationId),
-        ilike(medicines.name, `%${search}%`)
-      ),
-      columns: { id: true }
-    })
-    const medicineIds = medicineSearch.map(m => m.id)
-    if (medicineIds.length > 0) {
-      filters.push(or(
-        ...medicineIds.map(id => eq(medicineSubstitutions.medicineId, id)),
-        ...medicineIds.map(id => eq(medicineSubstitutions.substituteMedicineId, id))
-      ))
-    } else {
-      filters.push(eq(medicineSubstitutions.id, "00000000-0000-0000-0000-000000000000"))
+    if (search) {
+      const medicineSearch = await db.query.medicines.findMany({
+        where: and(
+          eq(medicines.organizationId, organizationId),
+          ilike(medicines.name, `%${search}%`)
+        ),
+        columns: { id: true }
+      })
+      const medicineIds = medicineSearch.map(m => m.id)
+      if (medicineIds.length > 0) {
+        filters.push(or(
+          inArray(medicineSubstitutions.medicineId, medicineIds),
+          inArray(medicineSubstitutions.substituteMedicineId, medicineIds)
+        ))
+      } else {
+        return { data: [], metadata: { total: 0, page, limit, totalPages: 0 } }
+      }
     }
-  }
 
-  if (medicineId) {
-    filters.push(eq(medicineSubstitutions.medicineId, medicineId))
-  }
+    if (medicineId) {
+      filters.push(eq(medicineSubstitutions.medicineId, medicineId))
+    }
 
-  const whereClause = and(...filters)
+    const whereClause = and(...filters)
 
-  const data = await db.query.medicineSubstitutions.findMany({
-    where: whereClause,
-    with: {
-      medicine: {
+    const [data, countResult] = await Promise.all([
+      db.query.medicineSubstitutions.findMany({
+        where: whereClause,
         with: {
-          group: true
-        }
-      },
-      substituteMedicine: {
-        with: {
-          group: true
-        }
-      },
-    },
-    limit,
-    offset,
-    orderBy: [desc(medicineSubstitutions.createdAt)],
-  })
+          medicine: {
+            with: {
+              group: true
+            }
+          },
+          substituteMedicine: {
+            with: {
+              group: true
+            }
+          },
+        },
+        limit,
+        offset,
+        orderBy: [desc(medicineSubstitutions.createdAt)],
+      }),
+      db.select({ value: count() }).from(medicineSubstitutions).where(whereClause)
+    ])
 
-  const countResult = await db.select({ value: count() }).from(medicineSubstitutions).where(whereClause)
-  const total = countResult[0]?.value ?? 0
+    const total = countResult[0]?.value ?? 0
 
-  return { data, metadata: { total, page, limit } }
+    return { 
+      data, 
+      metadata: { 
+        total, 
+        page, 
+        limit,
+        totalPages: Math.ceil(total / limit)
+      } 
+    }
+  } catch (error) {
+    console.error("GET_SUBSTITUTIONS_ERROR:", error)
+    return { data: [], metadata: { total: 0, page: 1, limit: 10, totalPages: 0 } }
+  }
 }
 
-export async function createSubstitutionAction(formData: FormData) {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-  if (!organizationId) return { error: "Unauthorized" }
-
-  const rawData = {
-    medicineId: formData.get("medicineId"),
-    substituteMedicineId: formData.get("substituteMedicineId"),
-    note: formData.get("note"),
-  }
-
-  const validatedData = substitutionSchema.safeParse(rawData)
-  if (!validatedData.success) {
-    return { errors: validatedData.error.flatten().fieldErrors }
-  }
-
-  if (validatedData.data.medicineId === validatedData.data.substituteMedicineId) {
-    return { error: "Obat tidak bisa mensubstitusi dirinya sendiri" }
-  }
-
+export async function createSubstitutionAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
+    const { organizationId } = await getAuthenticatedSession()
+
+    const validatedFields = substitutionSchema.safeParse(Object.fromEntries(formData.entries()))
+    if (!validatedFields.success) {
+      return { 
+        success: false,
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "Gagal menyimpan substitusi. Mohon periksa input Anda."
+      }
+    }
+
+    if (validatedFields.data.medicineId === validatedFields.data.substituteMedicineId) {
+      return { success: false, message: "Obat tidak bisa mensubstitusi dirinya sendiri" }
+    }
+
     await db.insert(medicineSubstitutions).values({
-      ...validatedData.data,
+      ...validatedFields.data,
       organizationId,
     })
-    revalidatePath("/dashboard/inventory/master/formulary")
-    return { message: "Substitusi ditambahkan" }
-  } catch (_error) {
-    return { error: "Gagal menyimpan data substitusi" }
+
+    revalidatePath(REVALIDATE_PATH)
+    return { success: true, message: "Substitusi berhasil ditambahkan" }
+  } catch (error) {
+    return handleActionError(error, "CREATE_SUBSTITUTION")
   }
 }
 
-export async function deleteSubstitutionAction(id: string) {
-  const session = await auth()
-  const organizationId = session?.user?.organizationId
-  if (!organizationId) return { error: "Unauthorized" }
-
+export async function deleteSubstitutionAction(id: string): Promise<ActionResponse> {
   try {
-    await db.delete(medicineSubstitutions).where(and(eq(medicineSubstitutions.id, id), eq(medicineSubstitutions.organizationId, organizationId)))
-    revalidatePath("/dashboard/inventory/master/formulary")
-    return { message: "Substitusi dihapus" }
-  } catch (_error) {
-    return { error: "Gagal menghapus substitusi" }
+    const { organizationId } = await getAuthenticatedSession()
+
+    const [deleted] = await db.delete(medicineSubstitutions)
+      .where(and(eq(medicineSubstitutions.id, id), eq(medicineSubstitutions.organizationId, organizationId)))
+      .returning()
+
+    if (!deleted) {
+      return { success: false, message: "Data tidak ditemukan atau akses ditolak." }
+    }
+
+    revalidatePath(REVALIDATE_PATH)
+    return { success: true, message: "Substitusi berhasil dihapus" }
+  } catch (error) {
+    return handleActionError(error, "DELETE_SUBSTITUTION")
   }
 }
