@@ -23,7 +23,11 @@ const REVALIDATE_PATH = "/dashboard/inventory/master/formulary"
 
 export async function getFormulariesAction(page = 1, limit = 10, search = "", typeFilter = "") {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) {
+      throw new Error("Unauthorized")
+    }
+    const { organizationId } = authData
     const offset = (page - 1) * limit
     const filters: (SQL | undefined)[] = [eq(medicineFormularies.organizationId, organizationId)]
 
@@ -93,7 +97,9 @@ export async function getFormulariesAction(page = 1, limit = 10, search = "", ty
 
 export async function upsertFormularyAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = formularySchema.safeParse(Object.fromEntries(formData.entries()))
     if (!validatedFields.success) {
@@ -131,7 +137,9 @@ export async function upsertFormularyAction(_prevState: any, formData: FormData)
 
 export async function deleteFormularyAction(id: string): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const [deleted] = await db.delete(medicineFormularies)
       .where(and(eq(medicineFormularies.id, id), eq(medicineFormularies.organizationId, organizationId)))
@@ -150,7 +158,11 @@ export async function deleteFormularyAction(id: string): Promise<ActionResponse>
 
 export async function getSubstitutionsAction(page = 1, limit = 10, search = "", medicineId = "") {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) {
+      throw new Error("Unauthorized")
+    }
+    const { organizationId } = authData
     const offset = (page - 1) * limit
     const filters: (SQL | undefined)[] = [eq(medicineSubstitutions.organizationId, organizationId)]
 
@@ -227,7 +239,9 @@ export async function getSubstitutionsAction(page = 1, limit = 10, search = "", 
 
 export async function createSubstitutionAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = substitutionSchema.safeParse(Object.fromEntries(formData.entries()))
     if (!validatedFields.success) {
@@ -256,7 +270,9 @@ export async function createSubstitutionAction(_prevState: any, formData: FormDa
 
 export async function deleteSubstitutionAction(id: string): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const [deleted] = await db.delete(medicineSubstitutions)
       .where(and(eq(medicineSubstitutions.id, id), eq(medicineSubstitutions.organizationId, organizationId)))

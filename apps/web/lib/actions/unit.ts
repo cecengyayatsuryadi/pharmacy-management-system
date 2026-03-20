@@ -15,7 +15,11 @@ const REVALIDATE_PATH = "/dashboard/inventory/master/units"
 
 export async function getUnitsAction(page: number = 1, limit: number = 10, search: string = "") {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) {
+      throw new Error("Unauthorized")
+    }
+    const { organizationId } = authData
     const offset = (page - 1) * limit
 
     const whereClause = and(
@@ -52,7 +56,9 @@ export async function getUnitsAction(page: number = 1, limit: number = 10, searc
 
 export async function createUnitAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = unitSchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -78,7 +84,9 @@ export async function createUnitAction(_prevState: any, formData: FormData): Pro
 
 export async function updateUnitAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = unitSchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -111,7 +119,9 @@ export async function updateUnitAction(id: string, _prevState: any, formData: Fo
 
 export async function deleteUnitAction(id: string): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const [deleted] = await db
       .delete(units)

@@ -74,7 +74,11 @@ export async function getMedicines(
   groupId = ""
 ) {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) {
+      throw new Error("Unauthorized")
+    }
+    const { organizationId } = authData
     const offset = (page - 1) * limit
     
     const filters: (SQL | undefined)[] = [eq(medicines.organizationId, organizationId)]
@@ -173,7 +177,9 @@ export async function getMedicines(
 
 export async function createMedicineAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = medicineSchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -228,7 +234,9 @@ export async function createMedicineAction(_prevState: any, formData: FormData):
 
 export async function updateMedicineAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = medicineSchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -270,7 +278,9 @@ export async function updateMedicineAction(id: string, _prevState: any, formData
 
 export async function deleteMedicineAction(id: string): Promise<ActionResponse> {
   try {
-    const { organizationId, role } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId, role } = authData
 
     if (role !== "admin") {
       return { success: false, message: "Akses ditolak. Hanya Admin yang dapat menghapus data obat." }

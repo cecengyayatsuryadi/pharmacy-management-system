@@ -16,7 +16,11 @@ const REVALIDATE_PATH = "/dashboard/inventory/master/categories"
 
 export async function getMedicineGroups(page = 1, limit = 10, search = "") {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) {
+      throw new Error("Unauthorized")
+    }
+    const { organizationId } = authData
     const offset = (page - 1) * limit
     const whereClause = eq(medicineGroups.organizationId, organizationId)
     const searchFilter = search ? ilike(medicineGroups.name, `%${search}%`) : undefined
@@ -65,7 +69,9 @@ export async function getMedicineGroups(page = 1, limit = 10, search = "") {
 
 export async function createMedicineGroupAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = medicineGroupSchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -91,7 +97,9 @@ export async function createMedicineGroupAction(_prevState: any, formData: FormD
 
 export async function updateMedicineGroupAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = medicineGroupSchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -125,7 +133,9 @@ export async function updateMedicineGroupAction(id: string, _prevState: any, for
 
 export async function deleteMedicineGroupAction(id: string): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const products = await db
       .select({ value: count() })

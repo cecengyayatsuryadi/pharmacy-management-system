@@ -16,7 +16,11 @@ const REVALIDATE_PATH = "/dashboard/inventory/master/categories"
 
 export async function getCategories(page = 1, limit = 10, search = "") {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) {
+      throw new Error("Unauthorized")
+    }
+    const { organizationId } = authData
     const offset = (page - 1) * limit
     const whereClause = eq(categories.organizationId, organizationId)
     const searchFilter = search ? ilike(categories.name, `%${search}%`) : undefined
@@ -65,7 +69,9 @@ export async function getCategories(page = 1, limit = 10, search = "") {
 
 export async function createCategoryAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = categorySchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -91,7 +97,9 @@ export async function createCategoryAction(_prevState: any, formData: FormData):
 
 export async function updateCategoryAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const validatedFields = categorySchema.safeParse(Object.fromEntries(formData.entries()))
 
@@ -125,7 +133,9 @@ export async function updateCategoryAction(id: string, _prevState: any, formData
 
 export async function deleteCategoryAction(id: string): Promise<ActionResponse> {
   try {
-    const { organizationId } = await getAuthenticatedSession()
+    const authData = await getAuthenticatedSession()
+    if (!authData) return { success: false, message: "Unauthorized" }
+    const { organizationId } = authData
 
     const products = await db
       .select({ value: count() })

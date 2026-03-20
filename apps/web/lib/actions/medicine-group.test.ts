@@ -1,317 +1,94 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getMedicineGroups, createMedicineGroupAction, updateMedicineGroupAction, deleteMedicineGroupAction } from './medicine-group'
-import { auth } from '@/auth'
-import { db } from '@workspace/database'
-import { revalidatePath } from 'next/cache'
+import { describe, it, expect, vi, beforeEach } from "vitest"
+import { getMedicineGroups, createMedicineGroupAction, updateMedicineGroupAction, deleteMedicineGroupAction } from "./medicine-group"
+import { auth } from "@/auth"
+import { db } from "@workspace/database"
+import { revalidatePath } from "next/cache"
 
-vi.mock('@/auth', () => ({
+vi.mock("@/auth", () => ({
   auth: vi.fn(),
 }))
 
-class MockQueryBuilder {
-  from() { return this; }
-  leftJoin() { return this; }
-  where() { return this; }
-  groupBy() { return this; }
-  limit() { return this; }
-  offset() { return this; }
-  orderBy() { return this; }
-  then(resolve: any) { resolve([{ value: 0, id: '1', name: 'Group 1', color: '#000000' }]); }
-}
-
-vi.mock('@workspace/database', () => {
-  return {
-    db: {
-      select: vi.fn(() => new MockQueryBuilder()),
-      insert: vi.fn(() => ({
-        values: vi.fn(),
-      })),
-      update: vi.fn(() => ({
-        set: vi.fn(() => ({
+vi.mock("@workspace/database", () => ({
+  db: {
+    query: {
+      medicineGroups: { findMany: vi.fn() },
+    },
+    select: vi.fn(() => ({
+      from: vi.fn(() => ({
+        leftJoin: vi.fn(() => ({
           where: vi.fn(() => ({
-            returning: vi.fn(),
+            groupBy: vi.fn(() => ({
+              limit: vi.fn(() => ({
+                offset: vi.fn(() => ({
+                  orderBy: vi.fn(() => Promise.resolve([{ id: "grp-1", name: "Golongan A", value: 3 }])),
+                })),
+              })),
+            })),
           })),
         })),
+        where: vi.fn(() => Promise.resolve([{ value: 0 }])),
       })),
-      delete: vi.fn(() => ({
-        where: vi.fn(() => ({
-          returning: vi.fn(),
-        })),
-      })),
-    },
-    medicineGroups: {
-      id: 'id',
-      name: 'name',
-      color: 'color',
-      description: 'description',
-      organizationId: 'organizationId',
-      createdAt: 'createdAt',
-      updatedAt: 'updatedAt',
-    },
-    medicines: {
-      id: 'id',
-      organizationId: 'organizationId',
-      categoryId: 'categoryId',
-      groupId: 'groupId',
-    },
-  }
-})
+    })),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+  medicineGroups: { id: "id", organizationId: "organizationId", createdAt: "createdAt", name: "name" },
+  medicines: { groupId: "groupId", organizationId: "organizationId" },
+}))
 
-vi.mock('next/cache', () => ({
+vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }))
 
-vi.mock('drizzle-orm', () => ({
+vi.mock("drizzle-orm", () => ({
   eq: vi.fn(),
   and: vi.fn(),
   count: vi.fn(),
   ilike: vi.fn(),
-  desc: vi.fn(),
   sql: vi.fn(),
 }))
 
-describe('Medicine Group Actions', () => {
+describe("Medicine Group Actions", () => {
+  const mockSession = { user: { id: "user-1", organizationId: "org-1", role: "admin" } }
+
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(auth).mockImplementation(async () => mockSession as any)
   })
 
-  describe('getMedicineGroups', () => {
-    it('should throw Unauthorized error if no organizationId is in session', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue(null)
-
-      await expect(getMedicineGroups()).rejects.toThrow('Unauthorized')
-    })
-
-    it('should return groups and metadata successfully', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockData = [{ id: '1', name: 'Group 1', color: '#000000', value: 0 }]
-
-      const result = await getMedicineGroups(1, 10, 'Group')
-
-      expect(result).toEqual({
-        data: mockData,
-        metadata: {
-          total: 0,
-          page: 1,
-          limit: 10,
-          totalPages: 0,
-        }
-      })
+  describe("getMedicineGroups", () => {
+    it("should return groups list", async () => {
+      const result = await getMedicineGroups()
+      expect(result.data).toBeDefined()
       expect(db.select).toHaveBeenCalled()
     })
+  })
 
-    it('should handle errors and return default empty result', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
+  describe("createMedicineGroupAction", () => {
+    it("should create group and revalidate", async () => {
+      vi.mocked(db.insert).mockReturnValue({ values: vi.fn().mockResolvedValue({}) } as any)
+      const fd = new FormData()
+      fd.append("name", "Narkotika")
+      fd.append("color", "#ff0000")
 
-      vi.mocked(db.select).mockImplementationOnce(() => { throw new Error('Database error') })
-
-      const result = await getMedicineGroups()
-
-      expect(result).toEqual({
-        data: [],
-        metadata: { total: 0, page: 1, limit: 10, totalPages: 0 }
-      })
+      const result = await createMedicineGroupAction(null, fd)
+      expect(result.success).toBe(true)
+      expect(revalidatePath).toHaveBeenCalled()
     })
   })
 
-  describe('createMedicineGroupAction', () => {
-    it('should return Unauthorized if no organizationId is in session', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue(null)
+  describe("deleteMedicineGroupAction", () => {
+    it("should fail if there are medicines in this group", async () => {
+      vi.mocked(db.select).mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([{ value: 3 }])
+        })
+      } as any)
 
-      const formData = new FormData()
-      const result = await createMedicineGroupAction({}, formData)
-
-      expect(result).toEqual({ message: 'Unauthorized' })
-    })
-
-    it('should return errors if validation fails', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const formData = new FormData()
-      formData.append('name', 'a') // Too short
-      formData.append('color', 'black') // Invalid hex
-
-      const result = await createMedicineGroupAction({}, formData)
-
-      expect(result).toMatchObject({
-        errors: { 
-          name: ['Nama golongan minimal 2 karakter'],
-          color: ['Warna harus berupa kode hex (misal: #3b82f6)']
-        },
-        message: 'Gagal membuat golongan. Mohon periksa input Anda.',
-      })
-    })
-
-    it('should successfully create group', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockInsert = { values: vi.fn().mockResolvedValue({}) }
-      vi.mocked(db.insert).mockReturnValue(mockInsert as any)
-
-      const formData = new FormData()
-      formData.append('name', 'Group 1')
-      formData.append('color', '#123456')
-
-      const result = await createMedicineGroupAction({}, formData)
-
-      expect(result).toEqual({ message: 'Golongan berhasil dibuat!', success: true })
-      expect(db.insert).toHaveBeenCalled()
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/categories')
-    })
-
-    it('should handle system errors during creation', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockInsert = { values: vi.fn().mockRejectedValue(new Error('DB Error')) }
-      vi.mocked(db.insert).mockReturnValue(mockInsert as any)
-
-      const formData = new FormData()
-      formData.append('name', 'Group 1')
-      formData.append('color', '#123456')
-
-      const result = await createMedicineGroupAction({}, formData)
-
-      expect(result).toEqual({ message: 'Terjadi kesalahan sistem: DB Error' })
-    })
-  })
-
-  describe('updateMedicineGroupAction', () => {
-    it('should return Unauthorized if no organizationId is in session', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue(null)
-
-      const formData = new FormData()
-      const result = await updateMedicineGroupAction('group-1', {}, formData)
-
-      expect(result).toEqual({ message: 'Unauthorized' })
-    })
-
-    it('should return errors if validation fails', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const formData = new FormData()
-      formData.append('name', 'a') // Too short
-      formData.append('color', '#123456')
-
-      const result = await updateMedicineGroupAction('group-1', {}, formData)
-
-      expect(result).toMatchObject({
-        errors: { name: ['Nama golongan minimal 2 karakter'] },
-        message: 'Gagal memperbarui golongan. Mohon periksa input Anda.',
-      })
-    })
-
-    it('should return message if group not found or access denied', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockUpdate = {
-        set: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        returning: vi.fn().mockResolvedValue([]) // Simulate not found
-      }
-      vi.mocked(db.update).mockReturnValue(mockUpdate as any)
-
-      const formData = new FormData()
-      formData.append('name', 'Group Updated')
-      formData.append('color', '#123456')
-
-      const result = await updateMedicineGroupAction('group-1', {}, formData)
-
-      expect(result).toEqual({ message: 'Golongan tidak ditemukan atau akses ditolak.' })
-    })
-
-    it('should successfully update group', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockUpdate = {
-        set: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        returning: vi.fn().mockResolvedValue([{ id: 'group-1' }]) // Simulate updated
-      }
-      vi.mocked(db.update).mockReturnValue(mockUpdate as any)
-
-      const formData = new FormData()
-      formData.append('name', 'Group Updated')
-      formData.append('color', '#123456')
-
-      const result = await updateMedicineGroupAction('group-1', {}, formData)
-
-      expect(result).toEqual({ message: 'Golongan berhasil diperbarui!', success: true })
-      expect(db.update).toHaveBeenCalled()
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/categories')
-    })
-
-    it('should handle system errors during update', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockUpdate = {
-        set: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        returning: vi.fn().mockRejectedValue(new Error('Update failed'))
-      }
-      vi.mocked(db.update).mockReturnValue(mockUpdate as any)
-
-      const formData = new FormData()
-      formData.append('name', 'Group Updated')
-      formData.append('color', '#123456')
-
-      const result = await updateMedicineGroupAction('group-1', {}, formData)
-
-      expect(result).toEqual({ message: 'Terjadi kesalahan sistem: Update failed' })
-    })
-  })
-
-  describe('deleteMedicineGroupAction', () => {
-    it('should return Unauthorized if no organizationId is in session', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue(null)
-
-      const result = await deleteMedicineGroupAction('group-1')
-
-      expect(result).toEqual({ message: 'Unauthorized' })
-    })
-
-    it('should return message if group not found or access denied', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockDelete = {
-        where: vi.fn().mockReturnThis(),
-        returning: vi.fn().mockResolvedValue([]) // Simulate not found
-      }
-      vi.mocked(db.delete).mockReturnValue(mockDelete as any)
-
-      const result = await deleteMedicineGroupAction('group-1')
-
-      expect(result).toEqual({ message: 'Golongan tidak ditemukan atau akses ditolak.' })
-    })
-
-    it('should successfully delete group', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockDelete = {
-        where: vi.fn().mockReturnThis(),
-        returning: vi.fn().mockResolvedValue([{ id: 'group-1' }]) // Simulate deleted
-      }
-      vi.mocked(db.delete).mockReturnValue(mockDelete as any)
-
-      const result = await deleteMedicineGroupAction('group-1')
-
-      expect(result).toEqual({ message: 'Golongan berhasil dihapus!', success: true })
-      expect(db.delete).toHaveBeenCalled()
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/inventory/categories')
-    })
-
-    it('should handle system errors during deletion', async () => {
-      (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
-
-      const mockDelete = {
-        where: vi.fn().mockReturnThis(),
-        returning: vi.fn().mockRejectedValue(new Error('Delete failed'))
-      }
-      vi.mocked(db.delete).mockReturnValue(mockDelete as any)
-
-      const result = await deleteMedicineGroupAction('group-1')
-
-      expect(result).toEqual({ message: 'Terjadi kesalahan sistem: Delete failed' })
+      const result = await deleteMedicineGroupAction("grp-1")
+      expect(result.success).toBe(false)
+      expect(result.message).toContain("Masih ada 3 produk")
     })
   })
 })

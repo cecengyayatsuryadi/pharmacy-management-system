@@ -15,7 +15,7 @@ export async function getAuthenticatedSession() {
   const role = session?.user?.role
 
   if (!organizationId || !userId) {
-    throw new Error("Unauthorized")
+    return null
   }
 
   return { session, organizationId, userId, role }
