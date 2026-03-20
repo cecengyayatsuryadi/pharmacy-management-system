@@ -150,35 +150,42 @@ export async function createMedicineAction(_prevState: any, formData: FormData):
       }
     }
 
-    // Business Logic: Plan Limit Check
-    const [plan, countResult] = await Promise.all([
-      getOrganizationPlan(organizationId),
-      db.select({ value: count() }).from(medicines).where(eq(medicines.organizationId, organizationId))
-    ])
-    
-    const currentCount = countResult[0]?.value ?? 0
+    // Atomic transaction for plan check and insertion
+    const result = await db.transaction(async (tx) => {
+      const [plan, countResult] = await Promise.all([
+        getOrganizationPlan(organizationId),
+        tx.select({ value: count() }).from(medicines).where(eq(medicines.organizationId, organizationId))
+      ])
+      
+      const currentCount = countResult[0]?.value ?? 0
 
-    if (plan === "gratis" && currentCount >= 100) {
-      return {
-        success: false,
-        message: "Limit tercapai. Paket Gratis maksimal 100 item obat. Silakan upgrade ke Pro!",
+      if (plan === "gratis" && currentCount >= 100) {
+        return {
+          success: false,
+          message: "Limit tercapai. Paket Gratis maksimal 100 item obat. Silakan upgrade ke Pro!",
+        }
       }
-    }
 
-    // Auto-generate Code if not provided
-    let finalCode = validatedFields.data.code
-    if (!finalCode) {
-      finalCode = `MED-${(currentCount + 1).toString().padStart(5, '0')}`
-    }
+      // Auto-generate Code if not provided
+      let finalCode = validatedFields.data.code
+      if (!finalCode) {
+        finalCode = `MED-${(currentCount + 1).toString().padStart(5, '0')}`
+      }
 
-    await db.insert(medicines).values({
-      ...mapToMedicineRecord(validatedFields.data),
-      organizationId,
-      code: finalCode,
+      await tx.insert(medicines).values({
+        ...mapToMedicineRecord(validatedFields.data),
+        organizationId,
+        code: finalCode,
+      })
+
+      return { success: true, message: "Data obat berhasil ditambahkan!" }
     })
 
-    revalidatePath(REVALIDATE_PATH)
-    return { success: true, message: "Data obat berhasil ditambahkan!" }
+    if (result.success) {
+      revalidatePath(REVALIDATE_PATH)
+    }
+    
+    return result
   } catch (error) {
     return handleActionError(error, "CREATE_MEDICINE")
   }
