@@ -128,5 +128,19 @@ All mutation actions return a consistent structure:
 ### `upsertFormularyAction`
 - **Description:** Creates or updates a formulary record based on the presence of an `id` in FormData.
 
-### `getSubstitutionsAction`
+### getSubstitutionsAction
 - **Description:** Lists alternative medicines for a given medicine.
+
+---
+
+## Procurement Actions (`apps/web/lib/actions/procurement.ts`)
+
+### `createProcurementAction`
+- **Description:** Creates a Purchase Order / Stock-In transaction from a supplier.
+- **Request (FormData):**
+  - `supplierId`: UUID
+  - `invoiceNumber`: string
+  - `items`: array (JSON stringified in FormData)
+  - `note`: string (optional)
+- **Response:** Standard ActionResponse format.
+

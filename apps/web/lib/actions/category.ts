@@ -14,6 +14,15 @@ const categorySchema = z.object({
 
 const REVALIDATE_PATH = "/dashboard/inventory/master/categories"
 
+/**
+ * Fetches a paginated list of categories for the authenticated organization.
+ * Includes a count of medicines in each category.
+ * 
+ * @param page - Page number
+ * @param limit - Items per page
+ * @param search - Search term for category name
+ * @returns Paginated data and metadata
+ */
 export async function getCategories(page = 1, limit = 10, search = "") {
   try {
     const authData = await getAuthenticatedSession()
@@ -67,6 +76,13 @@ export async function getCategories(page = 1, limit = 10, search = "") {
   }
 }
 
+/**
+ * Creates a new medicine category.
+ * 
+ * @param _prevState - Previous state
+ * @param formData - FormData with 'name', 'color', 'description'
+ * @returns ActionResponse
+ */
 export async function createCategoryAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -95,6 +111,14 @@ export async function createCategoryAction(_prevState: any, formData: FormData):
   }
 }
 
+/**
+ * Updates an existing medicine category.
+ * 
+ * @param id - Category UUID
+ * @param _prevState - Previous state
+ * @param formData - FormData
+ * @returns ActionResponse
+ */
 export async function updateCategoryAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -131,6 +155,13 @@ export async function updateCategoryAction(id: string, _prevState: any, formData
   }
 }
 
+/**
+ * Deletes a medicine category.
+ * Fails if the category is currently linked to any medicines.
+ * 
+ * @param id - Category UUID
+ * @returns ActionResponse
+ */
 export async function deleteCategoryAction(id: string): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()

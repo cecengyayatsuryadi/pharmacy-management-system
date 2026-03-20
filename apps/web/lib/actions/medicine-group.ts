@@ -14,6 +14,14 @@ const medicineGroupSchema = z.object({
 
 const REVALIDATE_PATH = "/dashboard/inventory/master/categories"
 
+/**
+ * Fetches a list of medicine groups (therapeutic groups) for the organization.
+ * 
+ * @param page - Page number
+ * @param limit - Page size
+ * @param search - Filter by group name
+ * @returns List of groups and metadata
+ */
 export async function getMedicineGroups(page = 1, limit = 10, search = "") {
   try {
     const authData = await getAuthenticatedSession()
@@ -67,6 +75,13 @@ export async function getMedicineGroups(page = 1, limit = 10, search = "") {
   }
 }
 
+/**
+ * Creates a new medicine group.
+ * 
+ * @param _prevState - Previous state
+ * @param formData - FormData
+ * @returns ActionResponse
+ */
 export async function createMedicineGroupAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -95,6 +110,14 @@ export async function createMedicineGroupAction(_prevState: any, formData: FormD
   }
 }
 
+/**
+ * Updates an existing medicine group.
+ * 
+ * @param id - Group UUID
+ * @param _prevState - Previous state
+ * @param formData - FormData
+ * @returns ActionResponse
+ */
 export async function updateMedicineGroupAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -131,6 +154,13 @@ export async function updateMedicineGroupAction(id: string, _prevState: any, for
   }
 }
 
+/**
+ * Deletes a medicine group.
+ * Fails if the group is still linked to medicines.
+ * 
+ * @param id - Group UUID
+ * @returns ActionResponse
+ */
 export async function deleteMedicineGroupAction(id: string): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()

@@ -13,6 +13,14 @@ const unitSchema = z.object({
 
 const REVALIDATE_PATH = "/dashboard/inventory/master/units"
 
+/**
+ * Fetches a list of measurement units for the organization.
+ * 
+ * @param page - Page number
+ * @param limit - Page size
+ * @param search - Filter by unit name
+ * @returns List of units and metadata
+ */
 export async function getUnitsAction(page: number = 1, limit: number = 10, search: string = "") {
   try {
     const authData = await getAuthenticatedSession()
@@ -54,6 +62,13 @@ export async function getUnitsAction(page: number = 1, limit: number = 10, searc
   }
 }
 
+/**
+ * Creates a new unit of measurement.
+ * 
+ * @param _prevState - Previous state
+ * @param formData - FormData
+ * @returns ActionResponse
+ */
 export async function createUnitAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -82,6 +97,14 @@ export async function createUnitAction(_prevState: any, formData: FormData): Pro
   }
 }
 
+/**
+ * Updates an existing unit.
+ * 
+ * @param id - Unit UUID
+ * @param _prevState - Previous state
+ * @param formData - FormData
+ * @returns ActionResponse
+ */
 export async function updateUnitAction(id: string, _prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -117,6 +140,12 @@ export async function updateUnitAction(id: string, _prevState: any, formData: Fo
   }
 }
 
+/**
+ * Deletes a unit.
+ * 
+ * @param id - Unit UUID
+ * @returns ActionResponse
+ */
 export async function deleteUnitAction(id: string): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()

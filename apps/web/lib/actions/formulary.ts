@@ -21,6 +21,16 @@ const substitutionSchema = z.object({
 
 const REVALIDATE_PATH = "/dashboard/inventory/master/formulary"
 
+/**
+ * Fetches a list of medicine formularies.
+ * Uses an optimized EXISTS subquery for name-based search.
+ * 
+ * @param page - Page number
+ * @param limit - Page size
+ * @param search - Search query for medicine name
+ * @param typeFilter - Filter by formulary type (e.g., 'Fornas')
+ * @returns Paginated formulary data
+ */
 export async function getFormulariesAction(page = 1, limit = 10, search = "", typeFilter = "") {
   try {
     const authData = await getAuthenticatedSession()
@@ -95,6 +105,13 @@ export async function getFormulariesAction(page = 1, limit = 10, search = "", ty
   }
 }
 
+/**
+ * Creates or updates a formulary record.
+ * 
+ * @param _prevState - Previous state
+ * @param formData - FormData with optional 'id' for updates
+ * @returns ActionResponse
+ */
 export async function upsertFormularyAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -135,6 +152,12 @@ export async function upsertFormularyAction(_prevState: any, formData: FormData)
   }
 }
 
+/**
+ * Deletes a formulary record.
+ * 
+ * @param id - Formulary UUID
+ * @returns ActionResponse
+ */
 export async function deleteFormularyAction(id: string): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -156,6 +179,15 @@ export async function deleteFormularyAction(id: string): Promise<ActionResponse>
   }
 }
 
+/**
+ * Fetches substitute medicines for a primary medicine.
+ * 
+ * @param page - Page number
+ * @param limit - Items per page
+ * @param search - Search primary or substitute medicine name
+ * @param medicineId - Filter by primary medicine UUID
+ * @returns List of substitutions
+ */
 export async function getSubstitutionsAction(page = 1, limit = 10, search = "", medicineId = "") {
   try {
     const authData = await getAuthenticatedSession()
@@ -237,6 +269,13 @@ export async function getSubstitutionsAction(page = 1, limit = 10, search = "", 
   }
 }
 
+/**
+ * Creates a new medicine substitution link.
+ * 
+ * @param _prevState - Previous state
+ * @param formData - FormData containing medicineId and substituteMedicineId
+ * @returns ActionResponse
+ */
 export async function createSubstitutionAction(_prevState: any, formData: FormData): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
@@ -268,6 +307,12 @@ export async function createSubstitutionAction(_prevState: any, formData: FormDa
   }
 }
 
+/**
+ * Deletes a substitution link.
+ * 
+ * @param id - Substitution UUID
+ * @returns ActionResponse
+ */
 export async function deleteSubstitutionAction(id: string): Promise<ActionResponse> {
   try {
     const authData = await getAuthenticatedSession()
