@@ -1,5 +1,5 @@
-import { db, organizations, categories, medicines, users, stockMovements, memberships, units, warehouses } from "./index"
-import { eq, and, or } from "drizzle-orm"
+import { db, organizations, categories, medicines, users, memberships, units, warehouses, medicineFormularies, medicineSubstitutions } from "./index"
+import { eq, and } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
 async function main() {
@@ -72,6 +72,8 @@ async function main() {
   // 5. Clear old data
   console.log("🧹 Membersihkan data lama...")
   const { supplierMedicines, stockMovements: sm, medicines: med, categories: cat, medicineGroups: grp, unitConversions } = await import("./index")
+  await db.delete(medicineFormularies).where(eq(medicineFormularies.organizationId, org!.id))
+  await db.delete(medicineSubstitutions).where(eq(medicineSubstitutions.organizationId, org!.id))
   await db.delete(supplierMedicines).where(eq(supplierMedicines.organizationId, org!.id))
   await db.delete(sm).where(eq(sm.organizationId, org!.id))
   await db.delete(unitConversions).where(eq(unitConversions.organizationId, org!.id))
@@ -116,7 +118,9 @@ async function main() {
   console.log("💊 Menyiapkan Data Obat Representatif...")
   const meds = [
     { name: "Antasida Doen", generic: "Al(OH)3", cat: "Saluran Pencernaan", grp: "Obat Bebas", unit: "Tablet", price: "500", purchase: "200", stock: 500 },
+    { name: "Promag Tablet", generic: "Hydrotalcite", cat: "Saluran Pencernaan", grp: "Obat Bebas", unit: "Tablet", price: "1000", purchase: "600", stock: 100 },
     { name: "Amlodipine 5mg", generic: "Amlodipine", cat: "Sistem Kardiovaskular", grp: "Obat Keras", unit: "Tablet", price: "1500", purchase: "800", stock: 300 },
+    { name: "Intervask 5mg", generic: "Amlodipine", cat: "Sistem Kardiovaskular", grp: "Obat Keras", unit: "Tablet", price: "5500", purchase: "4200", stock: 50 },
     { name: "Rhinos SR", generic: "Loratadine", cat: "Sistem Pernapasan", grp: "Prekursor", unit: "Kapsul", price: "15000", purchase: "11000", stock: 60 },
     { name: "Xanax 0.5mg", generic: "Alprazolam", cat: "Sistem Saraf Pusat", grp: "Psikotropika", unit: "Tablet", price: "15000", purchase: "8000", stock: 20 },
     { name: "Tolak Angin", generic: "Herbal", cat: "Vitamin & Suplemen", grp: "Jamu", unit: "Sachet", price: "4500", purchase: "3200", stock: 240 },
@@ -126,9 +130,9 @@ async function main() {
 
   const insertedMeds = await db.insert(medicines).values(meds.map((m, i) => ({
     organizationId: org!.id,
-    categoryId: catMap[m.cat] || insertedCats[0].id,
+    categoryId: catMap[m.cat] || insertedCats[0]!.id,
     groupId: groupMap[m.grp] || null,
-    baseUnitId: unitMap[m.unit] || allUnits[0].id,
+    baseUnitId: unitMap[m.unit] || allUnits[0]!.id,
     code: `MED-${(i + 1).toString().padStart(5, '0')}`,
     name: m.name,
     genericName: m.generic,
@@ -140,7 +144,24 @@ async function main() {
     unit: m.unit.toLowerCase(),
   }))).returning()
 
-  console.log("✅ SEEDING FINAL SELESAI (9 Golongan & 10 Kategori)!");
+  const medMap = Object.fromEntries(insertedMeds.map(m => [m.name, m.id]))
+
+  // 8. Seed Formularies
+  console.log("📜 Menyiapkan Data Formularium...")
+  await db.insert(medicineFormularies).values([
+    { organizationId: org!.id, medicineId: medMap["Antasida Doen"]!, type: "Fornas", status: true, note: "Sesuai restriksi dosis" },
+    { organizationId: org!.id, medicineId: medMap["Amlodipine 5mg"]!, type: "BPJS", status: true, note: "Pemberian maks 30 tablet per bulan" },
+    { organizationId: org!.id, medicineId: medMap["Tolak Angin"]!, type: "RS", status: true, note: "Produk andalan herbal" },
+  ])
+
+  // 9. Seed Substitutions
+  console.log("🔄 Menyiapkan Data Substitusi Obat...")
+  await db.insert(medicineSubstitutions).values([
+    { organizationId: org!.id, medicineId: medMap["Antasida Doen"]!, substituteMedicineId: medMap["Promag Tablet"]!, note: "Substitusi umum maag" },
+    { organizationId: org!.id, medicineId: medMap["Amlodipine 5mg"]!, substituteMedicineId: medMap["Intervask 5mg"]!, note: "Substitusi paten amlodipine" },
+  ])
+
+  console.log("✅ SEEDING FINAL SELESAI (9 Golongan, 10 Kategori, 9 Obat, Formularium & Substitusi)!");
   process.exit(0)
 }
 

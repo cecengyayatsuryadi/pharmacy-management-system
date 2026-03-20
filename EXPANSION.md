@@ -1,21 +1,32 @@
 📦 Inventory
 ├── Master Produk
-│ ├── Data Obat
-│ ├── Kategori & Golongan
-│ ├── Satuan & Konversi
-│ └── Barcode Manager
+│   ├── Data Obat
+│   ├── Kategori & Golongan
+│   ├── Satuan & Konversi
+│   ├── Barcode Manager
+│   └── Formularium & Substitusi       ← tambah
 ├── Stok
-│ ├── Stok Real-time
-│ ├── Mutasi Stok
-│ ├── Transfer Antar Gudang
-│ └── Stok Opname
+│   ├── Stok Real-time
+│   ├── Mutasi Stok
+│   ├── Transfer Antar Gudang
+│   ├── Stok Opname
+│   ├── Reorder Point & Min-Max        ← tambah
+│   ├── Reservasi Stok                 ← tambah
+│   └── Karantina Stok                 ← tambah
 ├── Batch & Kadaluarsa
-│ ├── Tracking Batch
-│ ├── Alert Expired
-│ └── Pemusnahan Obat
+│   ├── Tracking Batch
+│   ├── Alert Expired
+│   ├── Aturan FEFO / FIFO             ← tambah
+│   ├── Dead Stock & Retur Expired     ← tambah
+│   └── Pemusnahan Obat
+├── Narkotika & Psikotropika           ← tambah (sub-modul baru)
+│   ├── Stok Narkotika & Psikotropika
+│   └── Buku Defekta
 └── Gudang
     ├── Master Gudang
-    └── Lokasi Rak
+    ├── Zona Suhu & Kondisi            ← tambah
+    ├── Lokasi Rak
+    └── Bin / Slot Lokasi              ← tambah
 
 💊 Farmasi & Klinis
 ├── Resep

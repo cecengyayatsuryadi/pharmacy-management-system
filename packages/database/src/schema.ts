@@ -171,6 +171,43 @@ export const medicines = pgTable("medicines", {
   codeOrgIndex: uniqueIndex("medicine_code_org_idx").on(table.organizationId, table.code),
 }))
 
+export const medicineFormularies = pgTable("medicine_formularies", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  type: varchar("type", { length: 100 }).notNull(), // 'Fornas', 'RS', dll.
+  status: boolean("status").notNull().default(true),
+  note: text("note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+}, (table) => ({
+  formularyUniqueIdx: uniqueIndex("formulary_unique_idx").on(table.organizationId, table.medicineId, table.type),
+}))
+
+export const medicineSubstitutions = pgTable("medicine_substitutions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  substituteMedicineId: uuid("substitute_medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  note: text("note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  substitutionUniqueIdx: uniqueIndex("substitution_unique_idx").on(table.organizationId, table.medicineId, table.substituteMedicineId),
+}))
+
 /**
  * --- INVENTORY DOMAIN ---
  * Mengelola stok fisik, batch, dan pergerakan barang.
@@ -484,6 +521,37 @@ export const medicinesRelations = relations(medicines, ({ one, many }) => ({
   stockItems: many(stockItems),
   stockMovements: many(stockMovements),
   unitConversions: many(unitConversions),
+  formularies: many(medicineFormularies),
+  substitutions: many(medicineSubstitutions, { relationName: "medicine" }),
+  asSubstitute: many(medicineSubstitutions, { relationName: "substitute" }),
+}))
+
+export const medicineFormulariesRelations = relations(medicineFormularies, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [medicineFormularies.organizationId],
+    references: [organizations.id],
+  }),
+  medicine: one(medicines, {
+    fields: [medicineFormularies.medicineId],
+    references: [medicines.id],
+  }),
+}))
+
+export const medicineSubstitutionsRelations = relations(medicineSubstitutions, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [medicineSubstitutions.organizationId],
+    references: [organizations.id],
+  }),
+  medicine: one(medicines, {
+    fields: [medicineSubstitutions.medicineId],
+    references: [medicines.id],
+    relationName: "medicine",
+  }),
+  substituteMedicine: one(medicines, {
+    fields: [medicineSubstitutions.substituteMedicineId],
+    references: [medicines.id],
+    relationName: "substitute",
+  }),
 }))
 
 export const medicineBatchesRelations = relations(medicineBatches, ({ one, many }) => ({
@@ -640,6 +708,8 @@ export type Supplier = typeof suppliers.$inferSelect
 export type Purchase = typeof purchases.$inferSelect
 export type Sale = typeof sales.$inferSelect
 export type SaleItem = typeof saleItems.$inferSelect
+export type MedicineFormulary = typeof medicineFormularies.$inferSelect
+export type MedicineSubstitution = typeof medicineSubstitutions.$inferSelect
 
 export type NewMedicine = typeof medicines.$inferInsert
 export type NewStockMovement = typeof stockMovements.$inferInsert
@@ -650,4 +720,6 @@ export type NewPurchase = typeof purchases.$inferInsert
 export type NewPurchaseItem = typeof purchaseItems.$inferInsert
 export type NewSale = typeof sales.$inferInsert
 export type NewSaleItem = typeof saleItems.$inferInsert
+export type NewMedicineFormulary = typeof medicineFormularies.$inferInsert
+export type NewMedicineSubstitution = typeof medicineSubstitutions.$inferInsert
 export type UnitConversion = typeof unitConversions.$inferSelect

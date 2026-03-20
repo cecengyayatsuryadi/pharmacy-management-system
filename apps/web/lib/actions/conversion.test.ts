@@ -90,25 +90,40 @@ describe('Conversion Actions', () => {
     it('should return conversions successfully', async () => {
       (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
-      const mockData = [{ id: '1', factor: '10' }]
-      vi.mocked(db.query.unitConversions.findMany).mockResolvedValue(mockData as any)
+      const mockData = { data: [{ id: '1', factor: '10' }], metadata: { total: 1, page: 1, limit: 10 } }
+      vi.mocked(db.query.unitConversions.findMany).mockResolvedValue(mockData.data as any)
+      vi.mocked(db.select).mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([{ value: 1 }])
+        })
+      } as any)
 
       const result = await getConversionsAction()
 
-      expect(result).toEqual(mockData)
+      expect(result.data).toEqual(mockData.data)
       expect(db.query.unitConversions.findMany).toHaveBeenCalled()
     })
 
     it('should handle medicineId filter', async () => {
       (vi.mocked(auth) as any).mockResolvedValue({ user: { organizationId: 'org-1' } } as any)
 
-      const mockData = [{ id: '1', factor: '10' }]
-      vi.mocked(db.query.unitConversions.findMany).mockResolvedValue(mockData as any)
+      const mockData = { data: [{ id: '1', factor: '10' }], metadata: { total: 1, page: 1, limit: 10 } }
+      vi.mocked(db.query.unitConversions.findMany).mockResolvedValue(mockData.data as any)
+      vi.mocked(db.select).mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          innerJoin: vi.fn().mockReturnValue({
+            where: vi.fn().mockReturnValue({
+              limit: vi.fn().mockReturnValue({
+                offset: vi.fn().mockResolvedValue([{ id: '1' }])
+              })
+            })
+          })
+        })
+      } as any)
 
-      const result = await getConversionsAction('med-1')
+      const result = await getConversionsAction(1, 10, 'med-1')
 
-      expect(result).toEqual(mockData)
-      expect(db.query.unitConversions.findMany).toHaveBeenCalled()
+      expect(result.data).toEqual(mockData.data)
     })
   })
 
