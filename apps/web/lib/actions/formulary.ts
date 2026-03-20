@@ -1,7 +1,7 @@
 "use server"
 
 import { db, medicineFormularies, medicineSubstitutions, medicines } from "@workspace/database"
-import { eq, and, count, ilike, or, type SQL, desc, inArray } from "drizzle-orm"
+import { eq, and, count, ilike, or, type SQL, desc, exists } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { getAuthenticatedSession, handleActionError, type ActionResponse } from "@/lib/utils/action-utils"
@@ -28,20 +28,15 @@ export async function getFormulariesAction(page = 1, limit = 10, search = "", ty
     const filters: (SQL | undefined)[] = [eq(medicineFormularies.organizationId, organizationId)]
 
     if (search) {
-      const medicineSearch = await db.query.medicines.findMany({
-        where: and(
-          eq(medicines.organizationId, organizationId),
-          ilike(medicines.name, `%${search}%`)
-        ),
-        columns: { id: true }
-      })
-      const medicineIds = medicineSearch.map(m => m.id)
-      if (medicineIds.length > 0) {
-        filters.push(inArray(medicineFormularies.medicineId, medicineIds))
-      } else {
-        // Return empty if search term doesn't match any medicine
-        return { data: [], metadata: { total: 0, page, limit, totalPages: 0 } }
-      }
+      filters.push(exists(
+        db.select({ id: medicines.id })
+          .from(medicines)
+          .where(and(
+            eq(medicines.id, medicineFormularies.medicineId),
+            eq(medicines.organizationId, organizationId),
+            ilike(medicines.name, `%${search}%`)
+          ))
+      ))
     }
 
     if (typeFilter && typeFilter !== "all") {
@@ -55,8 +50,20 @@ export async function getFormulariesAction(page = 1, limit = 10, search = "", ty
         where: whereClause,
         with: {
           medicine: {
+            columns: {
+              id: true,
+              name: true,
+              genericName: true,
+              code: true,
+            },
             with: {
-              group: true
+              group: {
+                columns: {
+                  id: true,
+                  name: true,
+                  color: true,
+                }
+              }
             }
           },
         },
@@ -148,22 +155,27 @@ export async function getSubstitutionsAction(page = 1, limit = 10, search = "", 
     const filters: (SQL | undefined)[] = [eq(medicineSubstitutions.organizationId, organizationId)]
 
     if (search) {
-      const medicineSearch = await db.query.medicines.findMany({
-        where: and(
-          eq(medicines.organizationId, organizationId),
-          ilike(medicines.name, `%${search}%`)
+      // Subquery for search to avoid sequential medicine ID fetching
+      filters.push(or(
+        exists(
+          db.select({ id: medicines.id })
+            .from(medicines)
+            .where(and(
+              eq(medicines.id, medicineSubstitutions.medicineId),
+              eq(medicines.organizationId, organizationId),
+              ilike(medicines.name, `%${search}%`)
+            ))
         ),
-        columns: { id: true }
-      })
-      const medicineIds = medicineSearch.map(m => m.id)
-      if (medicineIds.length > 0) {
-        filters.push(or(
-          inArray(medicineSubstitutions.medicineId, medicineIds),
-          inArray(medicineSubstitutions.substituteMedicineId, medicineIds)
-        ))
-      } else {
-        return { data: [], metadata: { total: 0, page, limit, totalPages: 0 } }
-      }
+        exists(
+          db.select({ id: medicines.id })
+            .from(medicines)
+            .where(and(
+              eq(medicines.id, medicineSubstitutions.substituteMedicineId),
+              eq(medicines.organizationId, organizationId),
+              ilike(medicines.name, `%${search}%`)
+            ))
+        )
+      ))
     }
 
     if (medicineId) {
@@ -177,13 +189,15 @@ export async function getSubstitutionsAction(page = 1, limit = 10, search = "", 
         where: whereClause,
         with: {
           medicine: {
+            columns: { id: true, name: true, code: true },
             with: {
-              group: true
+              group: { columns: { id: true, name: true, color: true } }
             }
           },
           substituteMedicine: {
+            columns: { id: true, name: true, code: true },
             with: {
-              group: true
+              group: { columns: { id: true, name: true, color: true } }
             }
           },
         },

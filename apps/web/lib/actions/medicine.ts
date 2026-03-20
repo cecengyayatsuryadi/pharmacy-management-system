@@ -107,10 +107,45 @@ export async function getMedicines(
     const [data, countResult] = await Promise.all([
       db.query.medicines.findMany({
         where: whereClause,
+        columns: {
+          id: true,
+          name: true,
+          genericName: true,
+          code: true,
+          sku: true,
+          price: true,
+          stock: true,
+          minStock: true,
+          maxStock: true,
+          isActive: true,
+          unit: true, // Legacy
+          baseUnitId: true,
+          categoryId: true,
+          groupId: true,
+          createdAt: true,
+        },
         with: {
-          category: true,
-          group: true,
-          baseUnit: true,
+          category: {
+            columns: {
+              id: true,
+              name: true,
+              color: true,
+            }
+          },
+          group: {
+            columns: {
+              id: true,
+              name: true,
+              color: true,
+            }
+          },
+          baseUnit: {
+            columns: {
+              id: true,
+              name: true,
+              abbreviation: true,
+            }
+          },
         },
         limit,
         offset,

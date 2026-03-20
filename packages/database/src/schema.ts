@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, varchar, uniqueIndex, numeric, integer, boolean } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, uuid, varchar, uniqueIndex, index, numeric, integer, boolean } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 
 /**
@@ -73,7 +73,9 @@ export const categories = pgTable("categories", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-})
+}, (table) => ({
+  orgIdx: index("category_org_idx").on(table.organizationId),
+}))
 
 export const medicineGroups = pgTable("medicine_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -88,7 +90,9 @@ export const medicineGroups = pgTable("medicine_groups", {
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-})
+}, (table) => ({
+  orgIdx: index("medicine_group_org_idx").on(table.organizationId),
+}))
 
 export const units = pgTable("units", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -98,7 +102,9 @@ export const units = pgTable("units", {
   name: varchar("name", { length: 50 }).notNull(),
   abbreviation: varchar("abbreviation", { length: 20 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-})
+}, (table) => ({
+  orgIdx: index("unit_org_idx").on(table.organizationId),
+}))
 
 export const warehouses = pgTable("warehouses", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -169,6 +175,10 @@ export const medicines = pgTable("medicines", {
 }, (table) => ({
   skuOrgIndex: uniqueIndex("sku_org_idx").on(table.organizationId, table.sku),
   codeOrgIndex: uniqueIndex("medicine_code_org_idx").on(table.organizationId, table.code),
+  orgCategoryIdx: index("medicine_org_category_idx").on(table.organizationId, table.categoryId),
+  orgGroupIdx: index("medicine_org_group_idx").on(table.organizationId, table.groupId),
+  orgActiveIdx: index("medicine_org_active_idx").on(table.organizationId, table.isActive),
+  orgCreatedIdx: index("medicine_org_created_idx").on(table.organizationId, table.createdAt),
 }))
 
 export const medicineFormularies = pgTable("medicine_formularies", {
@@ -189,6 +199,8 @@ export const medicineFormularies = pgTable("medicine_formularies", {
     .$onUpdate(() => new Date()),
 }, (table) => ({
   formularyUniqueIdx: uniqueIndex("formulary_unique_idx").on(table.organizationId, table.medicineId, table.type),
+  orgMedicineIdx: index("formulary_org_medicine_idx").on(table.organizationId, table.medicineId),
+  orgTypeIdx: index("formulary_org_type_idx").on(table.organizationId, table.type),
 }))
 
 export const medicineSubstitutions = pgTable("medicine_substitutions", {
@@ -206,6 +218,8 @@ export const medicineSubstitutions = pgTable("medicine_substitutions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   substitutionUniqueIdx: uniqueIndex("substitution_unique_idx").on(table.organizationId, table.medicineId, table.substituteMedicineId),
+  orgMedicineIdx: index("substitution_org_medicine_idx").on(table.organizationId, table.medicineId),
+  orgSubMedicineIdx: index("substitution_org_sub_medicine_idx").on(table.organizationId, table.substituteMedicineId),
 }))
 
 /**
