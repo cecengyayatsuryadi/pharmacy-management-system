@@ -1,45 +1,76 @@
 # CHECKPOINT - Apotek Management System
 
-## [NEW] Snapshot - 19 Maret 2026 (Sesi 2)
+## [NEW] Snapshot - 20 Maret 2026 (Sesi 3 - Master Data Finalization)
+- **Status:** Master Produk UI/UX Alignment & Barcode Manager - Completed
+- **Kondisi Workspace:** Bersih (Branch: `master`). Seluruh fitur telah di-merge.
+- **Key Achievements:**
+  1. **Barcode Manager (CRUD):** Implementasi form pengelolaan SKU obat, fitur cetak label massal sederhana, dan validasi *Server Actions* React 19 (`useActionState`).
+  2. **Type Safety & Build:** Memperbaiki semua *TypeScript Type Mismatch* antara relasi Drizzle (Database) dan kebutuhan tipe komponen *Client* (UI). Aplikasi berhasil melalui *build* 100%.
+  3. **Global "Gold Standard" UI:** Menyelaraskan seluruh sub-modul (Data Obat, Kategori, Satuan, Formularium, Barcode) agar menggunakan pola yang sama:
+     - Indikator total data dinamis (*Badge* hijau).
+     - *Empty State* interaktif dengan ikon transparan dan tombol "Bersihkan Pencarian".
+     - Pola `SheetHeader` (berbingkai + ikon) dan `SheetFooter`.
+     - *Client-side Pagination* yang terhubung ke parameter URL.
+
+---
+
+## 🚀 NEW ROADMAP: INVENTORY & WMS BLUEPRINT
+Disetujui untuk diimplementasikan pada tahap selanjutnya. Modul **Master Produk** sekarang bertindak sebagai fondasi (akar) untuk struktur Enterprise di bawah ini:
+
+📦 **Inventory**
+├── **Master Produk (SELESAI ✅)**
+│   ├── Data Obat
+│   ├── Kategori & Golongan
+│   ├── Satuan & Konversi
+│   ├── Barcode Manager
+│   └── Formularium & Substitusi
+├── **Stok**
+│   ├── Stok Real-time
+│   ├── Mutasi Stok
+│   ├── Transfer Antar Gudang
+│   ├── Stok Opname
+│   ├── Reorder Point & Min-Max
+│   ├── Reservasi Stok
+│   └── Karantina Stok
+├── **Batch & Kadaluarsa**
+│   ├── Tracking Batch
+│   ├── Alert Expired
+│   ├── Aturan FEFO / FIFO (Kunci HPP Kasir)
+│   ├── Dead Stock & Retur Expired
+│   └── Pemusnahan Obat
+├── **Narkotika & Psikotropika (Compliance)**
+│   ├── Stok Narkotika & Psikotropika
+│   └── Buku Defekta (Perencanaan)
+└── **Gudang (WMS)**
+    ├── Master Gudang
+    ├── Zona Suhu & Kondisi
+    ├── Lokasi Rak
+    └── Bin / Slot Lokasi
+
+---
+
+## Snapshot - 19 Maret 2026 (Sesi 2)
 - **Status:** Master Produk UI/UX Alignment & Formulary Module - Completed
-- **Kondisi Workspace:** Branch `feat/inventory-formulary-substitution`.
 - **Key Achievements:**
   1. **Formularium & Substitusi:** Fitur CRUD penuh, skema DB baru, dan pewarnaan semantik (Fornas/BPJS/RS).
   2. **Master Consistency:** Penyelarasan total seluruh sub-modul (Data Obat, Kategori, Satuan) ke "Gold Standard" (Header, Badge Opacity, Ikon).
   3. **Bug Fixes:** Perbaikan *type-error* pada `seed.ts` dan sinkronisasi data demo.
-- **Next Session:** Merge ke master & Barcode Manager (Priority).
 
 ---
 
 ## Snapshot - 19 Maret 2026 (Sesi 1)
 - **Status:** Full UI & Route Alignment - Completed (Local)
-- **Kondisi Workspace:** Bersih (Branch: `master`). Seluruh fitur UI, rute, dan perbaikan root telah digabungkan.
+- **Milestone Terbaru (Done):**
+  - Transformasi penuh modul **Medicines, Units, Conversions, Categories, dan Medicine Groups** ke standar Gold Standard.
+  - Implementasi pola UI **Sidebar Dialog (Sheet)** dengan sistem `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter`.
 
-## Milestone Terbaru (Done)
-1. **Master Data Core Refactoring (Tuntas):**
-   - Transformasi penuh modul **Medicines, Units, Conversions, Categories, dan Medicine Groups** ke standar Gold Standard.
-   - Implementasi pola UI **Sidebar Dialog (Sheet)** dengan sistem `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter`.
-   - Adopsi **Server-side Pagination & Search** yang terintegrasi dengan URL (`searchParams`) untuk efisiensi data besar.
-   - Peningkatan visual hirarki: Badge netral untuk metadata, indikator warna untuk golongan, dan *debounced search* untuk performa.
-   - Validasi build sistem 100% lulus tanpa *type-error*.
-2. **Route Restructuring:**
-   - Memindahkan modul Medicines ke rute hierarkis: `/dashboard/inventory/master/medicines`.
-   - Sinkronisasi `revalidatePath` di seluruh Server Actions dan pembaruan navigasi Sidebar/Command Menu.
-2. **Root UI Accessibility Fixes:**
-   - Perbaikan varian `Badge` di level root (`packages/ui/src/components/badge.tsx`).
-   - Optimasi keterbacaan varian `destructive` (Habis) dan `warning` (Menipis) di Mode Gelap menggunakan pola warna tajam (bukan putih pudar).
-3. **Advanced Detail Sheet:**
-   - Implementasi sistem Tabs pada Detail Obat (Medis vs Logistik).
-   - Struktur `flex-1 overflow-hidden` pada area konten untuk memastikan *scroll* yang presisi di resolusi 1366x768.
-4. **Typography & Layout Fine-Tuning:**
-   - Hirarki visual tabel: `font-mono` untuk harga/stok, `font-sans` untuk nama dengan `tracking-tight`.
-   - Penyelarasan padding global Sidebar Dialog ke `px-6 py-4`.
-   - Optimasi lebar Dropdown Menu dan ringkasan label aksi ("Hapus Data").
+---
 
 ## ⚠️ PELAJARAN KRITIS (Internal Blockers)
-1. **Root Component Awareness:** Masalah keterbacaan seringkali bersumber dari desain dasar (root) komponen. Perbaiki di sumbernya (`packages/ui`) untuk konsistensi global daripada menimpa di level aplikasi.
-2. **Monospace Visual Weight:** Font Monospace (`Geist Mono`) memiliki bobot visual lebih berat. Gunakan `text-sm` atau `font-semibold` (bukan bold) untuk menyeimbangkannya dengan font Sans di sebelahnya.
-3. **Context Management:** Saat *context window* mulai penuh, segera lakukan "State Compression" via Checkpoint dan mulai sesi baru untuk menjaga akurasi logika.
+1. **Type Mismatch pada Relasi Drizzle:** Saat melakukan optimasi Drizzle dengan membatasi pemanggilan kolom (`columns: {...}`), pastikan komponen React tidak sedang mengharapkan tipe objek yang utuh (*Full Entity*). Ketidakselarasan ini menyebabkan aplikasi tidak bisa di-*build*. Solusinya: Hapus batasan kolom atau buat tipe antarmuka (interface) yang hanya menuntut parameter spesifik (Partial).
+2. **Root Component Awareness:** Masalah keterbacaan seringkali bersumber dari desain dasar (root) komponen. Perbaiki di sumbernya (`packages/ui`) untuk konsistensi global daripada menimpa di level aplikasi.
+3. **Monospace Visual Weight:** Font Monospace (`Geist Mono`) memiliki bobot visual lebih berat. Gunakan `text-sm` atau `font-semibold` (bukan bold) untuk menyeimbangkannya dengan font Sans di sebelahnya.
+4. **Context Management:** Saat *context window* mulai penuh, segera lakukan "State Compression" via Checkpoint dan mulai sesi baru untuk menjaga akurasi logika.
 
 ## 🔴 [CRITICAL FAILURE] SESSION LOGS
 1. **Double Session Start Failure:** Sudah dua kali sesi (sesi 1 & 2) dimulai dengan kecerobohan fatal (modifikasi tanpa branch, salah path impor, regresi logika). DILARANG keras memulai aksi tulis sebelum riset tuntas.
@@ -56,14 +87,9 @@
 4. **Zero Speculation:** Jika path impor atau signature fungsi tidak yakin, GUNAKAN `grep_search`. DILARANG menebak.
 5. **Atomic Validation:** Gunakan `npm run build` atau `turbo typecheck` secara berkala, jangan menunggu di akhir tugas.
 
-## Belum Selesai (Next Focus)
-1. **Barcode Manager (Priority):** Pemulihan fungsionalitas manajemen & pencetakan barcode dari histori commit (`6268c8d`).
-2. **Procurement Module:** Alur formal PO -> Invoice -> Stock In.
-
 ## Catatan Senior Dev
 - **Design Pattern:** Pola `SheetHeader` -> `Tabs` -> `ScrollArea` -> `SheetFooter` resmi menjadi standar emas untuk form entitas di proyek ini.
 - **Color Logic:** Gunakan `emerald-400` (dark) untuk data positif yang ingin ditonjolkan agar tidak redup.
 
 ## Next Session Target
-1. Mulai sesi baru untuk mengosongkan *context window*.
-2. Jalankan `npm run build` untuk validasi akhir seluruh perubahan rute.
+Mulai mengeksekusi Blueprint Inventory. Rekomendasi: Mulai dari penyempurnaan fitur **Stok & Mutasi**, atau menyelesaikan arsitektur **Gudang & Lokasi Rak** sebagai rumah fisik bagi barang sebelum mutasi dijalankan.
