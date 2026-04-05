@@ -363,7 +363,7 @@ export function UnitClient({
                               variant="link" 
                               onClick={() => { 
                                 setUnitSearch("")
-                                debouncedSearchUnit("")
+
                               }}
                             >
                               Bersihkan Pencarian
@@ -519,7 +519,7 @@ export function UnitClient({
                               variant="link" 
                               onClick={() => { 
                                 setConvSearch("")
-                                debouncedSearchConv("")
+
                               }}
                             >
                               Bersihkan Pencarian

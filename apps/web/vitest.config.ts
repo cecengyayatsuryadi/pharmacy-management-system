@@ -3,6 +3,7 @@ import path from 'path'
 
 export default defineConfig({
   test: {
+    exclude: ["**/node_modules/**", "**/dist/**", "**/tests/**"],
     environment: 'node',
     alias: {
       '@': path.resolve(__dirname, './'),
