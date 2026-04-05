@@ -294,7 +294,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                               variant="link" 
                               onClick={() => { 
                                 setCatSearch("")
-                                debouncedSearchCategory("")
+
                               }}
                             >
                               Bersihkan Pencarian
@@ -470,7 +470,7 @@ export function CategoriesClient({ initialCategories, initialGroups, activeTab }
                               variant="link" 
                               onClick={() => { 
                                 setGroupSearch("")
-                                debouncedSearchGroup("")
+
                               }}
                             >
                               Bersihkan Pencarian

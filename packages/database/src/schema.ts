@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, varchar, uniqueIndex, index, numeric, integer, boolean } from "drizzle-orm/pg-core"
+import { pgEnum, pgTable, text, timestamp, uuid, varchar, uniqueIndex, index, numeric, integer, boolean } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 
 /**
@@ -708,6 +708,171 @@ export const saleItemsRelations = relations(saleItems, ({ one }) => ({
 
 // (Tambahan relasi lain sesuai kebutuhan...)
 
+
+// --- PRESCRIPTIONS (RESEP DIGITAL) ---
+
+export const prescriptionStatusEnum = pgEnum("prescription_status", ["PENDING", "COMPLETED", "CANCELLED"])
+
+export const prescriptions = pgTable("prescriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  userId: uuid("user_id") // pharmacist/staff who created it
+    .notNull()
+    .references(() => users.id),
+  saleId: uuid("sale_id").references(() => sales.id), // Link to sale transaction if checked out
+  prescriptionNumber: varchar("prescription_number", { length: 100 }).notNull(),
+  doctorName: varchar("doctor_name", { length: 255 }).notNull(),
+  patientName: varchar("patient_name", { length: 255 }).notNull(),
+  patientAge: integer("patient_age"),
+  patientAddress: text("patient_address"),
+  patientPhone: varchar("patient_phone", { length: 50 }),
+  notes: text("notes"), // Signa / instructions
+  status: prescriptionStatusEnum("status").notNull().default("PENDING"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+})
+
+export const prescriptionItems = pgTable("prescription_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  prescriptionId: uuid("prescription_id")
+    .notNull()
+    .references(() => prescriptions.id),
+  // If it's a standard medicine, medicineId is set. If it's a compound (racikan), it's null.
+  medicineId: uuid("medicine_id").references(() => medicines.id),
+  isCompounded: boolean("is_compounded").notNull().default(false),
+  compoundedName: varchar("compounded_name", { length: 255 }), // e.g. "Puyer Batuk Anak"
+  compoundingFee: numeric("compounding_fee", { precision: 12, scale: 2 }).notNull().default("0"),
+  quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(), // Number of packages/pills
+  instructions: text("instructions"), // e.g., "3 x 1 sesudah makan"
+  totalPrice: numeric("total_price", { precision: 12, scale: 2 }).notNull().default("0"),
+})
+
+export const prescriptionItemComponents = pgTable("prescription_item_components", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  prescriptionItemId: uuid("prescription_item_id")
+    .notNull()
+    .references(() => prescriptionItems.id),
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  quantityPerPackage: numeric("quantity_per_package", { precision: 12, scale: 2 }).notNull(), // e.g., 0.5 tablet
+  totalQuantity: numeric("total_quantity", { precision: 12, scale: 2 }).notNull(), // quantityPerPackage * itemQuantity
+  priceAtPrescription: numeric("price_at_prescription", { precision: 12, scale: 2 }).notNull(),
+})
+
+
+export const prescriptionsRelations = relations(prescriptions, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [prescriptions.organizationId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [prescriptions.userId],
+    references: [users.id],
+  }),
+  sale: one(sales, {
+    fields: [prescriptions.saleId],
+    references: [sales.id],
+  }),
+  items: many(prescriptionItems),
+}))
+
+export const prescriptionItemsRelations = relations(prescriptionItems, ({ one, many }) => ({
+  prescription: one(prescriptions, {
+    fields: [prescriptionItems.prescriptionId],
+    references: [prescriptions.id],
+  }),
+  medicine: one(medicines, {
+    fields: [prescriptionItems.medicineId],
+    references: [medicines.id],
+  }),
+  components: many(prescriptionItemComponents),
+}))
+
+export const prescriptionItemComponentsRelations = relations(prescriptionItemComponents, ({ one }) => ({
+  prescriptionItem: one(prescriptionItems, {
+    fields: [prescriptionItemComponents.prescriptionItemId],
+    references: [prescriptionItems.id],
+  }),
+  medicine: one(medicines, {
+    fields: [prescriptionItemComponents.medicineId],
+    references: [medicines.id],
+  }),
+}))
+
+
+// --- RETURNS (RETUR OBAT) ---
+
+export const saleReturnStatusEnum = pgEnum("sale_return_status", ["PENDING", "COMPLETED", "REJECTED"])
+
+export const saleReturns = pgTable("sale_returns", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  userId: uuid("user_id") // staff who processed it
+    .notNull()
+    .references(() => users.id),
+  saleId: uuid("sale_id")
+    .notNull()
+    .references(() => sales.id),
+  returnNumber: varchar("return_number", { length: 100 }).notNull(),
+  reason: text("reason").notNull(),
+  status: saleReturnStatusEnum("status").notNull().default("COMPLETED"),
+  totalRefundAmount: numeric("total_refund_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+})
+
+export const saleReturnItems = pgTable("sale_return_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  saleReturnId: uuid("sale_return_id")
+    .notNull()
+    .references(() => saleReturns.id),
+  saleItemId: uuid("sale_item_id")
+    .notNull()
+    .references(() => saleItems.id),
+  medicineId: uuid("medicine_id")
+    .notNull()
+    .references(() => medicines.id),
+  quantityReturned: numeric("quantity_returned", { precision: 12, scale: 2 }).notNull(),
+  refundAmount: numeric("refund_amount", { precision: 12, scale: 2 }).notNull(),
+})
+
+
+export const saleReturnsRelations = relations(saleReturns, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [saleReturns.organizationId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [saleReturns.userId],
+    references: [users.id],
+  }),
+  sale: one(sales, {
+    fields: [saleReturns.saleId],
+    references: [sales.id],
+  }),
+  items: many(saleReturnItems),
+}))
+
+export const saleReturnItemsRelations = relations(saleReturnItems, ({ one }) => ({
+  saleReturn: one(saleReturns, {
+    fields: [saleReturnItems.saleReturnId],
+    references: [saleReturns.id],
+  }),
+  saleItem: one(saleItems, {
+    fields: [saleReturnItems.saleItemId],
+    references: [saleItems.id],
+  }),
+  medicine: one(medicines, {
+    fields: [saleReturnItems.medicineId],
+    references: [medicines.id],
+  }),
+}))
+
 export type Organization = typeof organizations.$inferSelect
 export type User = typeof users.$inferSelect
 export type Category = typeof categories.$inferSelect
@@ -737,3 +902,14 @@ export type NewSaleItem = typeof saleItems.$inferInsert
 export type NewMedicineFormulary = typeof medicineFormularies.$inferInsert
 export type NewMedicineSubstitution = typeof medicineSubstitutions.$inferInsert
 export type UnitConversion = typeof unitConversions.$inferSelect
+export type SaleReturn = typeof saleReturns.$inferSelect
+export type SaleReturnItem = typeof saleReturnItems.$inferSelect
+export type NewSaleReturn = typeof saleReturns.$inferInsert
+export type NewSaleReturnItem = typeof saleReturnItems.$inferInsert
+
+export type Prescription = typeof prescriptions.$inferSelect
+export type PrescriptionItem = typeof prescriptionItems.$inferSelect
+export type PrescriptionItemComponent = typeof prescriptionItemComponents.$inferSelect
+export type NewPrescription = typeof prescriptions.$inferInsert
+export type NewPrescriptionItem = typeof prescriptionItems.$inferInsert
+export type NewPrescriptionItemComponent = typeof prescriptionItemComponents.$inferInsert
